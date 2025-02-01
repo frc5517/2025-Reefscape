@@ -178,8 +178,10 @@ public class RobotContainer
       //Shoot
       opController.rightBumper().whileTrue(superStructure.runShooterIntake(-.5));
 
-      opController.a().whileTrue(superStructure.runArm(-.6));
-      opController.b().whileTrue(superStructure.runArm(.6));
+      opController.a().whileTrue(superStructure.getArm().setSpeed(-.15));
+      opController.b().whileTrue(superStructure.getArm().setSpeed(.15));
+
+      opController.x().whileTrue(superStructure.runElevator(.5));
 
       // Stop all motors
       opController.start().onTrue(superStructure.stopAllManipulators());

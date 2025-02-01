@@ -9,7 +9,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import maniplib.utils.ManipArmConstants;
+//import maniplib.utils.ManipArmConstants;
 import swervelib.math.Matter;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -53,7 +53,7 @@ public final class Constants
     public static final double RIGHT_X_DEADBAND = 0.1;
     public static final double TURN_CONSTANT    = 6;
   }
-
+/* 
   public static class ArmConstants {
     public static final ManipArmConstants armConfig =
             new ManipArmConstants(
@@ -87,5 +87,5 @@ public final class Constants
                     armConfig.kArmLength,
                     armConfig.kArmStartingAngle.in(Degrees)
             );// add more since its on elevator, should add this basic mech to lib and override with method.
-  }
+  } */
 }
