@@ -17,8 +17,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.IntakeShooterSubsystem;
 import frc.robot.subsystems.SuperStructure;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+
 import java.io.File;
 import swervelib.SwerveInputStream;
 
@@ -38,7 +42,12 @@ public class RobotContainer
   private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve"));
 
-  private final SuperStructure superStructure = new SuperStructure();
+  private final ArmSubsystem arm = new ArmSubsystem();
+  private final ElevatorSubsystem elevator = new ElevatorSubsystem();
+  private final IntakeShooterSubsystem intakeShooter = new IntakeShooterSubsystem();
+
+  private final SuperStructure superStructure = new SuperStructure(arm, elevator, intakeShooter);
+
   // Applies deadbands and inverts controls because joysticks
   // are back-right positive while robot
   // controls are front-left positive
@@ -142,7 +151,7 @@ public class RobotContainer
   private void configureBindings()
   {
     // (Condition) ? Return-On-True : Return-on-False
-    drivebase.setDefaultCommand(drive);
+    //drivebase.setDefaultCommand(drive);
 
     if (Robot.isSimulation())
     {
@@ -174,14 +183,21 @@ public class RobotContainer
       driverXbox.rightBumper().onTrue(Commands.none());
 
       //Intake
-      opController.leftBumper().whileTrue(superStructure.runShooterIntake(.5));
+      opController.leftBumper().whileTrue(intakeShooter.intake());
       //Shoot
-      opController.rightBumper().whileTrue(superStructure.runShooterIntake(-.5));
+      opController.rightBumper().whileTrue(intakeShooter.shoot());
 
-      opController.a().whileTrue(superStructure.getArm().setSpeed(-.15));
-      opController.b().whileTrue(superStructure.getArm().setSpeed(.15));
+      // Run arm at speed
+      opController.a().whileTrue(arm.armDown());
+      opController.b().whileTrue(arm.armUp());
 
-      opController.x().whileTrue(superStructure.runElevator(.5));
+      // Set arm to 0 degrees(Horizontal to floor)
+      opController.pov(0).whileTrue(arm.armToL2());
+      opController.pov(180).whileTrue(arm.armToL1());
+
+      // Run elevator at speed
+      opController.x().whileTrue(elevator.elevatorDown());
+      opController.y().whileTrue(elevator.elevatorUp());
 
       // Stop all motors
       opController.start().onTrue(superStructure.stopAllManipulators());

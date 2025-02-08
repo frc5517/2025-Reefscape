@@ -7,13 +7,8 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-//import maniplib.utils.ManipArmConstants;
+import maniplib.utils.ManipArmConstants;
 import swervelib.math.Matter;
-
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean constants. This
@@ -53,39 +48,61 @@ public final class Constants
     public static final double RIGHT_X_DEADBAND = 0.1;
     public static final double TURN_CONSTANT    = 6;
   }
-/* 
-  public static class ArmConstants {
-    public static final ManipArmConstants armConfig =
-            new ManipArmConstants(
-                    DCMotor.getNEO(1),
-                    0,
-                    0,
-                    0,
-                    0.01,
-                    28.5,
-                    3,
-                    17,
-                    0,
-                    0,
-                    0,
-                    0.2,
-                    0,
-                    false,
-                    1,
-                    1,
-                    30,
-                    0,
-                    0,
-                    0,
-                    0,
-                    false
-            );
 
-    public static final MechanismLigament2d armMech =
-            new MechanismLigament2d(
-                    "armMech",
-                    armConfig.kArmLength,
-                    armConfig.kArmStartingAngle.in(Degrees)
-            );// add more since its on elevator, should add this basic mech to lib and override with method.
-  } */
+  public static class ArmConstants {
+
+    public static final int kArmMotorID = 12;
+    
+    public static final double kArmSpeed = .5;
+
+    public static final ManipArmConstants armConfig =
+                new ManipArmConstants(
+                        DCMotor.getNEO(1),
+                        2.354,
+                        0,
+                        0,
+                        0.01,
+                        140, // 60:1 with 12:28 sprockets. 140 with 5:1 28.5 w/o
+                        3,
+                        17,
+                        45,
+                        -90,
+                        90,
+                        0.5,
+                        0,
+                        false,
+                        3,
+                        3,
+                        20,
+                        0,
+                        0,
+                        0.2,
+                        0.0683,
+                        true
+                );
+  }
+
+  public static class ElevatorConstants {
+    public static final int kRightElevatorMotorID = 13;
+    public static final int kLeftElevatorMotorID = 14;
+
+    public static final int kElevatorABSID = 1;
+
+    public static final double kElevatorSpeed = .2;
+
+  }
+
+  public static class IntakeShooterConstants {
+    public static final int kIntakeShooterMotorID = 11;
+
+    public static final int kIntakeShooterCoralSensorID = 0;
+
+    public static final double kIntakeSpeed = .5;
+    public static final double kShootSpeed = 1;
+  }
+
+  public static class ClimbeConstants {
+    public static final int kClimbMotorID = 15;
+  }
+
 }
