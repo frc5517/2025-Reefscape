@@ -7,11 +7,9 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-//import maniplib.utils.ManipArmConstants;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -82,6 +80,8 @@ public final class Constants
   }
 
   public static final class ArmConstants {
+    public static final int kArmABSID = 1; // DIO
+
     public static final double kArmSpeed = 0.3;
     public static final double kL1Setpoint = -20;
     public static final double kL2Setpoint = -10;
@@ -108,7 +108,7 @@ public final class Constants
                     90,
                     true,
                     .5,
-                    0,
+                    171.35,
                     0.01,
                     40,
                     20,
@@ -118,7 +118,7 @@ public final class Constants
   }
 
   public static final class ElevatorConstants {
-    public static final double kElevatorSpeed = .3;
+    public static final double kElevatorSpeed = 1;
     public static final double kL1Setpoint = 10;
     public static final double kL2Setpoint = 20;
     public static final double kL3Setpoint = 30;
@@ -136,7 +136,7 @@ public final class Constants
                     23.47,
                     0.45118,
                     0.044757,
-                    28.5,
+                    50,
                     2,
                     6,
                     0,
@@ -145,23 +145,25 @@ public final class Constants
                     true,
                     0.2,
                     40,
-                    20,
-                    40,
+                    15,
+                    30,
                     0,
                     true
             );
   }
 
   public static final class IntakeShooterConstants {
+    public static final int kIntakeShooterCoralSensorID = 0; // DIO
+
     public static final double kIntakeSpeed = .3;
     public static final double kShootSpeed = .5;
   }
 
   public static final class AddressableConstants {
     public static final int kLedPort = 0; // PWM
-    public static final int kLedLength = 256;
+    public static final int kLedLength = 200;
 
-    public static final Distance kLedSpacing = Meter.of((double) 1 / 60);
+    public static final Distance kLedSpacing = Meter.of(1 / 60);
   }
 
 }

@@ -1,9 +1,15 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
+
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
 import maniplib.ManipArm;
 import maniplib.motors.ManipSparkMax;
 
@@ -12,8 +18,18 @@ public class ArmSubsystem extends SubsystemBase {
     ManipSparkMax armMotor = new ManipSparkMax(12);
     ManipArm arm = new ManipArm(armMotor, Constants.ArmConstants.armConfig);
 
-    public ArmSubsystem() {
+    DigitalInput armABSInput = new DigitalInput(ArmConstants.kArmABSID);
+    DutyCycleEncoder armABS = new DutyCycleEncoder(armABSInput);
 
+    public ArmSubsystem() {
+        arm.addAbsoluteEncoderValue(Degrees.convertFrom(armABS.get(), Rotations));
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Arm ABS Raw", Degrees.convertFrom(armABS.get(), Rotations));
+        SmartDashboard.putNumber("Arm ABS Adjusted", Degrees.convertFrom(armABS.get(), Rotations) - 
+        ArmConstants.armConfig.kArmOffsetToHorizantalZero.in(Degrees));
     }
 
     public void setAutoStow() {
