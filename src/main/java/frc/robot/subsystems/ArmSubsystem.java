@@ -1,62 +1,59 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ArmConstants;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants;
 import maniplib.ManipArm;
 import maniplib.motors.ManipSparkMax;
 
 public class ArmSubsystem extends SubsystemBase {
-  /** Creates a new ArmSubsystem. */
-  ManipSparkMax armMotor = new ManipSparkMax(ArmConstants.kArmMotorID);
-  ManipArm arm = new ManipArm(armMotor, ArmConstants.armConfig);
-  
-  public ArmSubsystem() {
-    // Not yet plugged in
-    //arm.addAbsoluteEncoder(armABS);
-  }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
+    ManipSparkMax armMotor = new ManipSparkMax(12);
+    ManipArm arm = new ManipArm(armMotor, Constants.ArmConstants.armConfig);
 
-  public Command armToL1() {
-    return run(() -> {
-      arm.reachSetpoint(-75);
-    });
-  }
+    public ArmSubsystem() {
 
-  public Command armToL2() {
-    return run(() -> {
-      arm.reachSetpoint(75);
-    });
-  }
+    }
 
-  public Command armUp() {
-    return runEnd(() -> {
-      arm.runArm(ArmConstants.kArmSpeed);
-    }, () -> {
-      arm.runArm(0);;
-    });
-  }
+    public void setAutoStow() {
+        arm.setDefaultCommand(
+                arm.autoStowWithOverride(
+                        Constants.ArmConstants.kStowSetpoint
+        ));
+    }
 
-  public Command armDown() {
-    return runEnd(() -> {
-      arm.runArm(-ArmConstants.kArmSpeed);
-    }, () -> {
-      arm.runArm(0);
-    });
-  }
+    public Command armToL1() {
+        return arm.setGoal(Constants.ArmConstants.kL1Setpoint);
+    }
 
-  public Command stopArm() {
-    return run(() -> {
-      arm.stopArm();
-    });
-  }
+    public Command armToL2() {
+        return arm.setGoal(Constants.ArmConstants.kL2Setpoint);
+    }
 
+    public Command armToL3() {
+        return arm.setGoal(Constants.ArmConstants.kL3Setpoint);
+    }
+
+    public Command armToL4() {
+        return arm.setGoal(Constants.ArmConstants.kL4Setpoint);
+    }
+
+    public Command armUp() {
+        return arm.runArmSpeedCommand(Constants.ArmConstants.kArmSpeed);
+    }
+
+    public Command armDown() {
+        return arm.runArmSpeedCommand(-Constants.ArmConstants.kArmSpeed);
+    }
+
+    public void stopArm() {
+        arm.stopArm();
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        // Update the arm mechanism simulation.
+        Constants.kArmMech.setAngle(arm.getMechAngle());
+    }
 }
