@@ -16,65 +16,49 @@ import maniplib.motors.ManipSparkMax;
 
 public class SuperStructure extends SubsystemBase {
 
-    ManipSparkMax intakeMotor = new ManipSparkMax(11, DCMotor.getNEO(1));
-    ManipShooterIntake intakeShooter = new ManipShooterIntake(intakeMotor);
-
-    ManipSparkMax rightElevatorMotor = new ManipSparkMax(13, DCMotor.getNEO(1));
-    //ManipSparkMax leftElevatorMotor = new ManipSparkMax(14, DCMotor.getNEO(1));
-    ManipElevator elevator = new ManipElevator(rightElevatorMotor);
-
-    ManipSparkMax armMotor = new ManipSparkMax(12, DCMotor.getNEO(1));
-    ManipArm arm = new ManipArm(armMotor);
-
-    DigitalInput elevatorABSInput = new DigitalInput(0);
-    DutyCycleEncoder elevatorABS = new DutyCycleEncoder(elevatorABSInput);
+    private final ArmSubsystem arm;
+    private final ElevatorSubsystem elevator;
+    private final IntakeShooterSubsystem intakeShooter;
 
     /**
      * Initialize the robot control {@link SuperStructure}
      */
-    public SuperStructure() {
-        intakeMotor.setMotorBrake(true);
+    public SuperStructure(
+            ArmSubsystem arm,
+            ElevatorSubsystem elevator,
+            IntakeShooterSubsystem intakeShooter) {
 
-        //elevator.addFollower(leftElevatorMotor, true);
+        this.arm = arm;
+        this.elevator = elevator;
+        this.intakeShooter = intakeShooter;
 
-        //arm.addAbsoluteEncoder(throughboreEncoder);
-        //arm.setupArmMech(Constants.ArmConstants.armMech);
+        SmartDashboard.putData("Side View", Constants.sideRobotView);
     }
 
-    public ManipArm getArm() {
-        return arm;
+    public Command structureToL1() {
+        return
+                arm.armToL1()
+                        .alongWith(elevator.elevatorToL1());
     }
 
-    /**
-     * A command to run {@link ManipArm} at speed.
-     * 
-     * @param speed percent to run {@link ManipArm} at.
-     * @return a command to run {@link ManipArm} at speed.
-     */
-    public Command runArm(double speed) {
-        return run(() -> {
-            arm.setSpeed(speed);
-        });
+    public Command structureToL2() {
+        return
+                arm.armToL2()
+                        .alongWith(elevator.elevatorToL2());
     }
 
-    public Command runElevator(double speed) {
-        return run(() -> {
-            elevator.setSpeed(speed);
-        });
+    public Command structureToL3() {
+        return
+                arm.armToL3()
+                        .alongWith(elevator.elevatorToL3());
     }
 
-    /**
-     * A command to run {@link ManipShooterIntake} at speed.
-     * 
-     * @param speed percent to run {@link ManipShooterIntake} at.
-     * @return a command to run {@link ManipShooterIntake} at speed.
-     */
-    public Command runShooterIntake(double speed) {
-        return run(() -> {
-            intakeShooter.setSpeed(speed);
-        });
+    public Command structureToL4() {
+        return
+                arm.armToL4()
+                        .alongWith(elevator.elevatorToL4());
     }
-    
+
     /**
      * A command to stop all manipulator motors.
      * 
@@ -82,10 +66,9 @@ public class SuperStructure extends SubsystemBase {
      */
     public Command stopAllManipulators() {
         return run(() -> {
-            intakeShooter.stopShooter();
+            intakeShooter.stopIntakeShooter();
             elevator.stopElevator();
             arm.stopArm();
         });
     }
-
 }

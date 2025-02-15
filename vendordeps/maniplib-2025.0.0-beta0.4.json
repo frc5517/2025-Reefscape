@@ -1,18 +1,18 @@
 {
-    "fileName": "yagsl-2025.2.2.json",
-    "name": "YAGSL",
-    "version": "2025.2.2",
+    "fileName": "maniplib-2025.0.0-beta0.4.json",
+    "name": "ManipLib",
+    "version": "2025.0.0-beta0.4",
     "frcYear": "2025",
-    "uuid": "1ccce5a4-acd2-4d18-bca3-4b8047188400",
+    "uuid": "67953b3f-32a5-41cf-84d7-2f6989d3d38d",
     "mavenUrls": [
-        "https://broncbotz3481.github.io/YAGSL-Lib/yagsl/repos"
+        "https://frc5517.github.io/Manip-Lib/maniplib/repos"
     ],
-    "jsonUrl": "https://broncbotz3481.github.io/YAGSL-Lib/yagsl/yagsl.json",
+    "jsonUrl": "https://frc5517.github.io/Manip-Lib/maniplib/maniplib.json",
     "javaDependencies": [
         {
-            "groupId": "swervelib",
-            "artifactId": "YAGSL-java",
-            "version": "2025.2.2"
+            "groupId": "maniplib",
+            "artifactId": "ManipLib-java",
+            "version": "2025.0.0-beta0.4"
         }
     ],
     "requires": [
