@@ -9,8 +9,8 @@ import maniplib.motors.ManipSparkMax;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
-    ManipSparkMax rightElevatorMotor = new ManipSparkMax(13);
-    ManipSparkMax leftElevatorMotor = new ManipSparkMax(14);
+    ManipSparkMax rightElevatorMotor = new ManipSparkMax(14);
+    ManipSparkMax leftElevatorMotor = new ManipSparkMax(13);
     ManipElevator elevator = new ManipElevator(rightElevatorMotor, Constants.ElevatorConstants.elevatorConfig);
 
     DigitalInput elevatorLimitSwitch = new DigitalInput(Constants.ElevatorConstants.kBottomLimitPort);

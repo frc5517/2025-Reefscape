@@ -159,7 +159,7 @@ public final class Constants {
         public static final int kLedPort = 0; // PWM
         public static final int kLedLength = 200;
 
-        public static final Distance kLedSpacing = Meter.of(1 / 60);
+        public static final Distance kLedSpacing = Meter.of(1.0 / 60);
     }
 
 }
