@@ -21,10 +21,10 @@ public class IntakeShooterSubsystem extends SubsystemBase {
     }
 
     @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    SmartDashboard.putBoolean("Coral Sensor", coralSensor.get());
-  }
+    public void periodic() {
+        // This method will be called once per scheduler run
+        SmartDashboard.putBoolean("Coral Sensor", coralSensor.get());
+    }
 
     public Command intake() {
         return intakeShooter.setSpeed(-Constants.IntakeShooterConstants.kIntakeSpeed);

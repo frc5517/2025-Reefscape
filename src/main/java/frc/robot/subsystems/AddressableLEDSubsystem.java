@@ -11,12 +11,11 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 public class AddressableLEDSubsystem extends SubsystemBase {
 
-    private AddressableLED led;
     private final AddressableLEDBuffer buffer;
-    private LEDPattern pattern;
-
     private final LEDPattern rainbow =
-        LEDPattern.rainbow(255, Constants.AddressableConstants.kLedLength);
+            LEDPattern.rainbow(255, Constants.AddressableConstants.kLedLength);
+    private AddressableLED led;
+    private LEDPattern pattern;
 
     public AddressableLEDSubsystem() {
 

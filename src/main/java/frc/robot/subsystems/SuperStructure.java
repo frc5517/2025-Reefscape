@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -82,7 +81,7 @@ public class SuperStructure extends SubsystemBase {
 
     /**
      * A command to stop all manipulator motors.
-     * 
+     *
      * @return a command to stop all manipulator motors.
      */
     public Command stopAllManipulators() {
