@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.AddressableLEDSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
@@ -36,7 +37,6 @@ public class RobotContainer {
                                             );
 
   final CommandXboxController driverXbox = new CommandXboxController(0);
-
   final CommandXboxController operatorXbox = new CommandXboxController(1);
 
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
@@ -54,18 +54,13 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    if (DriverStation.isTest()) {
-      testBindings();
-    } else {
-      configureBindings();
-    }
+    configureBindings();
+
 
     ledSubsystem.getSubsystem();
 
     DriverStation.silenceJoystickConnectionWarning(true);
 
-    operatorXbox.pov(0).whileTrue(elevatorSubsystem.elevatorUp());
-    operatorXbox.pov(180).whileTrue(elevatorSubsystem.elevatorDown());
   }
 
   private void configureBindings() {
@@ -77,33 +72,36 @@ public class RobotContainer {
 
     armSubsystem.setAutoStow();
     elevatorSubsystem.setAutoStow();
+    operatorXbox.leftTrigger().and(operatorXbox.rightTrigger()).onTrue(superStructure.toggleOperatorControls().andThen(superStructure.updateStowCommand()));
 
-    operatorXbox.a().whileTrue(superStructure.structureToL1());
-    operatorXbox.b().whileTrue(superStructure.structureToL2());
-    operatorXbox.x().whileTrue(superStructure.structureToL3());
-    operatorXbox.y().whileTrue(superStructure.structureToL4());
+    // Operator Auto Controls
 
-    operatorXbox.pov(0).whileTrue(elevatorSubsystem.elevatorUp());
-    operatorXbox.pov(180).whileTrue(elevatorSubsystem.elevatorDown());
+    operatorXbox.a().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToL1());
+    operatorXbox.b().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToL2());
+    operatorXbox.x().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToL3());
+    operatorXbox.y().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToL4());
 
-    operatorXbox.pov(90).whileTrue(armSubsystem.armDown());
-    operatorXbox.pov(270).whileTrue(armSubsystem.armUp());
+    operatorXbox.pov(0).and(superStructure.isOperatorManual().negate()).whileTrue(elevatorSubsystem.elevatorUp());
+    operatorXbox.pov(180).and(superStructure.isOperatorManual().negate()).whileTrue(elevatorSubsystem.elevatorDown());
 
-    operatorXbox.leftBumper().whileTrue(intakeShooterSubsystem.intake());
-    operatorXbox.rightBumper().whileTrue(intakeShooterSubsystem.shoot());
+    operatorXbox.pov(90).and(superStructure.isOperatorManual().negate()).whileTrue(armSubsystem.armDown());
+    operatorXbox.pov(270).and(superStructure.isOperatorManual().negate()).whileTrue(armSubsystem.armUp());
 
-    operatorXbox.start().onTrue(superStructure.stopAllManipulators());
-  }
+    operatorXbox.leftBumper().and(superStructure.isOperatorManual().negate()).whileTrue(intakeShooterSubsystem.intake());
+    operatorXbox.rightBumper().and(superStructure.isOperatorManual().negate()).whileTrue(intakeShooterSubsystem.shoot());
 
-  public void testBindings() {
-    operatorXbox.a().whileTrue(elevatorSubsystem.elevatorUp());
-    operatorXbox.b().whileTrue(elevatorSubsystem.elevatorUp());
+    operatorXbox.start().and(superStructure.isOperatorManual().negate()).onTrue(superStructure.stopAllManipulators());
 
-    operatorXbox.x().whileTrue(armSubsystem.armUp());
-    operatorXbox.y().whileTrue(armSubsystem.armDown());
+    // Operator Manual Controls
+    operatorXbox.a().and(superStructure.isOperatorManual()).whileTrue(elevatorSubsystem.elevatorUp());
+    operatorXbox.b().and(superStructure.isOperatorManual()).whileTrue(elevatorSubsystem.elevatorDown());
 
-    operatorXbox.leftBumper().whileTrue(intakeShooterSubsystem.intake());
-    operatorXbox.rightBumper().whileTrue(intakeShooterSubsystem.shoot());
+    operatorXbox.x().and(superStructure.isOperatorManual()).whileTrue(armSubsystem.armUp());
+    operatorXbox.y().and(superStructure.isOperatorManual()).whileTrue(armSubsystem.armDown());
+
+    operatorXbox.leftBumper().and(superStructure.isOperatorManual()).whileTrue(intakeShooterSubsystem.intake());
+    operatorXbox.rightBumper().and(superStructure.isOperatorManual()).whileTrue(intakeShooterSubsystem.shoot());
+
   }
 
   public Command getAutonomousCommand() {

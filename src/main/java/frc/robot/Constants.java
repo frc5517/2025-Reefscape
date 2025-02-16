@@ -118,6 +118,7 @@ public final class Constants
   }
 
   public static final class ElevatorConstants {
+    public static final int kBottomLimitPort = 5;
     public static final double kElevatorSpeed = 1;
     public static final double kL1Setpoint = 10;
     public static final double kL2Setpoint = 20;
