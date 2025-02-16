@@ -9,7 +9,6 @@ This example is intended to be a starting place on how to use YAGSL. By no means
 be the base of your robot project. YAGSL provides an easy way to generate a SwerveDrive which can be
 used in both TimedRobot and Command-Based Robot templates.
 
-
 # Overview
 
 ### Installation
@@ -36,6 +35,7 @@ We will be actively montoring this and fix any issues when we can!
   basis.
 
 # Support our developers!
+
 <a href='https://ko-fi.com/yagsl' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Robot at ko-fi.com'></a>
 
 ### TL;DR Generate and download your configuration [here](https://broncbotz3481.github.io/YAGSL-Example/) and unzip it so that it follows structure below:
@@ -108,8 +108,10 @@ SwerveDrive swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumS
 ### Ensure the IMU is centered on the robot
 
 # Maintainers
+
 - @thenetworkgrinch
-- @Technologyman00 
+- @Technologyman00
 
 # Special Thanks to Team 7900! Trial N' Terror
+
 Without the debugging and aid of Team 7900 the project could never be as stable or active as it is. 

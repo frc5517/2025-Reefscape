@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -12,12 +13,17 @@ public class ElevatorSubsystem extends SubsystemBase {
     ManipSparkMax leftElevatorMotor = new ManipSparkMax(14);
     ManipElevator elevator = new ManipElevator(rightElevatorMotor, Constants.ElevatorConstants.elevatorConfig);
 
+    DigitalInput elevatorLimitSwitch = new DigitalInput(Constants.ElevatorConstants.kBottomLimitPort);
 
     public ElevatorSubsystem() {
-
         leftElevatorMotor.setMotorBrake(true);
         elevator.addFollower(leftElevatorMotor, true);
 
+    }
+
+    @Override
+    public void periodic() {
+        elevator.setBottomLimitSwitch(elevatorLimitSwitch.get());
     }
 
     public void setAutoStow() {
@@ -26,6 +32,14 @@ public class ElevatorSubsystem extends SubsystemBase {
                         Constants.ElevatorConstants.kStowSetpoint
                 )
         );
+    }
+
+    public void toggleAutoStow() {
+        elevator.toggleAutoStow();
+    }
+
+    public void setElevatorStow(boolean elevatorStow) {
+        elevator.setAutoStow(elevatorStow);
     }
 
     public Command elevatorToL1() {

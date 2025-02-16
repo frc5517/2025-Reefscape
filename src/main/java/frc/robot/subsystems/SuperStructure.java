@@ -1,8 +1,10 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 
 
@@ -11,6 +13,9 @@ public class SuperStructure extends SubsystemBase {
     private final ArmSubsystem arm;
     private final ElevatorSubsystem elevator;
     private final IntakeShooterSubsystem intakeShooter;
+
+    private boolean isOperatorManualBoolean = true;
+    private final Trigger isOperatorManual = new Trigger(() -> isOperatorManualBoolean);
 
     /**
      * Initialize the robot control {@link SuperStructure}
@@ -24,7 +29,16 @@ public class SuperStructure extends SubsystemBase {
         this.elevator = elevator;
         this.intakeShooter = intakeShooter;
 
+        updateAutoStow();
+
         SmartDashboard.putData("Side View", Constants.sideRobotView);
+    }
+
+    public void updateAutoStow() {
+        arm.setArmStow(isOperatorManualBoolean);
+        elevator.setElevatorStow(isOperatorManualBoolean);
+
+        DriverStation.reportWarning("Has Ran", false);
     }
 
     public Command structureToL1() {
@@ -51,9 +65,23 @@ public class SuperStructure extends SubsystemBase {
                         .alongWith(elevator.elevatorToL4());
     }
 
+    public Command toggleOperatorControls() {
+        return runOnce(() -> {
+            isOperatorManualBoolean = !isOperatorManualBoolean;
+        });
+    }
+
+    public Command updateStowCommand() {
+        return runOnce(this::updateAutoStow);
+    }
+
+    public Trigger isOperatorManual() {
+        return isOperatorManual;
+    }
+
     /**
      * A command to stop all manipulator motors.
-     * 
+     *
      * @return a command to stop all manipulator motors.
      */
     public Command stopAllManipulators() {
