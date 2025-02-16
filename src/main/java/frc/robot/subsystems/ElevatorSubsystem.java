@@ -12,8 +12,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     ManipSparkMax leftElevatorMotor = new ManipSparkMax(14);
     ManipElevator elevator = new ManipElevator(rightElevatorMotor, Constants.ElevatorConstants.elevatorConfig);
 
+
     public ElevatorSubsystem() {
 
+        leftElevatorMotor.setMotorBrake(true);
         elevator.addFollower(leftElevatorMotor, true);
 
     }

@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -21,18 +20,19 @@ public class AddressableLEDSubsystem extends SubsystemBase {
 
     public AddressableLEDSubsystem() {
 
-        led = new AddressableLED(Constants.AddressableConstants.kLedPort);
-        buffer = new AddressableLEDBuffer(Constants.AddressableConstants.kLedLength);
+        this.led = new AddressableLED(Constants.AddressableConstants.kLedPort);
+        this.buffer = new AddressableLEDBuffer(Constants.AddressableConstants.kLedLength);
 
-        led.setLength(buffer.getLength());
+        this.led.setLength(buffer.getLength());
 
-        led.setData(buffer);
-        led.start();
-
+        this.led.start();
+        //this.setSolidColor(this.editColor(Color.kMintcream));
+        this.setSolidColor(Color.kGreen);
     }
 
     @Override
     public void periodic() {
+        led.setData(buffer);
         pattern.applyTo(buffer);
     }
 

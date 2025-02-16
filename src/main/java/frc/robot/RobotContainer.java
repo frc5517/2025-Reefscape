@@ -6,9 +6,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.AddressableLEDSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeShooterSubsystem;
@@ -20,9 +20,11 @@ import java.io.File;
 
 public class RobotContainer {
 
-  private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
+  private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
           "swerve"));
 
+  
+  private final AddressableLEDSubsystem ledSubsystem = new AddressableLEDSubsystem();
   private final ArmSubsystem armSubsystem = new ArmSubsystem();
   private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
   private final IntakeShooterSubsystem intakeShooterSubsystem = new IntakeShooterSubsystem();
@@ -52,8 +54,18 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    configureBindings();
+    if (DriverStation.isTest()) {
+      testBindings();
+    } else {
+      configureBindings();
+    }
+
+    ledSubsystem.getSubsystem();
+
     DriverStation.silenceJoystickConnectionWarning(true);
+
+    operatorXbox.pov(0).whileTrue(elevatorSubsystem.elevatorUp());
+    operatorXbox.pov(180).whileTrue(elevatorSubsystem.elevatorDown());
   }
 
   private void configureBindings() {
@@ -63,8 +75,8 @@ public class RobotContainer {
     drivebase.setDefaultCommand(driveRobotOriented);
     driverXbox.start().toggleOnTrue(driveFieldOriented);
 
-    //armSubsystem.setAutoStow();
-    //elevatorSubsystem.setAutoStow();
+    armSubsystem.setAutoStow();
+    elevatorSubsystem.setAutoStow();
 
     operatorXbox.a().whileTrue(superStructure.structureToL1());
     operatorXbox.b().whileTrue(superStructure.structureToL2());
@@ -81,6 +93,17 @@ public class RobotContainer {
     operatorXbox.rightBumper().whileTrue(intakeShooterSubsystem.shoot());
 
     operatorXbox.start().onTrue(superStructure.stopAllManipulators());
+  }
+
+  public void testBindings() {
+    operatorXbox.a().whileTrue(elevatorSubsystem.elevatorUp());
+    operatorXbox.b().whileTrue(elevatorSubsystem.elevatorUp());
+
+    operatorXbox.x().whileTrue(armSubsystem.armUp());
+    operatorXbox.y().whileTrue(armSubsystem.armDown());
+
+    operatorXbox.leftBumper().whileTrue(intakeShooterSubsystem.intake());
+    operatorXbox.rightBumper().whileTrue(intakeShooterSubsystem.shoot());
   }
 
   public Command getAutonomousCommand() {
