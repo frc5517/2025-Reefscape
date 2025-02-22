@@ -4,14 +4,15 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import maniplib.ManipArm;
 import maniplib.motors.ManipSparkMax;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.*;
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -31,6 +32,7 @@ public class ArmSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Arm ABS Adjusted", Degrees.convertFrom(armABS.get(), Rotations) -
                 ArmConstants.armConfig.kArmOffsetToHorizantalZero.in(Degrees));
     }
+
 
     public void setAutoStow() {
         arm.setDefaultCommand(

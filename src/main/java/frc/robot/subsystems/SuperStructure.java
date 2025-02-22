@@ -37,8 +37,6 @@ public class SuperStructure extends SubsystemBase {
     public void updateAutoStow() {
         arm.setArmStow(isOperatorManualBoolean);
         elevator.setElevatorStow(isOperatorManualBoolean);
-
-        DriverStation.reportWarning("Has Ran", false);
     }
 
     public Command structureToL1() {
