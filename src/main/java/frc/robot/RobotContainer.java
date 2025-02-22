@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -22,6 +23,8 @@ public class RobotContainer {
     final CommandXboxController operatorXbox = new CommandXboxController(1);
     private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
             "swerve"));
+    private final DriverStructure driverStructure = new DriverStructure(drivebase);
+
     private final AddressableLEDSubsystem ledSubsystem = new AddressableLEDSubsystem();
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
     private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
@@ -37,6 +40,8 @@ public class RobotContainer {
                     () -> driverXbox.getLeftX() * -1)
             .withControllerRotationAxis(() -> driverXbox.getRightX() * -1)
             .deadband(Constants.OperatorConstants.DEADBAND)
+            .cubeTranslationControllerAxis(true)
+            .cubeRotationControllerAxis(true)
             .scaleTranslation(0.8)
             .allianceRelativeControl(true);
 
@@ -71,8 +76,10 @@ public class RobotContainer {
         elevatorSubsystem.setAutoStow();
         operatorXbox.leftTrigger().and(operatorXbox.rightTrigger()).onTrue(superStructure.toggleOperatorControls().andThen(superStructure.updateStowCommand()));
 
-        // Operator Auto Controls
+        driverXbox.leftBumper().onTrue(Commands.runOnce(driverStructure::cycleReefPoseDown));
+        driverXbox.rightBumper().onTrue(Commands.runOnce(driverStructure::cycleReefPoseUp));
 
+        // Operator Auto Controls
         operatorXbox.a().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToL1());
         operatorXbox.b().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToL2());
         operatorXbox.x().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToL3());

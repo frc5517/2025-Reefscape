@@ -34,7 +34,7 @@ public class IntakeShooterSubsystem extends SubsystemBase {
         return intakeShooter.setSpeed(Constants.IntakeShooterConstants.kShootSpeed);
     }
 
-    public Command stopIntakeShooter() {
-        return intakeShooter.stopShooterCommand();
+    public void stopIntakeShooter() {
+        intakeShooter.stopShooterCommand();
     }
 }
