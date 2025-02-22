@@ -6,6 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -27,6 +29,7 @@ public class RobotContainer {
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
     private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     private final IntakeShooterSubsystem intakeShooterSubsystem = new IntakeShooterSubsystem();
+    private final ClimbSubsystem climbSubsystem = new ClimbSubsystem();
     private final SuperStructure superStructure = new SuperStructure(
             armSubsystem,
             elevatorSubsystem,
@@ -51,9 +54,6 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
 
-
-        ledSubsystem.getSubsystem();
-
         DriverStation.silenceJoystickConnectionWarning(true);
 
     }
@@ -62,8 +62,15 @@ public class RobotContainer {
         Command driveRobotOriented = drivebase.driveFieldOriented(robotOriented);
         Command driveFieldOriented = drivebase.driveFieldOriented(driveAngularVelocity);
 
+        ledSubsystem.setDefaultCommand(ledSubsystem.runPatternBoth(
+            LEDPattern.solid(ledSubsystem.editColor(Color.kFirstRed)),
+            LEDPattern.solid(ledSubsystem.editColor(Color.kCadetBlue))
+        ));
+
         drivebase.setDefaultCommand(driveRobotOriented);
         driverXbox.start().toggleOnTrue(driveFieldOriented);
+
+        //ledSubsystem.setPattern(LEDPattern.solid(ledSubsystem.editColor(Color.kMagenta))  );
 
         armSubsystem.setAutoStow();
         elevatorSubsystem.setAutoStow();
