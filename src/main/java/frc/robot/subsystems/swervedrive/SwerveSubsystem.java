@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.subsystems.PoseSelector;
 import frc.robot.subsystems.swervedrive.Vision.Cameras;
 import org.json.simple.parser.ParseException;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -166,9 +167,9 @@ public class SwerveSubsystem extends SubsystemBase {
                             swerveDrive.setChassisSpeeds(speedsRobotRelative);
                         }
                     },
-                    // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+                    // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also, optionally outputs individual module feedforwards
                     new PPHolonomicDriveController(
-                            // PPHolonomicController is the built in path following controller for holonomic drive trains
+                            // PPHolonomicController is the built-in path following controller for holonomic drive trains
                             new PIDConstants(5.0, 0.0, 0.0),
                             // Translation PID constants
                             new PIDConstants(5.0, 0.0, 0.0)
@@ -252,6 +253,35 @@ public class SwerveSubsystem extends SubsystemBase {
                 edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
         );
     }
+
+    public Command poseChooserToReef(PoseSelector poseSelector) {
+        // Create the constraints to use while pathfinding
+        PathConstraints constraints = new PathConstraints(
+                swerveDrive.getMaximumChassisVelocity(), 4.0,
+                swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
+
+// Since AutoBuilder is configured, we can use it to build pathfinding commands
+        return AutoBuilder.pathfindToPose(
+                poseSelector.reefPose(),
+                constraints,
+                edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
+        );
+    }
+
+    public Command poseChooserToStation(PoseSelector poseSelector) {
+        // Create the constraints to use while pathfinding
+        PathConstraints constraints = new PathConstraints(
+                swerveDrive.getMaximumChassisVelocity(), 4.0,
+                swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
+
+// Since AutoBuilder is configured, we can use it to build pathfinding commands
+        return AutoBuilder.pathfindToPose(
+                poseSelector.stationPose(),
+                constraints,
+                edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
+        );
+    }
+
 
     /**
      * Drive with {@link SwerveSetpointGenerator} from 254, implemented by PathPlanner.

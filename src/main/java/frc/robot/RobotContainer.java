@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -16,6 +18,7 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
 import java.io.File;
+import java.util.Set;
 
 public class RobotContainer {
 
@@ -23,7 +26,7 @@ public class RobotContainer {
     final CommandXboxController operatorXbox = new CommandXboxController(1);
     private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
             "swerve"));
-    private final DriverStructure driverStructure = new DriverStructure(drivebase);
+    private final PoseSelector poseSelector = new PoseSelector(drivebase);
 
     private final AddressableLEDSubsystem ledSubsystem = new AddressableLEDSubsystem();
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
@@ -67,6 +70,7 @@ public class RobotContainer {
             LEDPattern.solid(ledSubsystem.editColor(Color.kCadetBlue))
         ));
 
+        // Default Commands
         drivebase.setDefaultCommand(driveRobotOriented);
         driverXbox.start().toggleOnTrue(driveFieldOriented);
 
@@ -76,8 +80,22 @@ public class RobotContainer {
         elevatorSubsystem.setAutoStow();
         operatorXbox.leftTrigger().and(operatorXbox.rightTrigger()).onTrue(superStructure.toggleOperatorControls().andThen(superStructure.updateStowCommand()));
 
-        driverXbox.leftBumper().onTrue(Commands.runOnce(driverStructure::cycleReefPoseDown));
-        driverXbox.rightBumper().onTrue(Commands.runOnce(driverStructure::cycleReefPoseUp));
+        // Driver Controls
+        driverXbox.pov(0).onTrue(Commands.runOnce(poseSelector::selectNorth));
+        driverXbox.pov(45).onTrue(Commands.runOnce(poseSelector::selectNorthEast));
+        driverXbox.pov(135).onTrue(Commands.runOnce(poseSelector::selectSouthEast));
+        driverXbox.pov(180).onTrue(Commands.runOnce(poseSelector::selectSouth));
+        driverXbox.pov(225).onTrue(Commands.runOnce(poseSelector::selectSouthWest));
+        driverXbox.pov(315).onTrue(Commands.runOnce(poseSelector::selectNorthWest));
+
+        driverXbox.pov(90).onTrue(Commands.runOnce(poseSelector::selectRight));
+        driverXbox.pov(270).onTrue(Commands.runOnce(poseSelector::selectLeft));
+
+        driverXbox.leftBumper().onTrue(Commands.runOnce(poseSelector::cycleStationSlotDown));
+        driverXbox.rightBumper().onTrue(Commands.runOnce(poseSelector::cycleStationSlotUp));
+
+        driverXbox.a().whileTrue(Commands.defer(() -> drivebase.driveToPose(poseSelector.reefPose()), Set.of(drivebase)));
+        driverXbox.b().whileTrue(Commands.defer(() -> drivebase.driveToPose(poseSelector.stationPose()), Set.of(drivebase)));
 
         // Operator Auto Controls
         operatorXbox.a().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToL1());
