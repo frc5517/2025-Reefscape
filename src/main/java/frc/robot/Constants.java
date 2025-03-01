@@ -4,11 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -164,74 +166,105 @@ public final class Constants {
         // Hold time on motor brakes when disabled
         public static final double WHEEL_LOCK_TIME = 10; // seconds
 
-        public static final Pose2d LEFT_STATION_POSE = new Pose2d(
+        public static final ProfiledPIDController driveToPosePID =
+                new ProfiledPIDController(0, 0, 0,
+                        new TrapezoidProfile.Constraints(10, 10));
+
+        public static final ProfiledPIDController driveToPoseOmegePID =
+                new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(10, 10));
+
+        public static final Pose2d LEFT_STATION_POSE_1 = new Pose2d(
+                new Translation2d(0.75, 6.6),
+                new Rotation2d(Math.toRadians(125))
+        );
+        public static final Pose2d LEFT_STATION_POSE_2 = new Pose2d(
+                new Translation2d(1.15, 6.9),
+                new Rotation2d(Math.toRadians(125))
+        );
+        public static final Pose2d LEFT_STATION_POSE_3 = new Pose2d(
+                new Translation2d(1.45, 6.2),
+                new Rotation2d(Math.toRadians(125))
+        );
+        public static final Pose2d LEFT_STATION_POSE_4 = new Pose2d(
+                new Translation2d(1.7, 7.3),
+                new Rotation2d(Math.toRadians(125))
+        );
+
+        public static final Pose2d RIGHT_STATION_POSE_1 = new Pose2d(
+                new Translation2d(5, 5),
+                new Rotation2d(Math.toRadians(90))
+        );
+        public static final Pose2d RIGHT_STATION_POSE_2 = new Pose2d(
+                new Translation2d(5, 5),
+                new Rotation2d(Math.toRadians(90))
+        );
+        public static final Pose2d RIGHT_STATION_POSE_3 = new Pose2d(
+                new Translation2d(5, 5),
+                new Rotation2d(Math.toRadians(90))
+        );
+        public static final Pose2d RIGHT_STATION_POSE_4 = new Pose2d(
                 new Translation2d(5, 5),
                 new Rotation2d(Math.toRadians(90))
         );
 
-        public static final Pose2d RIGHT_STATION_POSE = new Pose2d(
+        public static final Pose2d REEF_NORTH_LEFT_POSE = new Pose2d(
+                new Translation2d(6.15, 3.85),
+                new Rotation2d(Math.toRadians(180))
+        );
+
+        public static final Pose2d REEF_NORTH_RIGHT_POSE = new Pose2d(
+                new Translation2d(6.15, 4.15),
+                new Rotation2d(Math.toRadians(180))
+        );
+
+        public static final Pose2d REEF_NORTHEAST_LEFT_POSE = new Pose2d(
                 new Translation2d(5, 5),
                 new Rotation2d(Math.toRadians(90))
         );
 
-        public static final Pose2d REEF_POSE_1 = new Pose2d(
+        public static final Pose2d REEF_NORTHEAST_RIGHT_POSE = new Pose2d(
                 new Translation2d(5, 5),
                 new Rotation2d(Math.toRadians(90))
         );
 
-        public static final Pose2d REEF_POSE_2 = new Pose2d(
+        public static final Pose2d REEF_NORTHWEST_LEFT_POSE = new Pose2d(
                 new Translation2d(5, 5),
                 new Rotation2d(Math.toRadians(90))
         );
 
-        public static final Pose2d REEF_POSE_3 = new Pose2d(
+        public static final Pose2d REEF_NORTHWEST_RIGHT_POSE = new Pose2d(
                 new Translation2d(5, 5),
                 new Rotation2d(Math.toRadians(90))
         );
 
-        public static final Pose2d REEF_POSE_4 = new Pose2d(
+        public static final Pose2d REEF_SOUTH_LEFT_POSE = new Pose2d(
                 new Translation2d(5, 5),
                 new Rotation2d(Math.toRadians(90))
         );
 
-        public static final Pose2d REEF_POSE_5 = new Pose2d(
+        public static final Pose2d REEF_SOUTH_RIGHT_POSE = new Pose2d(
                 new Translation2d(5, 5),
                 new Rotation2d(Math.toRadians(90))
         );
 
-        public static final Pose2d REEF_POSE_6 = new Pose2d(
+        public static final Pose2d REEF_SOUTHEAST_LEFT_POSE = new Pose2d(
                 new Translation2d(5, 5),
                 new Rotation2d(Math.toRadians(90))
         );
 
-        public static final Pose2d REEF_POSE_7 = new Pose2d(
+        public static final Pose2d REEF_SOUTHEAST_RIGHT_POSE = new Pose2d(
                 new Translation2d(5, 5),
                 new Rotation2d(Math.toRadians(90))
         );
 
-        public static final Pose2d REEF_POSE_8 = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
+        public static final Pose2d REEF_SOUTHWEST_LEFT_POSE = new Pose2d(
+                new Translation2d(5.8, 5.5),
+                new Rotation2d(Math.toRadians(-61))
         );
 
-        public static final Pose2d REEF_POSE_9 = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-
-        public static final Pose2d REEF_POSE_10 = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-
-        public static final Pose2d REEF_POSE_11 = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-
-        public static final Pose2d REEF_POSE_12 = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
+        public static final Pose2d REEF_SOUTHWEST_RIGHT_POSE = new Pose2d(
+                new Translation2d(3.5, 5.4),
+                new Rotation2d(Math.toRadians(-61))
         );
 
 
