@@ -97,11 +97,11 @@ public final class Constants {
                         3,
                         17,
                         0,
-                        -90,
-                        90,
-                        true,
+                        -75,
+                        75,
+                        false,
                         .5,
-                        171.35,
+                        351.5,
                         0.01,
                         40,
                         20,
@@ -112,7 +112,7 @@ public final class Constants {
 
     public static final class ElevatorConstants {
         public static final int kBottomLimitPort = 5;
-        public static final double kElevatorSpeed = 1;
+        public static final double kElevatorSpeed = .5;
         public static final double kL1Setpoint = 10;
         public static final double kL2Setpoint = 20;
         public static final double kL3Setpoint = 30;
@@ -129,8 +129,8 @@ public final class Constants {
                         0.08,
                         23.47,
                         0.45118,
-                        0.044757,
-                        50,
+                        0.25,
+                        15,
                         2,
                         6,
                         0,

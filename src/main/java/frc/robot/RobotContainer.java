@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -74,8 +72,6 @@ public class RobotContainer {
         drivebase.setDefaultCommand(driveRobotOriented);
         driverXbox.start().toggleOnTrue(driveFieldOriented);
 
-        //ledSubsystem.setPattern(LEDPattern.solid(ledSubsystem.editColor(Color.kMagenta))  );
-
         armSubsystem.setAutoStow();
         elevatorSubsystem.setAutoStow();
         operatorXbox.leftTrigger().and(operatorXbox.rightTrigger()).onTrue(superStructure.toggleOperatorControls().andThen(superStructure.updateStowCommand()));
@@ -123,6 +119,9 @@ public class RobotContainer {
 
         operatorXbox.leftBumper().and(superStructure.isOperatorManual()).whileTrue(intakeShooterSubsystem.intake());
         operatorXbox.rightBumper().and(superStructure.isOperatorManual()).whileTrue(intakeShooterSubsystem.shoot());
+
+        operatorXbox.start().and(superStructure.isOperatorManual()).whileTrue(climbSubsystem.climbUp(.5));
+        operatorXbox.back().and(superStructure.isOperatorManual()).whileTrue(climbSubsystem.climbDown(.5));
 
     }
 

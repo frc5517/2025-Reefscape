@@ -27,7 +27,8 @@ public class IntakeShooterSubsystem extends SubsystemBase {
     }
 
     public Command intake() {
-        return intakeShooter.setSpeed(-Constants.IntakeShooterConstants.kIntakeSpeed);
+        return intakeShooter.setSpeed(-Constants.IntakeShooterConstants.kIntakeSpeed)
+        .finallyDo(() -> intakeMotor.setVoltage(-0.2));
     }
 
     public Command shoot() {

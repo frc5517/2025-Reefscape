@@ -11,6 +11,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import maniplib.ManipArm;
 import maniplib.motors.ManipSparkMax;
+import maniplib.utils.ManipMath.Arm;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -31,6 +32,7 @@ public class ArmSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Arm ABS Raw", Degrees.convertFrom(armABS.get(), Rotations));
         SmartDashboard.putNumber("Arm ABS Adjusted", Degrees.convertFrom(armABS.get(), Rotations) -
                 ArmConstants.armConfig.kArmOffsetToHorizantalZero.in(Degrees));
+        SmartDashboard.putNumber("Arm Inbuilt", Arm.convertSensorUnitsToAngle(140, Degrees.of(armMotor.getPosition()));
     }
 
 
