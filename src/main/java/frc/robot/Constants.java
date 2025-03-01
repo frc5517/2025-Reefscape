@@ -4,11 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -173,6 +171,15 @@ public final class Constants {
         public static final ProfiledPIDController driveToPoseOmegePID =
                 new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(10, 10));
 
+        public static final Transform2d kBranchOffsetLeft = new Transform2d(
+                Units.inchesToMeters(30), // Offset away from reef.
+                Units.inchesToMeters(13 / 2.0), // Offset to left branch.
+                Rotation2d.kZero);
+        public static final Transform2d kBranchOffsetRight = new Transform2d(
+                Units.inchesToMeters(30), // Offset away from reef.
+                Units.inchesToMeters(-13 / 2.0), // Offset to right branch.
+                Rotation2d.kZero);
+
         public static final Pose2d LEFT_STATION_POSE_1 = new Pose2d(
                 new Translation2d(0.75, 6.6),
                 new Rotation2d(Math.toRadians(125))
@@ -189,7 +196,6 @@ public final class Constants {
                 new Translation2d(1.7, 7.3),
                 new Rotation2d(Math.toRadians(125))
         );
-
         public static final Pose2d RIGHT_STATION_POSE_1 = new Pose2d(
                 new Translation2d(5, 5),
                 new Rotation2d(Math.toRadians(90))
@@ -207,67 +213,55 @@ public final class Constants {
                 new Rotation2d(Math.toRadians(90))
         );
 
-        public static final Pose2d REEF_NORTH_LEFT_POSE = new Pose2d(
-                new Translation2d(6.15, 3.85),
-                new Rotation2d(Math.toRadians(180))
-        );
+        public static final Pose2d SOUTH_FACE_POSE = new Pose2d(
+                Units.inchesToMeters(144.003),
+                Units.inchesToMeters(158.500),
+                Rotation2d.fromDegrees(180));
+        public static final Pose2d SOUTHWEST_FACE_POSE = new Pose2d(
+                Units.inchesToMeters(160.373),
+                Units.inchesToMeters(186.857),
+                Rotation2d.fromDegrees(120));
+        public static final Pose2d NORTHWEST_FACE_POSE = new Pose2d(
+                Units.inchesToMeters(193.116),
+                Units.inchesToMeters(186.858),
+                Rotation2d.fromDegrees(60));
+        public static final Pose2d NORTH_FACE_POSE = new Pose2d(
+                Units.inchesToMeters(209.489),
+                Units.inchesToMeters(158.502),
+                Rotation2d.fromDegrees(0));
+        public static final Pose2d NORTHEAST_FACE_POSE = new Pose2d(
+                Units.inchesToMeters(193.118),
+                Units.inchesToMeters(130.145),
+                Rotation2d.fromDegrees(-60));
+        public static final Pose2d SOUTHEAST_FACE_POSE = new Pose2d(
+                Units.inchesToMeters(160.375),
+                Units.inchesToMeters(130.144),
+                Rotation2d.fromDegrees(-120));
 
-        public static final Pose2d REEF_NORTH_RIGHT_POSE = new Pose2d(
-                new Translation2d(6.15, 4.15),
-                new Rotation2d(Math.toRadians(180))
-        );
-
-        public static final Pose2d REEF_NORTHEAST_LEFT_POSE = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-
-        public static final Pose2d REEF_NORTHEAST_RIGHT_POSE = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-
-        public static final Pose2d REEF_NORTHWEST_LEFT_POSE = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-
-        public static final Pose2d REEF_NORTHWEST_RIGHT_POSE = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-
-        public static final Pose2d REEF_SOUTH_LEFT_POSE = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-
-        public static final Pose2d REEF_SOUTH_RIGHT_POSE = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-
-        public static final Pose2d REEF_SOUTHEAST_LEFT_POSE = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-
-        public static final Pose2d REEF_SOUTHEAST_RIGHT_POSE = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-
-        public static final Pose2d REEF_SOUTHWEST_LEFT_POSE = new Pose2d(
-                new Translation2d(5.8, 5.5),
-                new Rotation2d(Math.toRadians(-61))
-        );
-
-        public static final Pose2d REEF_SOUTHWEST_RIGHT_POSE = new Pose2d(
-                new Translation2d(3.5, 5.4),
-                new Rotation2d(Math.toRadians(-61))
-        );
-
-
+        public static final Pose2d REEF_NORTH_LEFT_POSE =
+                NORTH_FACE_POSE.plus(kBranchOffsetLeft);
+        public static final Pose2d REEF_NORTH_RIGHT_POSE =
+                NORTH_FACE_POSE.plus(kBranchOffsetRight);
+        public static final Pose2d REEF_NORTHEAST_LEFT_POSE =
+                NORTHEAST_FACE_POSE.plus(kBranchOffsetLeft);
+        public static final Pose2d REEF_NORTHEAST_RIGHT_POSE =
+                NORTHEAST_FACE_POSE.plus(kBranchOffsetRight);
+        public static final Pose2d REEF_NORTHWEST_LEFT_POSE =
+                NORTHWEST_FACE_POSE.plus(kBranchOffsetLeft);
+        public static final Pose2d REEF_NORTHWEST_RIGHT_POSE =
+                NORTHWEST_FACE_POSE.plus(kBranchOffsetRight);
+        public static final Pose2d REEF_SOUTH_LEFT_POSE =
+                SOUTH_FACE_POSE.plus(kBranchOffsetLeft);
+        public static final Pose2d REEF_SOUTH_RIGHT_POSE =
+                SOUTH_FACE_POSE.plus(kBranchOffsetRight);
+        public static final Pose2d REEF_SOUTHEAST_LEFT_POSE =
+                SOUTHEAST_FACE_POSE.plus(kBranchOffsetLeft);
+        public static final Pose2d REEF_SOUTHEAST_RIGHT_POSE =
+                SOUTHEAST_FACE_POSE.plus(kBranchOffsetRight);
+        public static final Pose2d REEF_SOUTHWEST_LEFT_POSE =
+                SOUTHWEST_FACE_POSE.plus(kBranchOffsetLeft);
+        public static final Pose2d REEF_SOUTHWEST_RIGHT_POSE =
+                SOUTHWEST_FACE_POSE.plus(kBranchOffsetRight);
     }
 
 }
