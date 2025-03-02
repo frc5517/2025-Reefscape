@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -93,6 +95,8 @@ public class RobotContainer {
         driverXbox.a().whileTrue(Commands.defer(() -> drivebase.driveToPose(poseSelector.reefPose()), Set.of(drivebase)));
         driverXbox.b().whileTrue(Commands.defer(() -> drivebase.driveToPose(poseSelector.stationPose()), Set.of(drivebase)));
 
+        driverXbox.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(7.5, 3, Rotation2d.k180deg))));
+
         // Operator Auto Controls
         operatorXbox.a().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToL1());
         operatorXbox.b().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToL2());
@@ -120,9 +124,17 @@ public class RobotContainer {
         operatorXbox.leftBumper().and(superStructure.isOperatorManual()).whileTrue(intakeShooterSubsystem.intake());
         operatorXbox.rightBumper().and(superStructure.isOperatorManual()).whileTrue(intakeShooterSubsystem.shoot());
 
-        operatorXbox.start().and(superStructure.isOperatorManual()).whileTrue(climbSubsystem.climbUp(.5));
-        operatorXbox.back().and(superStructure.isOperatorManual()).whileTrue(climbSubsystem.climbDown(.5));
+        //operatorXbox.start().and(superStructure.isOperatorManual()).whileTrue(climbSubsystem.climbUp(.5));
+        //operatorXbox.back().and(superStructure.isOperatorManual()).whileTrue(climbSubsystem.climbDown(.5));
 
+        operatorXbox.start().whileTrue(armSubsystem.armToL1());
+
+    }
+
+    public void seedEncoders() {
+        if (Robot.isReal()) {
+            armSubsystem.seedArmEncoder();
+        }
     }
 
     public Command getAutonomousCommand() {

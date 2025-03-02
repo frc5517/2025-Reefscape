@@ -18,20 +18,18 @@ public class ArmSubsystem extends SubsystemBase {
     ManipSparkMax armMotor = new ManipSparkMax(12);
     ManipArm arm = new ManipArm(armMotor, Constants.ArmConstants.armConfig);
 
-    DigitalInput armABSInput = new DigitalInput(ArmConstants.kArmABSID);
-    DutyCycleEncoder armABS = new DutyCycleEncoder(armABSInput);
+    DutyCycleEncoder armABS = new DutyCycleEncoder(ArmConstants.kArmABSID, 1, 0);
 
     public ArmSubsystem() {
-        arm.addAbsoluteEncoderValue(armABS.get());
     }
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("Arm Raw Raw", armABS.get());
         SmartDashboard.putNumber("Arm ABS Raw", Degrees.convertFrom(armABS.get(), Rotations));
         SmartDashboard.putNumber("Arm ABS Adjusted", Degrees.convertFrom(armABS.get(), Rotations) -
                 ArmConstants.armConfig.kArmOffsetToHorizantalZero.in(Degrees));
     }
-
 
     public void setAutoStow() {
         arm.setDefaultCommand(
@@ -72,8 +70,16 @@ public class ArmSubsystem extends SubsystemBase {
         return arm.runArmSpeedCommand(-Constants.ArmConstants.kArmSpeed);
     }
 
+    public Command runSys() {
+        return arm.runSysIdRoutine();
+    }
+
     public void stopArm() {
         arm.stopArm();
+    }
+
+    public void seedArmEncoder() {
+        arm.addAbsoluteEncoderValue(armABS.get());
     }
 
     @Override

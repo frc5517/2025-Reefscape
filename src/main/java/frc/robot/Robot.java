@@ -48,6 +48,7 @@ public class Robot extends TimedRobot {
         if (isSimulation()) {
             DriverStation.silenceJoystickConnectionWarning(true);
         }
+        m_robotContainer.seedEncoders();
     }
 
     /**
@@ -116,6 +117,7 @@ public class Robot extends TimedRobot {
         } else {
             CommandScheduler.getInstance().cancelAll();
         }
+        m_robotContainer.seedEncoders();
     }
 
     /**
@@ -129,6 +131,7 @@ public class Robot extends TimedRobot {
     public void testInit() {
         // Cancels all running commands at the start of test mode.
         CommandScheduler.getInstance().cancelAll();
+        m_robotContainer.seedEncoders();
     }
 
     /**

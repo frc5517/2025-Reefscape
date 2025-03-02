@@ -1,29 +1,37 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import maniplib.ManipElevator;
 import maniplib.motors.ManipSparkMax;
+
+import static edu.wpi.first.units.Units.Inches;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
     ManipSparkMax rightElevatorMotor = new ManipSparkMax(14);
     ManipSparkMax leftElevatorMotor = new ManipSparkMax(13);
-    ManipElevator elevator = new ManipElevator(rightElevatorMotor, Constants.ElevatorConstants.elevatorConfig);
+    ManipElevator elevator = new ManipElevator(leftElevatorMotor, Constants.ElevatorConstants.elevatorConfig);
 
     DigitalInput elevatorLimitSwitch = new DigitalInput(Constants.ElevatorConstants.kBottomLimitPort);
+    Trigger bottomLimit = new Trigger(() -> !elevatorLimitSwitch.get());
 
     public ElevatorSubsystem() {
-        leftElevatorMotor.setMotorBrake(true);
-        elevator.addFollower(leftElevatorMotor, true);
+        rightElevatorMotor.setMotorBrake(true);
+        elevator.addFollower(rightElevatorMotor, false);
 
+        bottomLimit.onTrue(runOnce(this::stopElevator));
+        bottomLimit.onTrue(runOnce(() -> elevator.setHeight(Inches.of(0))));
     }
 
     @Override
     public void periodic() {
-        elevator.setBottomLimitSwitch(elevatorLimitSwitch.get());
+        SmartDashboard.putBoolean("Elevator Limit Switch", !elevatorLimitSwitch.get());
+        SmartDashboard.putNumber("Elev Motor Rotations", leftElevatorMotor.getPosition());
     }
 
     public void setAutoStow() {
@@ -60,12 +68,12 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public Command elevatorUp() {
         return runEnd(() -> elevator.runElevatorSpeed(Constants.ElevatorConstants.kElevatorSpeed),
-                elevator::runkGCommand);
+                () -> elevator.runkG());
     }
 
     public Command elevatorDown() {
         return runEnd(() -> elevator.runElevatorSpeed(-Constants.ElevatorConstants.kElevatorSpeed),
-                elevator::runkGCommand);
+                () -> elevator.runkG());
     }
 
     public void stopElevator() {
