@@ -64,8 +64,8 @@ public class RobotContainer {
         Command driveFieldOriented = drivebase.driveFieldOriented(driveAngularVelocity);
 
         ledSubsystem.setDefaultCommand(ledSubsystem.runPatternBoth(
-            LEDPattern.solid(ledSubsystem.editColor(Color.kFirstRed)),
-            LEDPattern.solid(ledSubsystem.editColor(Color.kCadetBlue))
+                LEDPattern.solid(ledSubsystem.editColor(Color.kFirstRed)),
+                LEDPattern.solid(ledSubsystem.editColor(Color.kCadetBlue))
         ));
 
         // Default Commands

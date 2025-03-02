@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeShooterConstants;
 import maniplib.ManipShooterIntake;
@@ -16,8 +17,11 @@ public class IntakeShooterSubsystem extends SubsystemBase {
 
     DigitalInput coralSensor = new DigitalInput(IntakeShooterConstants.kIntakeShooterCoralSensorID);
 
+    Trigger coralTrigger = new Trigger(coralSensor::get);
+
     public IntakeShooterSubsystem() {
         intakeMotor.setMotorBrake(true);
+        coralTrigger.onTrue(intakeShooter.stopShooterCommand());
     }
 
     @Override
@@ -27,12 +31,12 @@ public class IntakeShooterSubsystem extends SubsystemBase {
     }
 
     public Command intake() {
-        return intakeShooter.setSpeed(-Constants.IntakeShooterConstants.kIntakeSpeed)
-        .finallyDo(() -> intakeMotor.setVoltage(-0.2));
+        return intakeShooter.runSpeedCommand(-Constants.IntakeShooterConstants.kIntakeSpeed)
+                .finallyDo(() -> intakeShooter.runVoltageCommand(-0.2));
     }
 
     public Command shoot() {
-        return intakeShooter.setSpeed(Constants.IntakeShooterConstants.kShootSpeed);
+        return intakeShooter.runSpeedCommand(Constants.IntakeShooterConstants.kShootSpeed);
     }
 
     public void stopIntakeShooter() {

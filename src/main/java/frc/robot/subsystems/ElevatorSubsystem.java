@@ -7,8 +7,6 @@ import frc.robot.Constants;
 import maniplib.ManipElevator;
 import maniplib.motors.ManipSparkMax;
 
-import static edu.wpi.first.units.Units.Volts;
-
 public class ElevatorSubsystem extends SubsystemBase {
 
     ManipSparkMax rightElevatorMotor = new ManipSparkMax(14);
@@ -62,12 +60,12 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public Command elevatorUp() {
         return runEnd(() -> elevator.runElevatorSpeed(Constants.ElevatorConstants.kElevatorSpeed),
-                () -> elevator.runElevatorVoltage(Volts.of(-Constants.ElevatorConstants.elevatorConfig.kElevatorkG)));
+                elevator::runkGCommand);
     }
 
     public Command elevatorDown() {
         return runEnd(() -> elevator.runElevatorSpeed(-Constants.ElevatorConstants.kElevatorSpeed),
-                () -> elevator.runElevatorVoltage(Volts.of(-Constants.ElevatorConstants.elevatorConfig.kElevatorkG)));
+                elevator::runkGCommand);
     }
 
     public void stopElevator() {

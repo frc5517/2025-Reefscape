@@ -4,16 +4,14 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import maniplib.ManipArm;
 import maniplib.motors.ManipSparkMax;
-import maniplib.utils.ManipMath.Arm;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -24,7 +22,7 @@ public class ArmSubsystem extends SubsystemBase {
     DutyCycleEncoder armABS = new DutyCycleEncoder(armABSInput);
 
     public ArmSubsystem() {
-        arm.addAbsoluteEncoderValue(Degrees.convertFrom(armABS.get(), Rotations));
+        arm.addAbsoluteEncoderValue(armABS.get());
     }
 
     @Override
@@ -32,7 +30,6 @@ public class ArmSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Arm ABS Raw", Degrees.convertFrom(armABS.get(), Rotations));
         SmartDashboard.putNumber("Arm ABS Adjusted", Degrees.convertFrom(armABS.get(), Rotations) -
                 ArmConstants.armConfig.kArmOffsetToHorizantalZero.in(Degrees));
-        SmartDashboard.putNumber("Arm Inbuilt", Arm.convertSensorUnitsToAngle(140, Degrees.of(armMotor.getPosition()));
     }
 
 
