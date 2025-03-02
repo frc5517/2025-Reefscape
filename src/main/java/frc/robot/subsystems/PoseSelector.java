@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.proto.Pose2dProto;
 import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -12,23 +11,17 @@ import static edu.wpi.first.units.Units.Degrees;
 
 public class PoseSelector extends SubsystemBase {
 
-    SwerveSubsystem swerve;
-
-    private ReefPose reefPose = ReefPose.NORTH_LEFT;
     private final ReefPose[] poses = ReefPose.values();
-
-    private ReefSide reefSide = ReefSide.NORTH;
     private final ReefSide[] sides = ReefSide.values();
-
-    private LeftOrRight leftOrRight = LeftOrRight._LEFT;
     private final LeftOrRight[] leftOrRights = LeftOrRight.values();
-
-    private StationSlot stationSlot = StationSlot.POSE_1;
     private final StationSlot[] stationSlots = StationSlot.values();
-
-    private StationPose stationPose = StationPose.POSE_1_LEFT;
-
     private final MutAngle selectedPose = Degrees.mutable(0);
+    SwerveSubsystem swerve;
+    private ReefPose reefPose = ReefPose.NORTH_LEFT;
+    private ReefSide reefSide = ReefSide.NORTH;
+    private LeftOrRight leftOrRight = LeftOrRight._LEFT;
+    private StationSlot stationSlot = StationSlot.POSE_1;
+    private StationPose stationPose = StationPose.POSE_1_LEFT;
 
     public PoseSelector(SwerveSubsystem swerve) {
         this.swerve = swerve;
@@ -47,54 +40,6 @@ public class PoseSelector extends SubsystemBase {
         SmartDashboard.putString("Reef Pose2d", reefPose().toString());
     }
 
-    public enum ReefSide {
-        NORTH,
-        NORTHEAST,
-        SOUTHEAST,
-        SOUTH,
-        SOUTHWEST,
-        NORTHWEST,
-    }
-
-    public enum LeftOrRight {
-        _RIGHT,
-        _LEFT,
-    }
-
-    public enum ReefPose {
-        NORTH_RIGHT,
-        NORTH_LEFT,
-        NORTHEAST_RIGHT,
-        NORTHEAST_LEFT,
-        SOUTHEAST_RIGHT,
-        SOUTHEAST_LEFT,
-        SOUTH_RIGHT,
-        SOUTH_LEFT,
-        SOUTHWEST_RIGHT,
-        SOUTHWEST_LEFT,
-        NORTHWEST_RIGHT,
-        NORTHWEST_LEFT,
-    }
-
-    public enum StationSlot {
-        POSE_1,
-        POSE_2,
-        POSE_3,
-        POSE_4,
-    }
-
-    public enum StationPose {
-        POSE_1_LEFT,
-        POSE_2_LEFT,
-        POSE_3_LEFT,
-        POSE_4_LEFT,
-
-        POSE_1_RIGHT,
-        POSE_2_RIGHT,
-        POSE_3_RIGHT,
-        POSE_4_RIGHT,
-    }
-
     /**
      * Cycles poses right.
      */
@@ -103,6 +48,7 @@ public class PoseSelector extends SubsystemBase {
         reefPose = poses[ordinalPoseUp];
         updatePoseData(false);
     }
+
     /**
      * Cycles poses right.
      */
@@ -123,6 +69,7 @@ public class PoseSelector extends SubsystemBase {
         stationSlot = stationSlots[ordinalSlotUp];
         updateStationPose();
     }
+
     /**
      * Cycles where to go to on the coral station.
      */
@@ -142,6 +89,7 @@ public class PoseSelector extends SubsystemBase {
         reefSide = ReefSide.NORTH;
         updatePoseData(true);
     }
+
     /**
      * Selects northeast reef side.
      */
@@ -149,6 +97,7 @@ public class PoseSelector extends SubsystemBase {
         reefSide = ReefSide.NORTHEAST;
         updatePoseData(true);
     }
+
     /**
      * Selects northwest reef side.
      */
@@ -156,6 +105,7 @@ public class PoseSelector extends SubsystemBase {
         reefSide = ReefSide.NORTHWEST;
         updatePoseData(true);
     }
+
     /**
      * Selects south reef side.
      */
@@ -163,6 +113,7 @@ public class PoseSelector extends SubsystemBase {
         reefSide = ReefSide.SOUTH;
         updatePoseData(true);
     }
+
     /**
      * Selects southeast reef side.
      */
@@ -170,6 +121,7 @@ public class PoseSelector extends SubsystemBase {
         reefSide = ReefSide.SOUTHEAST;
         updatePoseData(true);
     }
+
     /**
      * Selects southwest reef side.
      */
@@ -177,6 +129,7 @@ public class PoseSelector extends SubsystemBase {
         reefSide = ReefSide.SOUTHWEST;
         updatePoseData(true);
     }
+
     /**
      * Selects left branch of reef side and left coral station.
      */
@@ -185,6 +138,7 @@ public class PoseSelector extends SubsystemBase {
         updatePoseData(true);
         updateStationPose();
     }
+
     /**
      * Selects right branch of reef side and right coral station.
      */
@@ -196,6 +150,7 @@ public class PoseSelector extends SubsystemBase {
 
     /**
      * Updates the selectedPose angle and current selected pose if fed separate side and branch data.
+     *
      * @param together whether to update from branch and side data or directly from current selected pose.
      */
     public void updatePoseData(boolean together) {
@@ -249,6 +204,54 @@ public class PoseSelector extends SubsystemBase {
             case POSE_4_RIGHT -> Constants.DrivebaseConstants.RIGHT_STATION_POSE_4;
             default -> swerve.getPose();
         };
+    }
+
+    public enum ReefSide {
+        NORTH,
+        NORTHEAST,
+        SOUTHEAST,
+        SOUTH,
+        SOUTHWEST,
+        NORTHWEST,
+    }
+
+    public enum LeftOrRight {
+        _RIGHT,
+        _LEFT,
+    }
+
+    public enum ReefPose {
+        NORTH_RIGHT,
+        NORTH_LEFT,
+        NORTHEAST_RIGHT,
+        NORTHEAST_LEFT,
+        SOUTHEAST_RIGHT,
+        SOUTHEAST_LEFT,
+        SOUTH_RIGHT,
+        SOUTH_LEFT,
+        SOUTHWEST_RIGHT,
+        SOUTHWEST_LEFT,
+        NORTHWEST_RIGHT,
+        NORTHWEST_LEFT,
+    }
+
+    public enum StationSlot {
+        POSE_1,
+        POSE_2,
+        POSE_3,
+        POSE_4,
+    }
+
+    public enum StationPose {
+        POSE_1_LEFT,
+        POSE_2_LEFT,
+        POSE_3_LEFT,
+        POSE_4_LEFT,
+
+        POSE_1_RIGHT,
+        POSE_2_RIGHT,
+        POSE_3_RIGHT,
+        POSE_4_RIGHT,
     }
 
 }
