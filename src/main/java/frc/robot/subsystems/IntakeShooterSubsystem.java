@@ -12,12 +12,12 @@ import maniplib.motors.ManipSparkMax;
 
 public class IntakeShooterSubsystem extends SubsystemBase {
 
-    ManipSparkMax intakeMotor = new ManipSparkMax(11);
-    ManipShooterIntake intakeShooter = new ManipShooterIntake(intakeMotor);
+    private final ManipSparkMax intakeMotor = new ManipSparkMax(11);
+    private final ManipShooterIntake intakeShooter = new ManipShooterIntake(intakeMotor);
 
-    DigitalInput coralSensor = new DigitalInput(IntakeShooterConstants.kIntakeShooterCoralSensorID);
+    private final DigitalInput coralSensor = new DigitalInput(IntakeShooterConstants.kIntakeShooterCoralSensorID);
 
-    Trigger coralTrigger = new Trigger(coralSensor::get);
+    private final Trigger coralTrigger = new Trigger(coralSensor::get);
 
     public IntakeShooterSubsystem() {
         intakeMotor.setMotorBrake(true);
