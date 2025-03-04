@@ -1,9 +1,9 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -15,22 +15,19 @@ import static edu.wpi.first.units.Units.Millimeters;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
-    ManipSparkMax rightElevatorMotor = new ManipSparkMax(14);
-    ManipSparkMax leftElevatorMotor = new ManipSparkMax(13);
-    ManipElevator elevator = new ManipElevator(leftElevatorMotor, Constants.ElevatorConstants.elevatorConfig);
-
-    DigitalInput elevatorLimitSwitch = new DigitalInput(Constants.ElevatorConstants.kBottomLimitPort);
-    Trigger bottomLimit = new Trigger(() -> !elevatorLimitSwitch.get());
-    Trigger topLimit = new Trigger(() -> elevator.nearMax(Millimeters.convertFrom(1, Inches)));
+    private final ManipSparkMax rightElevatorMotor = new ManipSparkMax(14);
+    private final ManipSparkMax leftElevatorMotor = new ManipSparkMax(13);
+    private final ManipElevator elevator = new ManipElevator(leftElevatorMotor, Constants.ElevatorConstants.elevatorConfig);
+    private final Trigger topLimit = new Trigger(() -> elevator.nearMax(Millimeters.convertFrom(1, Inches)));
+    private final DigitalInput elevatorLimitSwitch = new DigitalInput(Constants.ElevatorConstants.kBottomLimitPort);
+    private final Trigger bottomLimit = new Trigger(() -> !elevatorLimitSwitch.get());
 
     public ElevatorSubsystem() {
         rightElevatorMotor.setMotorBrake(true);
         elevator.addFollower(rightElevatorMotor, false);
 
-        bottomLimit.or(topLimit).onTrue(runOnce(this::stopElevator).andThen(() -> elevator.runkG()));
+        bottomLimit.or(topLimit).onTrue(Commands.runOnce(elevator::stopElevator, elevator).andThen(() -> elevator.runkG()));
         bottomLimit.onTrue(runOnce(() -> elevator.setHeight(Inches.of(0))));
-
-
     }
 
     @Override
@@ -72,13 +69,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public Command elevatorUp() {
-        return runEnd(() -> elevator.runElevatorSpeed(Constants.ElevatorConstants.kElevatorSpeed),
-                () -> elevator.runkG());
+        return Commands.runEnd(() -> elevator.runElevatorSpeed(Constants.ElevatorConstants.kElevatorSpeed),
+                () -> elevator.runkG(), elevator);
     }
 
     public Command elevatorDown() {
-        return runEnd(() -> elevator.runElevatorSpeed(-Constants.ElevatorConstants.kElevatorSpeed),
-                () -> elevator.runkG());
+        return Commands.runEnd(() -> elevator.runElevatorSpeed(-Constants.ElevatorConstants.kElevatorSpeed),
+                () -> elevator.runkG(), elevator);
     }
 
     public void stopElevator() {

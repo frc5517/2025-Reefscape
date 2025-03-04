@@ -16,8 +16,8 @@ public class AddressableLEDSubsystem extends SubsystemBase {
     private final AddressableLED led = new AddressableLED(9);
     private final AddressableLEDBuffer buffer = new AddressableLEDBuffer(320);
     private final LEDPattern rainbow = LEDPattern.rainbow(255, 128);
-    AddressableLEDBufferView underGlow = buffer.createView(0, 100);
-    AddressableLEDBufferView elevatorGlow = buffer.createView(101, 319);
+    private final AddressableLEDBufferView underGlow = buffer.createView(0, 100);
+    private final AddressableLEDBufferView elevatorGlow = buffer.createView(101, 319);
     private LEDPattern elevatorPattern = LEDPattern.solid(editColor(Color.kPurple));
     private LEDPattern underPattern = LEDPattern.solid(editColor(Color.kFirstBlue));
 

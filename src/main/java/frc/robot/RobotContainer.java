@@ -22,8 +22,8 @@ import java.util.Set;
 
 public class RobotContainer {
 
-    final CommandXboxController driverXbox = new CommandXboxController(0);
-    final CommandXboxController operatorXbox = new CommandXboxController(1);
+    private final CommandXboxController driverXbox = new CommandXboxController(0);
+    private final CommandXboxController operatorXbox = new CommandXboxController(1);
     private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
             "swerve"));
     private final PoseSelector poseSelector = new PoseSelector(drivebase);

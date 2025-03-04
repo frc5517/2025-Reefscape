@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,12 +14,13 @@ import static edu.wpi.first.units.Units.Rotations;
 
 public class ArmSubsystem extends SubsystemBase {
 
-    ManipSparkMax armMotor = new ManipSparkMax(12);
-    ManipArm arm = new ManipArm(armMotor, Constants.ArmConstants.armConfig);
+    private final ManipSparkMax armMotor = new ManipSparkMax(12);
+    private final ManipArm arm = new ManipArm(armMotor, Constants.ArmConstants.armConfig);
 
-    DutyCycleEncoder armABS = new DutyCycleEncoder(ArmConstants.kArmABSID, 1, 0);
+    private final DutyCycleEncoder armABS = new DutyCycleEncoder(ArmConstants.kArmABSID, 1, 0);
 
     public ArmSubsystem() {
+        arm.enableDefaultLimits();
     }
 
     @Override

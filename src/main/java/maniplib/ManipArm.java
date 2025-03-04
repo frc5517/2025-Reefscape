@@ -2,7 +2,6 @@ package maniplib;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -82,29 +81,6 @@ public class ManipArm extends SubsystemBase {
                     true,
                     armConstants.kArmInverted
             );
-
-            this.topLimit = new Trigger(() -> topLimitBoolean);
-            this.bottomLimit = new Trigger(() -> bottomLimitBoolean);
-
-            this.sysAtMin = new Trigger(() -> getAngle().isNear(this.armConstants.kMinAngle, Degrees.of(5)));
-            this.sysAtMax = new Trigger(() -> getAngle().isNear(this.armConstants.kMaxAngle, Degrees.of(5)));
-
-            this.atMin = new Trigger(() -> getAngle().isNear(this.armConstants.kMinAngle, Degrees.of(3)));
-            this.atMax = new Trigger(() -> getAngle().isNear(this.armConstants.kMaxAngle, Degrees.of(3)));
-            this.goingDown = new Trigger(() -> motor.getAppliedOutput() < 0);
-            this.goingUp = new Trigger(() -> motor.getAppliedOutput() > 0);
-
-            this.atMin.and(goingDown).or(topLimit).onTrue(runOnce(this::stopArm));
-            this.atMax.and(goingUp).or(topLimit).onTrue(runOnce(this::stopArm));
-
-            this.topLimit.onTrue(run(() ->
-                    motor.setPosition((ManipMath.Arm.convertAngleToSensorUnits(
-                            armConstants.kArmReduction,
-                            armConstants.kMaxAngle)).in(Rotations))));
-            this.bottomLimit.onTrue(run(() ->
-                    motor.setPosition((ManipMath.Arm.convertAngleToSensorUnits(
-                            armConstants.kArmReduction,
-                            armConstants.kMinAngle)).in(Rotations))));
 
             this.motor.setGearbox(armConstants.gearbox);
 
@@ -255,6 +231,35 @@ public class ManipArm extends SubsystemBase {
     }
 
     /**
+     * Sets up common limits, including limit switches.
+     * Do not enable if using custom limits.
+     */
+    public void enableDefaultLimits() {
+        this.topLimit = new Trigger(() -> topLimitBoolean);
+        this.bottomLimit = new Trigger(() -> bottomLimitBoolean);
+
+        this.sysAtMin = new Trigger(() -> getAngle().isNear(this.armConstants.kMinAngle, Degrees.of(5)));
+        this.sysAtMax = new Trigger(() -> getAngle().isNear(this.armConstants.kMaxAngle, Degrees.of(5)));
+
+        this.atMin = new Trigger(() -> getAngle().isNear(this.armConstants.kMinAngle, Degrees.of(3)));
+        this.atMax = new Trigger(() -> getAngle().isNear(this.armConstants.kMaxAngle, Degrees.of(3)));
+        this.goingDown = new Trigger(() -> motor.getAppliedOutput() < 0);
+        this.goingUp = new Trigger(() -> motor.getAppliedOutput() > 0);
+
+        this.atMin.and(goingDown).or(topLimit).onTrue(runOnce(this::stopArm));
+        this.atMax.and(goingUp).or(topLimit).onTrue(runOnce(this::stopArm));
+
+        this.topLimit.onTrue(run(() ->
+                motor.setPosition((ManipMath.Arm.convertAngleToSensorUnits(
+                        armConstants.kArmReduction,
+                        armConstants.kMaxAngle)).in(Rotations))));
+        this.bottomLimit.onTrue(run(() ->
+                motor.setPosition((ManipMath.Arm.convertAngleToSensorUnits(
+                        armConstants.kArmReduction,
+                        armConstants.kMinAngle)).in(Rotations))));
+    }
+
+    /**
      * @return The angle used to update an arm {@link MechanismLigament2d}.
      */
     public double getMechAngle() {
@@ -302,7 +307,7 @@ public class ManipArm extends SubsystemBase {
                 ManipMath.Arm.convertAngleToSensorUnits(
                         armConstants.kArmReduction,
                         Rotations.of(absEncoderAngle.in(Rotations))
-                        .minus(armConstants.kArmOffsetToHorizantalZero)).in(Rotations));
+                                .minus(armConstants.kArmOffsetToHorizantalZero)).in(Rotations));
     }
 
     /**

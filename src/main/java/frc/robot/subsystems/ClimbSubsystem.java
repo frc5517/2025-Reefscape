@@ -15,7 +15,7 @@ public class ClimbSubsystem extends SubsystemBase {
     /**
      * Creates a new ClimbSubsystem.
      */
-    private SparkMax climbMotor = new SparkMax(15, MotorType.kBrushless);
+    private final SparkMax climbMotor = new SparkMax(15, MotorType.kBrushless);
 
     public ClimbSubsystem() {
         SmartDashboard.putNumber("Climb Encoder", climbMotor.getEncoder().getPosition());

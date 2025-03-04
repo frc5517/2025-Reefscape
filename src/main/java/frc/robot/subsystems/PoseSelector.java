@@ -16,7 +16,7 @@ public class PoseSelector extends SubsystemBase {
     private final LeftOrRight[] leftOrRights = LeftOrRight.values();
     private final StationSlot[] stationSlots = StationSlot.values();
     private final MutAngle selectedPose = Degrees.mutable(0);
-    SwerveSubsystem swerve;
+    private final SwerveSubsystem swerve;
     private ReefPose reefPose = ReefPose.NORTH_LEFT;
     private ReefSide reefSide = ReefSide.NORTH;
     private LeftOrRight leftOrRight = LeftOrRight._LEFT;

@@ -38,6 +38,12 @@ public class ManipElevator extends SubsystemBase {
     private Trigger atMax;
     private Trigger goingDown;
     private Trigger goingUp;
+    // Booleans for limit switch functions.
+    private boolean topLimitBoolean = false;
+    private boolean bottomLimitBoolean = false;
+    // Triggers for limit switch functions.
+    private Trigger topLimit;
+    private Trigger bottomLimit;
     // Various booleans to determine what to enable
     private boolean isAdvancedEnabled = false;
     private boolean defaultCommandOverride = false;
@@ -61,9 +67,6 @@ public class ManipElevator extends SubsystemBase {
             this.motor = motor;
             this.elevatorConstants = config;
             this.isAdvancedEnabled = true;
-
-            this.atMin = new Trigger(() -> getLinearPosition().isNear(config.kMinHeight, Inches.of(1)));
-            this.atMax = new Trigger(() -> getLinearPosition().isNear(config.kMaxHeight, Inches.of(1)));
 
             this.motor.setGearbox(elevatorConstants.gearbox);
 
@@ -211,6 +214,36 @@ public class ManipElevator extends SubsystemBase {
 
         // Update the Elevator Mechanism based on simulated elevator height
         elevatorMech.setLength(getLinearPosition().in(Meters));
+    }
+
+    /**
+     * Sets up common limits, including limit switches and encoder resets.
+     * Do not enable if using custom limits.
+     */
+    public void enableDefaultLimits() {
+        this.topLimit = new Trigger(() -> topLimitBoolean);
+        this.bottomLimit = new Trigger(() -> bottomLimitBoolean);
+
+        this.atMin = new Trigger(() -> getLinearPosition().isNear(elevatorConstants.kMinHeight, Inches.of(1)));
+        this.atMax = new Trigger(() -> getLinearPosition().isNear(elevatorConstants.kMaxHeight, Inches.of(1)));
+        this.goingDown = new Trigger(() -> motor.getAppliedOutput() < 0);
+        this.goingUp = new Trigger(() -> motor.getAppliedOutput() > 0);
+
+        this.atMin.and(goingDown).or(bottomLimit).onTrue(run(this::stopElevator));
+        this.atMax.and(goingUp).or(topLimit).onTrue(run(this::stopElevator));
+
+        this.topLimit.onTrue(run(() ->
+                motor.setPosition(ManipMath.Elevator.convertDistanceToRotations(
+                        elevatorConstants.kElevatorDrumRadius,
+                        elevatorConstants.kElevatorGearing,
+                        elevatorConstants.kMaxHeight
+                ).in(Rotations))));
+        this.bottomLimit.onTrue(run(() ->
+                motor.setPosition(ManipMath.Elevator.convertDistanceToRotations(
+                        elevatorConstants.kElevatorDrumRadius,
+                        elevatorConstants.kElevatorGearing,
+                        elevatorConstants.kMaxHeight
+                ).in(Rotations))));
     }
 
     /**
@@ -407,6 +440,20 @@ public class ManipElevator extends SubsystemBase {
      */
     public Command runkGCommand() {
         return run(this::runkG);
+    }
+
+    /**
+     * Sets the {@link Boolean} for when the top limit switch is hit for {@link ManipElevator}.
+     */
+    public void setTopLimitSwitch(boolean topLimit) {
+        this.topLimitBoolean = topLimit;
+    }
+
+    /**
+     * Sets the {@link Boolean} for when the bottom limit switch is hit for {@link ManipElevator}.
+     */
+    public void setBottomLimitSwitch(boolean bottomLimit) {
+        this.bottomLimitBoolean = bottomLimit;
     }
 
     /**
