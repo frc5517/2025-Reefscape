@@ -124,11 +124,8 @@ public class RobotContainer {
         operatorXbox.leftBumper().and(superStructure.isOperatorManual()).whileTrue(intakeShooterSubsystem.intake());
         operatorXbox.rightBumper().and(superStructure.isOperatorManual()).whileTrue(intakeShooterSubsystem.shoot());
 
-        //operatorXbox.start().and(superStructure.isOperatorManual()).whileTrue(climbSubsystem.climbUp(.5));
-        //operatorXbox.back().and(superStructure.isOperatorManual()).whileTrue(climbSubsystem.climbDown(.5));
-
-        operatorXbox.start().whileTrue(armSubsystem.armToL1());
-
+        operatorXbox.start().and(superStructure.isOperatorManual()).whileTrue(climbSubsystem.climbUp());
+        operatorXbox.back().and(superStructure.isOperatorManual()).whileTrue(climbSubsystem.climbDown());
     }
 
     public void seedEncoders() {

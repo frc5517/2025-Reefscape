@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -10,6 +11,7 @@ import maniplib.ManipElevator;
 import maniplib.motors.ManipSparkMax;
 
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Millimeters;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -19,13 +21,16 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     DigitalInput elevatorLimitSwitch = new DigitalInput(Constants.ElevatorConstants.kBottomLimitPort);
     Trigger bottomLimit = new Trigger(() -> !elevatorLimitSwitch.get());
+    Trigger topLimit = new Trigger(() -> elevator.nearMax(Millimeters.convertFrom(1, Inches)));
 
     public ElevatorSubsystem() {
         rightElevatorMotor.setMotorBrake(true);
         elevator.addFollower(rightElevatorMotor, false);
 
-        bottomLimit.onTrue(runOnce(this::stopElevator));
+        bottomLimit.or(topLimit).onTrue(runOnce(this::stopElevator).andThen(() -> elevator.runkG()));
         bottomLimit.onTrue(runOnce(() -> elevator.setHeight(Inches.of(0))));
+
+
     }
 
     @Override

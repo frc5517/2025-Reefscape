@@ -122,12 +122,12 @@ public final class Constants {
         public static final ManipElevatorConstants elevatorConfig =
                 new ManipElevatorConstants(
                         DCMotor.getNEO(2),
-                        28.475,
+                        32,
                         0,
-                        1.2353,
+                        1,
                         0.08,
-                        23.47,
-                        0.45118,
+                        3.07,
+                        0.01,
                         0.25,
                         15,
                         2,
@@ -150,6 +150,10 @@ public final class Constants {
 
         public static final double kIntakeSpeed = .3;
         public static final double kShootSpeed = .5;
+    }
+
+    public static final class ClimberConstants {
+        public static final double kClimberSpeed = 1;
     }
 
     public static final class AddressableConstants {

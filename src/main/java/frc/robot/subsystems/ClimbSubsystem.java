@@ -9,6 +9,7 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class ClimbSubsystem extends SubsystemBase {
     /**
@@ -25,17 +26,17 @@ public class ClimbSubsystem extends SubsystemBase {
         // This method will be called once per scheduler run
     }
 
-    public Command climbUp(double speed) {
+    public Command climbUp() {
         return runEnd(() -> {
-            climbMotor.set(speed);
+            climbMotor.set(Constants.ClimberConstants.kClimberSpeed);
         }, () -> {
             climbMotor.set(0.0);
         });
     }
 
-    public Command climbDown(double speed) {
+    public Command climbDown() {
         return runEnd(() -> {
-            climbMotor.set(-speed);
+            climbMotor.set(-Constants.ClimberConstants.kClimberSpeed);
         }, () -> {
             climbMotor.set(0.0);
         });
