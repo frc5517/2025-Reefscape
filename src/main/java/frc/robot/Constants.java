@@ -267,4 +267,31 @@ public final class Constants {
                 SOUTHWEST_FACE_POSE.plus(kBranchOffsetRight);
     }
 
+    public static final class VisionConstants {
+        // Coordinate system, makes x, y, and z easy. https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
+        // Bottom Camera Constants
+        public static final Rotation3d kBottomCamRotation = new Rotation3d(
+                0, // side-to-side rotation.
+                0, // front-to-back rotation.
+                0 // front-to-back rotation.
+        );
+        public static final Translation3d kBottomCamPosition = new Translation3d(
+                0, // horizontal.
+                0, // vertical.
+                0 // perpendicular to x and y.
+        );
+
+        // Top Camera Constants
+        public static final Rotation3d kTopCamRotation = new Rotation3d(
+                0, // side-to-side rotation.
+                0, // front-to-back rotation.
+                0 // front-to-back rotation.
+        );
+        public static final Translation3d kTopCamPosition = new Translation3d(
+                0, // horizontal.
+                0, // vertical.
+                0 // perpendicular to x and y.
+        );
+    }
+
 }
