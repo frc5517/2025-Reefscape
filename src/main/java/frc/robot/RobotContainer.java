@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -43,13 +44,17 @@ public class RobotContainer {
                     () -> driverXbox.getLeftX() * -1)
             .withControllerRotationAxis(() -> driverXbox.getRightX() * -1)
             .deadband(Constants.OperatorConstants.DEADBAND)
-            .cubeTranslationControllerAxis(true)
-            .cubeRotationControllerAxis(true)
             .scaleTranslation(0.8)
             .allianceRelativeControl(true);
 
     SwerveInputStream robotOriented = driveAngularVelocity.copy().robotRelative(true)
             .allianceRelativeControl(false);
+
+    Command drive = drivebase.driveCommand(
+            () -> driverXbox.getLeftY() * -1,
+            () -> driverXbox.getLeftX() * -1,
+            () -> driverXbox.getRightX() * -1
+    );
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -76,7 +81,11 @@ public class RobotContainer {
 
         armSubsystem.setAutoStow();
         elevatorSubsystem.setAutoStow();
-        operatorXbox.leftTrigger().and(operatorXbox.rightTrigger()).onTrue(superStructure.toggleOperatorControls().andThen(superStructure.updateStowCommand()));
+        operatorXbox.leftTrigger()
+                .and(operatorXbox.rightTrigger())
+                .onTrue(superStructure.toggleOperatorControls()
+                        .andThen(superStructure.updateStowCommand())
+                        .andThen(superStructure.runOnce(superStructure::stopAllManipulators)));
 
         // Driver Controls
         driverXbox.pov(0).onTrue(Commands.runOnce(poseSelector::selectNorth));
@@ -95,7 +104,9 @@ public class RobotContainer {
         driverXbox.a().whileTrue(Commands.defer(() -> drivebase.driveToPose(poseSelector.reefPose()), Set.of(drivebase)));
         driverXbox.b().whileTrue(Commands.defer(() -> drivebase.driveToPose(poseSelector.stationPose()), Set.of(drivebase)));
 
-        driverXbox.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(7.5, 3, Rotation2d.k180deg))));
+        //driverXbox.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(7.5, 3, Rotation2d.k180deg))));
+
+        driverXbox.start().whileTrue(drivebase.sysIdDriveMotorCommand());
 
         // Operator Auto Controls
         operatorXbox.a().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToL1());

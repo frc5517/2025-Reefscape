@@ -78,7 +78,7 @@ public final class Constants {
         public static final double kL1Setpoint = -20;
         public static final double kL2Setpoint = -10;
         public static final double kL3Setpoint = 0;
-        public static final double kL4Setpoint = 10;
+        public static final double kL4Setpoint = -50;
 
         public static final double kStowSetpoint = 0;
 
@@ -115,7 +115,7 @@ public final class Constants {
         public static final double kL1Setpoint = 10;
         public static final double kL2Setpoint = 20;
         public static final double kL3Setpoint = 30;
-        public static final double kL4Setpoint = 40;
+        public static final double kL4Setpoint = 62.5;
 
         public static final double kStowSetpoint = 0;
 
@@ -133,13 +133,13 @@ public final class Constants {
                         2,
                         10,
                         0,
-                        50,
+                        63.5,
                         0,
                         true,
                         0.6,
                         40,
                         15,
-                        30,
+                        20,
                         0,
                         true
                 );
