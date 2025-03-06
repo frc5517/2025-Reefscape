@@ -17,7 +17,7 @@ public class ArmSubsystem extends SubsystemBase {
     private final ManipSparkMax armMotor = new ManipSparkMax(12);
     private final ManipArm arm = new ManipArm(armMotor, Constants.ArmConstants.armConfig);
 
-    private final DutyCycleEncoder armABS = new DutyCycleEncoder(ArmConstants.kArmABSID, 1, 0);
+    private final DutyCycleEncoder armABS = new DutyCycleEncoder(ArmConstants.kArmABSID);
 
     public ArmSubsystem() {
         arm.enableDefaultLimits();
