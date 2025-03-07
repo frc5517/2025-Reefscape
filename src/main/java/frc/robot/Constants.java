@@ -76,11 +76,11 @@ public final class Constants {
 
         public static final double kArmSpeed = 0.3;
         public static final double kL1Setpoint = -20;
-        public static final double kL2Setpoint = -10;
-        public static final double kL3Setpoint = 0;
-        public static final double kL4Setpoint = -50;
+        public static final double kL2Setpoint = -5;
+        public static final double kL3Setpoint = -6;
+        public static final double kL4Setpoint = -40;
 
-        public static final double kStowSetpoint = 0;
+        public static final double kStowSetpoint = 70;
 
         public static final ManipArmConstants armConfig =
                 new ManipArmConstants(
@@ -100,7 +100,7 @@ public final class Constants {
                         75,
                         false,
                         .5,
-                        351.6,
+                        -173,
                         0.01,
                         40,
                         20,
@@ -113,7 +113,7 @@ public final class Constants {
         public static final int kBottomLimitPort = 2;
         public static final double kElevatorSpeed = .5;
         public static final double kL1Setpoint = 10;
-        public static final double kL2Setpoint = 20;
+        public static final double kL2Setpoint = .5;
         public static final double kL3Setpoint = 30;
         public static final double kL4Setpoint = 62.5;
 
@@ -288,9 +288,9 @@ public final class Constants {
                 0 // front-to-back rotation.
         );
         public static final Translation3d kTopCamPosition = new Translation3d(
-                0, // horizontal.
-                0, // vertical.
-                0 // perpendicular to x and y.
+                13.5, // horizontal.
+                13.5, // vertical.
+                8 // perpendicular to x and y.
         );
     }
 

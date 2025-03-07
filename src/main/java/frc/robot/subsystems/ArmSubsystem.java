@@ -25,9 +25,9 @@ public class ArmSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Arm Raw Raw", armABS.get());
-        SmartDashboard.putNumber("Arm ABS Raw", Degrees.convertFrom(armABS.get(), Rotations));
-        SmartDashboard.putNumber("Arm ABS Adjusted", Degrees.convertFrom(armABS.get(), Rotations) -
+        SmartDashboard.putNumber("Arm Raw Raw", -armABS.get());
+        SmartDashboard.putNumber("Arm ABS Raw", Degrees.convertFrom(-armABS.get(), Rotations));
+        SmartDashboard.putNumber("Arm ABS Adjusted", Degrees.convertFrom(-armABS.get(), Rotations) -
                 ArmConstants.armConfig.kArmOffsetToHorizantalZero.in(Degrees));
     }
 
@@ -79,7 +79,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public void seedArmEncoder() {
-        arm.addAbsoluteEncoderValue(armABS.get());
+        arm.addAbsoluteEncoderValue(armABS.get() * -1);
     }
 
     @Override

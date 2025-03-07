@@ -291,8 +291,8 @@ public class ManipArm extends SubsystemBase {
         motor.setPosition(
                 ManipMath.Arm.convertAngleToSensorUnits(
                         armConstants.kArmReduction,
-                        Rotations.of(absEncoderAngle.in(Rotations))
-                                .minus(armConstants.kArmOffsetToHorizantalZero)).in(Rotations) % 360);
+                        absEncoderAngle
+                                .minus(armConstants.kArmOffsetToHorizantalZero)).in(Rotations));
     }
 
     /**

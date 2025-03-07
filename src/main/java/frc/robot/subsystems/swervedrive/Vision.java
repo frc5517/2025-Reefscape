@@ -339,19 +339,19 @@ public class Vision
     /**
      * Bottom Camera
      */
-    BOTTOM_CAM("Bottom",
+    BOTTOM_CAM("BottomCamera",
             Constants.VisionConstants.kBottomCamRotation,
                Constants.VisionConstants.kBottomCamPosition,
-               VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
-
-    /**
-     * Top Camera
-     */
-    TOP_CAM("Top",
-            Constants.VisionConstants.kTopCamRotation,
-               Constants.VisionConstants.kTopCamPosition,
                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
+//    /**
+//     * Top Camera
+//     */
+//    TOP_CAM("Top",
+//            Constants.VisionConstants.kTopCamRotation,
+//               Constants.VisionConstants.kTopCamPosition,
+//               VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
+//
 
 
     /**
