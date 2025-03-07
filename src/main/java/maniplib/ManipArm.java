@@ -48,9 +48,7 @@ public class ManipArm extends SubsystemBase {
     private Trigger topLimit;
     private Trigger bottomLimit;
     // Various booleans to determine what to enable
-    private boolean absSetup = false;
     private boolean isAdvancedEnabled = false;
-    private boolean syncAbsEncoderInit = true;
     private boolean defaultCommandOverride = false;
     // Universal motor init
     private ManipMotor motor;
@@ -284,19 +282,6 @@ public class ManipArm extends SubsystemBase {
     public void addAbsoluteEncoderValue(double absEncoderRotations) {
         absEncoderAngle.mut_replace(absEncoderRotations, Rotations);
         synchronizeAbsoluteEncoder();
-        this.absSetup = true;
-    }
-
-    /**
-     * Determines whether to sync the absolute encoder in the
-     * {@link ManipArm} class or not. This is enabled by default.
-     */
-    public void setSyncAbsEncoderInit(boolean syncAbsEncoderInit) {
-        if (absSetup) {
-            this.syncAbsEncoderInit = syncAbsEncoderInit;
-        } else {
-            DriverStation.reportWarning("Absolute encoder for ManipArm is not set, cannot run setSyncAbsEncoderInit", true);
-        }
     }
 
     /**
@@ -307,7 +292,7 @@ public class ManipArm extends SubsystemBase {
                 ManipMath.Arm.convertAngleToSensorUnits(
                         armConstants.kArmReduction,
                         Rotations.of(absEncoderAngle.in(Rotations))
-                                .minus(armConstants.kArmOffsetToHorizantalZero)).in(Rotations));
+                                .minus(armConstants.kArmOffsetToHorizantalZero)).in(Rotations) % 360);
     }
 
     /**

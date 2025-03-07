@@ -44,10 +44,12 @@ public class RobotContainer {
                     () -> driverXbox.getLeftX() * -1)
             .withControllerRotationAxis(() -> driverXbox.getRightX() * -1)
             .deadband(Constants.OperatorConstants.DEADBAND)
-            .scaleTranslation(0.8)
+            .scaleTranslation(0.4)
+            .scaleRotation(.2)
             .allianceRelativeControl(true);
 
-    SwerveInputStream robotOriented = driveAngularVelocity.copy().robotRelative(true)
+    SwerveInputStream robotOriented = driveAngularVelocity.copy()
+            .robotRelative(true)
             .allianceRelativeControl(false);
 
     Command drive = drivebase.driveCommand(
@@ -140,9 +142,7 @@ public class RobotContainer {
     }
 
     public void seedEncoders() {
-        if (Robot.isReal()) {
-            armSubsystem.seedArmEncoder();
-        }
+        armSubsystem.seedArmEncoder();
     }
 
     public Command getAutonomousCommand() {
