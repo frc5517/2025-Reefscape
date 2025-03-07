@@ -174,97 +174,126 @@ public final class Constants {
         public static final ProfiledPIDController driveToPoseOmegePID =
                 new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(10, 10));
 
-        public static final Transform2d kBranchOffsetLeft = new Transform2d(
-                Units.inchesToMeters(30), // Offset away from reef.
+        public static final Transform2d BRANCH_OFFSET_LEFT = new Transform2d(
+                Units.inchesToMeters(-30), // Offset away from reef.
                 Units.inchesToMeters(13 / 2.0), // Offset to left branch.
                 Rotation2d.kZero);
-        public static final Transform2d kBranchOffsetRight = new Transform2d(
-                Units.inchesToMeters(30), // Offset away from reef.
+        public static final Transform2d BRANCH_OFFSET_RIGHT = new Transform2d(
+                Units.inchesToMeters(-30), // Offset away from reef.
                 Units.inchesToMeters(-13 / 2.0), // Offset to right branch.
                 Rotation2d.kZero);
 
-        public static final Pose2d LEFT_STATION_POSE_1 = new Pose2d(
-                new Translation2d(0.75, 6.6),
-                new Rotation2d(Math.toRadians(125))
+        public static final Transform2d STATION_OFFSET = new Transform2d(
+                Units.inchesToMeters(-20),
+                Units.inchesToMeters(0),
+                Rotation2d.kZero
         );
-        public static final Pose2d LEFT_STATION_POSE_2 = new Pose2d(
-                new Translation2d(1.15, 6.9),
-                new Rotation2d(Math.toRadians(125))
+
+        public static final Transform2d SLOT_OFFSET_LEFT = new Transform2d(
+                Units.inchesToMeters(0),
+                Units.inchesToMeters(10), // Added several times to achieve all 5 poses.
+                Rotation2d.kZero
         );
-        public static final Pose2d LEFT_STATION_POSE_3 = new Pose2d(
-                new Translation2d(1.45, 6.2),
-                new Rotation2d(Math.toRadians(125))
+        public static final Transform2d SLOT_OFFSET_RIGHT = new Transform2d(
+                Units.inchesToMeters(0),
+                Units.inchesToMeters(-10), // Added several times to achieve all 5 poses.
+                Rotation2d.kZero
         );
-        public static final Pose2d LEFT_STATION_POSE_4 = new Pose2d(
-                new Translation2d(1.7, 7.3),
-                new Rotation2d(Math.toRadians(125))
-        );
-        public static final Pose2d RIGHT_STATION_POSE_1 = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-        public static final Pose2d RIGHT_STATION_POSE_2 = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-        public static final Pose2d RIGHT_STATION_POSE_3 = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
-        public static final Pose2d RIGHT_STATION_POSE_4 = new Pose2d(
-                new Translation2d(5, 5),
-                new Rotation2d(Math.toRadians(90))
-        );
+        public static final Pose2d LEFT_STATION_CENTER_POSE =
+                new Pose2d(
+                        Units.inchesToMeters(33.526),
+                        Units.inchesToMeters(291.176),
+                        Rotation2d.fromDegrees(125.989));
+        public static final Pose2d RIGHT_STATION_CENTER_POSE =
+                new Pose2d(
+                        Units.inchesToMeters(33.526),
+                        Units.inchesToMeters(25.824),
+                        Rotation2d.fromDegrees(234.011));
+
+        public static final Pose2d LEFT_STATION_POSE_1 = LEFT_STATION_CENTER_POSE
+                .plus(STATION_OFFSET)
+                    .plus(SLOT_OFFSET_LEFT)
+                            .plus(SLOT_OFFSET_LEFT);
+        public static final Pose2d LEFT_STATION_POSE_2 = LEFT_STATION_CENTER_POSE
+                .plus(STATION_OFFSET)
+                    .plus(SLOT_OFFSET_LEFT);
+        public static final Pose2d LEFT_STATION_POSE_3 = LEFT_STATION_CENTER_POSE
+                .plus(STATION_OFFSET);
+        public static final Pose2d LEFT_STATION_POSE_4 = LEFT_STATION_CENTER_POSE
+                .plus(STATION_OFFSET)
+                    .plus(SLOT_OFFSET_RIGHT);
+        public static final Pose2d LEFT_STATION_POSE_5 = LEFT_STATION_CENTER_POSE
+                .plus(STATION_OFFSET)
+                    .plus(SLOT_OFFSET_RIGHT
+                            .plus(SLOT_OFFSET_RIGHT)
+                );
+        public static final Pose2d RIGHT_STATION_POSE_1 = RIGHT_STATION_CENTER_POSE
+                .plus(STATION_OFFSET)
+                    .plus(SLOT_OFFSET_RIGHT
+                            .plus(SLOT_OFFSET_RIGHT)
+                );
+        public static final Pose2d RIGHT_STATION_POSE_2 = RIGHT_STATION_CENTER_POSE
+                .plus(STATION_OFFSET)
+                    .plus(SLOT_OFFSET_RIGHT);
+        public static final Pose2d RIGHT_STATION_POSE_3 = RIGHT_STATION_CENTER_POSE
+                .plus(STATION_OFFSET);
+        public static final Pose2d RIGHT_STATION_POSE_4 = RIGHT_STATION_CENTER_POSE
+                .plus(STATION_OFFSET)
+                    .plus(SLOT_OFFSET_LEFT);
+        public static final Pose2d RIGHT_STATION_POSE_5 = RIGHT_STATION_CENTER_POSE
+                .plus(STATION_OFFSET)
+                    .plus(SLOT_OFFSET_LEFT)
+                            .plus(SLOT_OFFSET_LEFT);
 
         public static final Pose2d SOUTH_FACE_POSE = new Pose2d(
                 Units.inchesToMeters(144.003),
                 Units.inchesToMeters(158.500),
-                Rotation2d.fromDegrees(180));
+                Rotation2d.fromDegrees(0));
         public static final Pose2d SOUTHWEST_FACE_POSE = new Pose2d(
                 Units.inchesToMeters(160.373),
                 Units.inchesToMeters(186.857),
-                Rotation2d.fromDegrees(120));
+                Rotation2d.fromDegrees(300));
         public static final Pose2d NORTHWEST_FACE_POSE = new Pose2d(
                 Units.inchesToMeters(193.116),
                 Units.inchesToMeters(186.858),
-                Rotation2d.fromDegrees(60));
+                Rotation2d.fromDegrees(240));
         public static final Pose2d NORTH_FACE_POSE = new Pose2d(
                 Units.inchesToMeters(209.489),
                 Units.inchesToMeters(158.502),
-                Rotation2d.fromDegrees(0));
+                Rotation2d.fromDegrees(180));
         public static final Pose2d NORTHEAST_FACE_POSE = new Pose2d(
                 Units.inchesToMeters(193.118),
                 Units.inchesToMeters(130.145),
-                Rotation2d.fromDegrees(-60));
+                Rotation2d.fromDegrees(120));
         public static final Pose2d SOUTHEAST_FACE_POSE = new Pose2d(
                 Units.inchesToMeters(160.375),
                 Units.inchesToMeters(130.144),
-                Rotation2d.fromDegrees(-120));
+                Rotation2d.fromDegrees(60));
 
         public static final Pose2d REEF_NORTH_LEFT_POSE =
-                NORTH_FACE_POSE.plus(kBranchOffsetLeft);
+                NORTH_FACE_POSE.plus(BRANCH_OFFSET_LEFT);
         public static final Pose2d REEF_NORTH_RIGHT_POSE =
-                NORTH_FACE_POSE.plus(kBranchOffsetRight);
+                NORTH_FACE_POSE.plus(BRANCH_OFFSET_RIGHT);
         public static final Pose2d REEF_NORTHEAST_LEFT_POSE =
-                NORTHEAST_FACE_POSE.plus(kBranchOffsetLeft);
+                NORTHEAST_FACE_POSE.plus(BRANCH_OFFSET_LEFT);
         public static final Pose2d REEF_NORTHEAST_RIGHT_POSE =
-                NORTHEAST_FACE_POSE.plus(kBranchOffsetRight);
+                NORTHEAST_FACE_POSE.plus(BRANCH_OFFSET_RIGHT);
         public static final Pose2d REEF_NORTHWEST_LEFT_POSE =
-                NORTHWEST_FACE_POSE.plus(kBranchOffsetLeft);
+                NORTHWEST_FACE_POSE.plus(BRANCH_OFFSET_LEFT);
         public static final Pose2d REEF_NORTHWEST_RIGHT_POSE =
-                NORTHWEST_FACE_POSE.plus(kBranchOffsetRight);
+                NORTHWEST_FACE_POSE.plus(BRANCH_OFFSET_RIGHT);
         public static final Pose2d REEF_SOUTH_LEFT_POSE =
-                SOUTH_FACE_POSE.plus(kBranchOffsetLeft);
+                SOUTH_FACE_POSE.plus(BRANCH_OFFSET_LEFT);
         public static final Pose2d REEF_SOUTH_RIGHT_POSE =
-                SOUTH_FACE_POSE.plus(kBranchOffsetRight);
+                SOUTH_FACE_POSE.plus(BRANCH_OFFSET_RIGHT);
         public static final Pose2d REEF_SOUTHEAST_LEFT_POSE =
-                SOUTHEAST_FACE_POSE.plus(kBranchOffsetLeft);
+                SOUTHEAST_FACE_POSE.plus(BRANCH_OFFSET_LEFT);
         public static final Pose2d REEF_SOUTHEAST_RIGHT_POSE =
-                SOUTHEAST_FACE_POSE.plus(kBranchOffsetRight);
+                SOUTHEAST_FACE_POSE.plus(BRANCH_OFFSET_RIGHT);
         public static final Pose2d REEF_SOUTHWEST_LEFT_POSE =
-                SOUTHWEST_FACE_POSE.plus(kBranchOffsetLeft);
+                SOUTHWEST_FACE_POSE.plus(BRANCH_OFFSET_LEFT);
         public static final Pose2d REEF_SOUTHWEST_RIGHT_POSE =
-                SOUTHWEST_FACE_POSE.plus(kBranchOffsetRight);
+                SOUTHWEST_FACE_POSE.plus(BRANCH_OFFSET_RIGHT);
     }
 
     public static final class VisionConstants {
