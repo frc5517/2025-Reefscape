@@ -32,7 +32,7 @@ public class IntakeShooterSubsystem extends SubsystemBase {
 
     public Command intake() {
         return intakeShooter.runSpeedCommand(-Constants.IntakeShooterConstants.kIntakeSpeed)
-                .finallyDo(() -> intakeShooter.runVoltage(-0.2));
+                .finallyDo(() -> intakeShooter.runVoltageCommand(-0.2));
     }
 
     public Command shoot() {

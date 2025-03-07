@@ -4,12 +4,16 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -39,13 +43,16 @@ public class RobotContainer {
             elevatorSubsystem,
             intakeShooterSubsystem
     );
+
+    private SendableChooser<Command> autoChooser;
+
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
                     () -> driverXbox.getLeftY() * -1,
                     () -> driverXbox.getLeftX() * -1)
             .withControllerRotationAxis(() -> driverXbox.getRightX() * -1)
             .deadband(Constants.OperatorConstants.DEADBAND)
-            .scaleTranslation(0.4)
-            .scaleRotation(.2)
+            .scaleTranslation(0.8)
+            .scaleRotation(0.4)
             .allianceRelativeControl(true);
 
     SwerveInputStream robotOriented = driveAngularVelocity.copy()
@@ -62,8 +69,8 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+        setupAutonomous();
         configureBindings();
-
         DriverStation.silenceJoystickConnectionWarning(true);
 
     }
@@ -79,7 +86,6 @@ public class RobotContainer {
 
         // Default Commands
         drivebase.setDefaultCommand(driveRobotOriented);
-        driverXbox.start().toggleOnTrue(driveFieldOriented);
 
         armSubsystem.setAutoStow();
         elevatorSubsystem.setAutoStow();
@@ -103,12 +109,12 @@ public class RobotContainer {
         driverXbox.leftBumper().onTrue(Commands.runOnce(poseSelector::cycleStationSlotDown));
         driverXbox.rightBumper().onTrue(Commands.runOnce(poseSelector::cycleStationSlotUp));
 
+//        driverXbox.start().toggleOnTrue(Commands.runEnd(
+//                () -> Commands.runOnce(() -> robotOriented.allianceRelativeControl(true)),
+//                () -> Commands.runOnce(() -> robotOriented.allianceRelativeControl(false))));
+
         driverXbox.a().whileTrue(Commands.defer(() -> drivebase.driveToPose(poseSelector.reefPose()), Set.of(drivebase)));
         driverXbox.b().whileTrue(Commands.defer(() -> drivebase.driveToPose(poseSelector.stationPose()), Set.of(drivebase)));
-
-        //driverXbox.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(7.5, 3, Rotation2d.k180deg))));
-
-        driverXbox.start().whileTrue(drivebase.sysIdDriveMotorCommand());
 
         // Operator Auto Controls
         operatorXbox.a().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToL1());
@@ -146,7 +152,36 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return drivebase.getAutonomousCommand("New Auto");
+        return autoChooser.getSelected();
+    }
+
+    public void setupAutonomous() {
+        NamedCommands.registerCommand("structuresToL1", superStructure.structureToL1());
+        NamedCommands.registerCommand("structuresToL2", superStructure.structureToL2());
+        NamedCommands.registerCommand("structuresToL3", superStructure.structureToL3());
+        NamedCommands.registerCommand("structuresToL4", superStructure.structureToL4());
+        NamedCommands.registerCommand("intake", intakeShooterSubsystem.intake());
+        NamedCommands.registerCommand("shoot", intakeShooterSubsystem.shoot());
+
+        NamedCommands.registerCommand("togglePID", superStructure.toggleOperatorControls().andThen(superStructure.updateStowCommand()));
+
+        NamedCommands.registerCommand("leave", drivebase.driveToDistanceCommand(2, 3));
+
+        NamedCommands.registerCommand("selectSouth", Commands.runOnce(poseSelector::selectSouth));
+        NamedCommands.registerCommand("selectSoutheast", Commands.runOnce(poseSelector::selectSouthEast));
+        NamedCommands.registerCommand("selectSouthwest", Commands.runOnce(poseSelector::selectSouthWest));
+        NamedCommands.registerCommand("selectNorth", Commands.runOnce(poseSelector::selectNorth));
+        NamedCommands.registerCommand("selectNortheast", Commands.runOnce(poseSelector::selectNorthEast));
+        NamedCommands.registerCommand("selectNorthwest", Commands.runOnce(poseSelector::selectNorthWest));
+        NamedCommands.registerCommand("cycleStationUp", Commands.runOnce(poseSelector::cycleStationSlotUp));
+        NamedCommands.registerCommand("cycleStationDown", Commands.runOnce(poseSelector::cycleStationSlotDown));
+        NamedCommands.registerCommand("selectLeft", Commands.runOnce(poseSelector::selectLeft));
+        NamedCommands.registerCommand("selectRight", Commands.runOnce(poseSelector::selectRight));
+        NamedCommands.registerCommand("driveToReef", Commands.defer(() -> drivebase.driveToPose(poseSelector.reefPose()), Set.of(drivebase)));
+        NamedCommands.registerCommand("driveToStation", Commands.defer(() -> drivebase.driveToPose(poseSelector.stationPose()), Set.of(drivebase)));
+
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData(autoChooser);
     }
 
     public void setMotorBrake(boolean brake) {

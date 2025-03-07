@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import maniplib.utils.ManipArmConstants;
 import maniplib.utils.ManipElevatorConstants;
-import swervelib.math.Matter;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -30,11 +29,9 @@ import static edu.wpi.first.units.Units.*;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-
-    public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
-    public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
-    public static final double LOOP_TIME = 0.13; //s, 20ms + 110ms sprk max velocity lag
     public static final double MAX_SPEED = Units.feetToMeters(14.5);
+
+
     public static final Mechanism2d sideRobotView = new Mechanism2d(ArmConstants.armConfig.kArmLength * 2,
             ElevatorConstants.elevatorConfig.kMaxHeight.in(
                     Meters) +
@@ -64,11 +61,7 @@ public final class Constants {
     }
 
     public static class OperatorConstants {
-        // Joystick Deadband
-        public static final double DEADBAND = 0.1;
-        public static final double LEFT_Y_DEADBAND = 0.1;
-        public static final double RIGHT_X_DEADBAND = 0.1;
-        public static final double TURN_CONSTANT = 6;
+        public static final double DEADBAND = 0.01;
     }
 
     public static final class ArmConstants {
@@ -76,9 +69,11 @@ public final class Constants {
 
         public static final double kArmSpeed = 0.3;
         public static final double kL1Setpoint = -20;
-        public static final double kL2Setpoint = -5;
-        public static final double kL3Setpoint = -6;
-        public static final double kL4Setpoint = -40;
+        public static final double kL2Setpoint = -20;
+        public static final double kL3Setpoint = -20;
+        public static final double kL4Setpoint = -35;
+
+        public static final double kStationSetpoint = -35;
 
         public static final double kStowSetpoint = 70;
 
@@ -111,11 +106,13 @@ public final class Constants {
 
     public static final class ElevatorConstants {
         public static final int kBottomLimitPort = 2;
-        public static final double kElevatorSpeed = .5;
+        public static final double kElevatorSpeed = .4;
         public static final double kL1Setpoint = 10;
-        public static final double kL2Setpoint = .5;
-        public static final double kL3Setpoint = 30;
-        public static final double kL4Setpoint = 62.5;
+        public static final double kL2Setpoint = 6;
+        public static final double kL3Setpoint = 25;
+        public static final double kL4Setpoint = 60.5;
+
+        public static final double kStationSetpoint = 1;
 
         public static final double kStowSetpoint = 0;
 
@@ -212,38 +209,21 @@ public final class Constants {
 
         public static final Pose2d LEFT_STATION_POSE_1 = LEFT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
-                    .plus(SLOT_OFFSET_LEFT)
-                            .plus(SLOT_OFFSET_LEFT);
-        public static final Pose2d LEFT_STATION_POSE_2 = LEFT_STATION_CENTER_POSE
-                .plus(STATION_OFFSET)
                     .plus(SLOT_OFFSET_LEFT);
-        public static final Pose2d LEFT_STATION_POSE_3 = LEFT_STATION_CENTER_POSE
+        public static final Pose2d LEFT_STATION_POSE_2 = LEFT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET);
-        public static final Pose2d LEFT_STATION_POSE_4 = LEFT_STATION_CENTER_POSE
+        public static final Pose2d LEFT_STATION_POSE_3 = LEFT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
                     .plus(SLOT_OFFSET_RIGHT);
-        public static final Pose2d LEFT_STATION_POSE_5 = LEFT_STATION_CENTER_POSE
-                .plus(STATION_OFFSET)
-                    .plus(SLOT_OFFSET_RIGHT
-                            .plus(SLOT_OFFSET_RIGHT)
-                );
+
         public static final Pose2d RIGHT_STATION_POSE_1 = RIGHT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
-                    .plus(SLOT_OFFSET_RIGHT
-                            .plus(SLOT_OFFSET_RIGHT)
-                );
-        public static final Pose2d RIGHT_STATION_POSE_2 = RIGHT_STATION_CENTER_POSE
-                .plus(STATION_OFFSET)
                     .plus(SLOT_OFFSET_RIGHT);
-        public static final Pose2d RIGHT_STATION_POSE_3 = RIGHT_STATION_CENTER_POSE
+        public static final Pose2d RIGHT_STATION_POSE_2 = RIGHT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET);
-        public static final Pose2d RIGHT_STATION_POSE_4 = RIGHT_STATION_CENTER_POSE
+        public static final Pose2d RIGHT_STATION_POSE_3 = RIGHT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
                     .plus(SLOT_OFFSET_LEFT);
-        public static final Pose2d RIGHT_STATION_POSE_5 = RIGHT_STATION_CENTER_POSE
-                .plus(STATION_OFFSET)
-                    .plus(SLOT_OFFSET_LEFT)
-                            .plus(SLOT_OFFSET_LEFT);
 
         public static final Pose2d SOUTH_FACE_POSE = new Pose2d(
                 Units.inchesToMeters(144.003),

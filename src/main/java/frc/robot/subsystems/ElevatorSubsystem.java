@@ -68,6 +68,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         return elevator.setGoal(Constants.ElevatorConstants.kL4Setpoint);
     }
 
+    public Command elevatorToStation() {
+        return elevator.setGoal(Constants.ElevatorConstants.kStationSetpoint);
+    }
+
     public Command elevatorUp() {
         return Commands.runEnd(() -> elevator.runElevatorSpeed(Constants.ElevatorConstants.kElevatorSpeed),
                 () -> elevator.runkG(), elevator);

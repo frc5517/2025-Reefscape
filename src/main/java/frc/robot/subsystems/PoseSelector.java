@@ -197,13 +197,9 @@ public class PoseSelector extends SubsystemBase {
             case POSE_1_LEFT -> Constants.DrivebaseConstants.LEFT_STATION_POSE_1;
             case POSE_2_LEFT -> Constants.DrivebaseConstants.LEFT_STATION_POSE_2;
             case POSE_3_LEFT -> Constants.DrivebaseConstants.LEFT_STATION_POSE_3;
-            case POSE_4_LEFT -> Constants.DrivebaseConstants.LEFT_STATION_POSE_4;
-            case POSE_5_LEFT -> Constants.DrivebaseConstants.LEFT_STATION_POSE_5;
             case POSE_1_RIGHT -> Constants.DrivebaseConstants.RIGHT_STATION_POSE_1;
             case POSE_2_RIGHT -> Constants.DrivebaseConstants.RIGHT_STATION_POSE_2;
             case POSE_3_RIGHT -> Constants.DrivebaseConstants.RIGHT_STATION_POSE_3;
-            case POSE_4_RIGHT -> Constants.DrivebaseConstants.RIGHT_STATION_POSE_4;
-            case POSE_5_RIGHT -> Constants.DrivebaseConstants.RIGHT_STATION_POSE_5;
             default -> swerve.getPose();
         };
     }
@@ -241,22 +237,16 @@ public class PoseSelector extends SubsystemBase {
         POSE_1,
         POSE_2,
         POSE_3,
-        POSE_4,
-        POSE_5,
     }
 
     public enum StationPose {
         POSE_1_LEFT,
         POSE_2_LEFT,
         POSE_3_LEFT,
-        POSE_4_LEFT,
-        POSE_5_LEFT,
 
         POSE_1_RIGHT,
         POSE_2_RIGHT,
         POSE_3_RIGHT,
-        POSE_4_RIGHT,
-        POSE_5_RIGHT,
     }
 
 }

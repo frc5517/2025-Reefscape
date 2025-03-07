@@ -62,6 +62,12 @@ public class SuperStructure extends SubsystemBase {
                         .alongWith(elevator.elevatorToL4());
     }
 
+    public Command structureToStation() {
+        return
+                arm.armToStation()
+                        .alongWith(elevator.elevatorToStation());
+    }
+
     public Command toggleOperatorControls() {
         return runOnce(() -> {
             isOperatorManualBoolean = !isOperatorManualBoolean;
