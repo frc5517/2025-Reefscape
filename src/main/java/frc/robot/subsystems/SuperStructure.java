@@ -71,13 +71,13 @@ public class SuperStructure extends SubsystemBase {
     public Command structureToDealgaeHigh() {
         return
                 arm.armToDealgaeHigh()
-                    .alongWith(elevator.elevatorToDealgaeHigh());
+                        .alongWith(elevator.elevatorToDealgaeHigh());
     }
 
     public Command structureToDealgaeLow() {
         return
                 arm.armToDealgaeLow()
-                    .alongWith(elevator.elevatorToDealgaeLow());
+                        .alongWith(elevator.elevatorToDealgaeLow());
     }
 
     public Command toggleOperatorControls() {

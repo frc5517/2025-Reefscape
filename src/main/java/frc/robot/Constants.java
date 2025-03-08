@@ -94,7 +94,7 @@ public final class Constants {
                         3,
                         17,
                         0,
-                        -75,
+                        -90,
                         75,
                         false,
                         .5,
@@ -215,21 +215,21 @@ public final class Constants {
 
         public static final Pose2d LEFT_STATION_POSE_1 = LEFT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
-                    .plus(SLOT_OFFSET_LEFT);
+                .plus(SLOT_OFFSET_LEFT);
         public static final Pose2d LEFT_STATION_POSE_2 = LEFT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET);
         public static final Pose2d LEFT_STATION_POSE_3 = LEFT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
-                    .plus(SLOT_OFFSET_RIGHT);
+                .plus(SLOT_OFFSET_RIGHT);
 
         public static final Pose2d RIGHT_STATION_POSE_1 = RIGHT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
-                    .plus(SLOT_OFFSET_RIGHT);
+                .plus(SLOT_OFFSET_RIGHT);
         public static final Pose2d RIGHT_STATION_POSE_2 = RIGHT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET);
         public static final Pose2d RIGHT_STATION_POSE_3 = RIGHT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
-                    .plus(SLOT_OFFSET_LEFT);
+                .plus(SLOT_OFFSET_LEFT);
 
         public static final Pose2d SOUTH_FACE_POSE = new Pose2d(
                 Units.inchesToMeters(144.003),
@@ -286,26 +286,26 @@ public final class Constants {
         // Coordinate system, makes x, y, and z easy. https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
         // Bottom Camera Constants
         public static final Rotation3d kBottomCamRotation = new Rotation3d(
-                0, // side-to-side rotation.
-                0, // front-to-back rotation.
-                0 // front-to-back rotation.
+                Units.degreesToRadians(0), // side-to-side rotation.
+                Units.degreesToRadians(0), // front-to-back rotation.
+                Units.degreesToRadians(0) // front-to-back rotation.
         );
         public static final Translation3d kBottomCamPosition = new Translation3d(
-                0, // horizontal.
-                0, // vertical.
-                0 // perpendicular to x and y.
+                Units.inchesToMeters(2), // horizontal.
+                Units.inchesToMeters(0), // vertical.
+                Units.inchesToMeters(8) // perpendicular to x and y.
         );
 
         // Top Camera Constants
         public static final Rotation3d kTopCamRotation = new Rotation3d(
-                0, // side-to-side rotation.
-                0, // front-to-back rotation.
-                0 // front-to-back rotation.
+                Units.degreesToRadians(0), // side-to-side rotation.
+                Units.degreesToRadians(-40), // front-to-back rotation.
+                Units.degreesToRadians(0) // front-to-back rotation.
         );
         public static final Translation3d kTopCamPosition = new Translation3d(
-                13.5, // horizontal.
-                13.5, // vertical.
-                8 // perpendicular to x and y.
+                Units.inchesToMeters(2), // horizontal.
+                Units.inchesToMeters(0), // vertical.
+                Units.inchesToMeters(35) // perpendicular to x and y.
         );
     }
 

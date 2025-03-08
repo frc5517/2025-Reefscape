@@ -6,8 +6,6 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -18,10 +16,10 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import maniplib.utils.AllianceFlipUtil;
 import swervelib.SwerveInputStream;
 
 import java.io.File;
@@ -47,9 +45,6 @@ public class RobotContainer {
     );
 
     private final Trigger elevatorSlow = new Trigger(() -> elevatorSubsystem.getHeight() > 30);
-
-    private SendableChooser<Command> autoChooser;
-
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
                     () -> driverXbox.getLeftY() * -1,
                     () -> driverXbox.getLeftX() * -1)
@@ -58,17 +53,16 @@ public class RobotContainer {
             .scaleTranslation(0.6)
             .scaleRotation(0.3)
             .allianceRelativeControl(true);
-
     SwerveInputStream robotOriented = driveAngularVelocity.copy()
             .robotRelative(true)
             .allianceRelativeControl(false)
             .translationHeadingOffset(Rotation2d.k180deg);
-
     Command drive = drivebase.driveCommand(
             () -> driverXbox.getLeftY() * -1,
             () -> driverXbox.getLeftX() * -1,
             () -> driverXbox.getRightX() * -1
     );
+    private SendableChooser<Command> autoChooser;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -146,12 +140,14 @@ public class RobotContainer {
                         .allianceRelativeControl(false)
         ));
 
-//        driverXbox.start().toggleOnTrue(Commands.runEnd(
-//                () -> Commands.runOnce(() -> robotOriented.allianceRelativeControl(true)),
-//                () -> Commands.runOnce(() -> robotOriented.allianceRelativeControl(false))));
-
-        driverXbox.a().whileTrue(Commands.defer(() -> drivebase.driveToPose(poseSelector.reefPose()), Set.of(drivebase)));
-        driverXbox.b().whileTrue(Commands.defer(() -> drivebase.driveToPose(poseSelector.stationPose()), Set.of(drivebase)));
+        driverXbox.a().whileTrue(Commands.defer(() -> drivebase.driveToPose(
+                AllianceFlipUtil.shouldFlip() ?
+                        AllianceFlipUtil.flip(poseSelector.reefPose()) :
+                        poseSelector.reefPose()), Set.of(drivebase)));
+        driverXbox.b().whileTrue(Commands.defer(() -> drivebase.driveToPose(
+                AllianceFlipUtil.shouldFlip() ?
+                        AllianceFlipUtil.flip(poseSelector.stationPose()) :
+                        poseSelector.stationPose()), Set.of(drivebase)));
 
         // Operator Auto Controls
         operatorXbox.a().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToStation());
