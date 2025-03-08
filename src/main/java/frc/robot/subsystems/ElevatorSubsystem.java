@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -72,6 +73,14 @@ public class ElevatorSubsystem extends SubsystemBase {
         return elevator.setGoal(Constants.ElevatorConstants.kStationSetpoint);
     }
 
+    public Command elevatorToDealgaeHigh() {
+        return elevator.setGoal(Constants.ElevatorConstants.kDealgaeHigh);
+    }
+
+    public Command elevatorToDealgaeLow() {
+        return elevator.setGoal(Constants.ElevatorConstants.kDealgaeLow);
+    }
+
     public Command elevatorUp() {
         return Commands.runEnd(() -> elevator.runElevatorSpeed(Constants.ElevatorConstants.kElevatorSpeed),
                 () -> elevator.runkG(), elevator);
@@ -80,6 +89,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Command elevatorDown() {
         return Commands.runEnd(() -> elevator.runElevatorSpeed(-Constants.ElevatorConstants.kElevatorSpeed),
                 () -> elevator.runkG(), elevator);
+    }
+
+    public double getHeight() {
+        return Units.metersToInches(elevator.getHeightMeters());
     }
 
     public void stopElevator() {

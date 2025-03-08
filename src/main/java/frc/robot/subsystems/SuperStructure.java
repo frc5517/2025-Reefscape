@@ -68,6 +68,18 @@ public class SuperStructure extends SubsystemBase {
                         .alongWith(elevator.elevatorToStation());
     }
 
+    public Command structureToDealgaeHigh() {
+        return
+                arm.armToDealgaeHigh()
+                    .alongWith(elevator.elevatorToDealgaeHigh());
+    }
+
+    public Command structureToDealgaeLow() {
+        return
+                arm.armToDealgaeLow()
+                    .alongWith(elevator.elevatorToDealgaeLow());
+    }
+
     public Command toggleOperatorControls() {
         return runOnce(() -> {
             isOperatorManualBoolean = !isOperatorManualBoolean;

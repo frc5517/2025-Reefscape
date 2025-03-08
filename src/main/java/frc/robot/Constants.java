@@ -61,7 +61,7 @@ public final class Constants {
     }
 
     public static class OperatorConstants {
-        public static final double DEADBAND = 0.01;
+        public static final double DEADBAND = 0.1;
     }
 
     public static final class ArmConstants {
@@ -73,7 +73,10 @@ public final class Constants {
         public static final double kL3Setpoint = -20;
         public static final double kL4Setpoint = -35;
 
-        public static final double kStationSetpoint = -35;
+        public static final double kStationSetpoint = 32;
+
+        public static final double kDealgaeHigh = -15;
+        public static final double kDealgaeLow = -15;
 
         public static final double kStowSetpoint = 70;
 
@@ -113,6 +116,9 @@ public final class Constants {
         public static final double kL4Setpoint = 60.5;
 
         public static final double kStationSetpoint = 1;
+
+        public static final double kDealgaeHigh = 37.5;
+        public static final double kDealgaeLow = 20;
 
         public static final double kStowSetpoint = 0;
 
