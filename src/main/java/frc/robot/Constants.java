@@ -170,12 +170,12 @@ public final class Constants {
         // Hold time on motor brakes when disabled
         public static final double WHEEL_LOCK_TIME = 10; // seconds
 
-        public static final ProfiledPIDController driveToPosePID =
-                new ProfiledPIDController(0, 0, 0,
-                        new TrapezoidProfile.Constraints(10, 10));
+        public static final ProfiledPIDController driveToPoseXPID =
+                new ProfiledPIDController(150, 0, 0,
+                        new TrapezoidProfile.Constraints(360, 720));
 
-        public static final ProfiledPIDController driveToPoseOmegePID =
-                new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(10, 10));
+        public static final ProfiledPIDController driveToPoseOmegaPID =
+                new ProfiledPIDController(50, 0, 0, new TrapezoidProfile.Constraints(360, 720));
 
         public static final Transform2d BRANCH_OFFSET_LEFT = new Transform2d(
                 Units.inchesToMeters(-30), // Offset away from reef.

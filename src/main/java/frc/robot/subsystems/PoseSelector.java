@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import maniplib.utils.AllianceFlipUtil;
 
 import static edu.wpi.first.units.Units.Degrees;
 
@@ -35,9 +36,9 @@ public class PoseSelector extends SubsystemBase {
         SmartDashboard.putNumber("Reef Selected Pose", selectedPose.in(Degrees));
 
         SmartDashboard.putString("Station Slot", stationSlot.toString());
-        SmartDashboard.putString("Station Pose", stationPose.toString());
+        SmartDashboard.putString("Station Pose", flippedStationPose().toString());
 
-        SmartDashboard.putString("Reef Pose2d", reefPose().toString());
+        SmartDashboard.putString("Reef Pose2d", flippedReefPose().toString());
     }
 
     /**
@@ -174,7 +175,7 @@ public class PoseSelector extends SubsystemBase {
     /**
      * @return selected reef {@link Pose2d}.
      */
-    public Pose2d reefPose() {
+    public Pose2d selectedReefPose() {
         return switch (reefPose) {
             case NORTH_LEFT -> Constants.DrivebaseConstants.REEF_NORTH_LEFT_POSE;
             case NORTH_RIGHT -> Constants.DrivebaseConstants.REEF_NORTH_RIGHT_POSE;
@@ -192,7 +193,11 @@ public class PoseSelector extends SubsystemBase {
         };
     }
 
-    public Pose2d stationPose() {
+    public Pose2d flippedReefPose() {
+        return AllianceFlipUtil.shouldFlip() ? AllianceFlipUtil.flip(selectedReefPose()) : selectedReefPose();
+    }
+
+    public Pose2d selectedStationPose() {
         return switch (stationPose) {
             case POSE_1_LEFT -> Constants.DrivebaseConstants.LEFT_STATION_POSE_1;
             case POSE_2_LEFT -> Constants.DrivebaseConstants.LEFT_STATION_POSE_2;
@@ -202,6 +207,10 @@ public class PoseSelector extends SubsystemBase {
             case POSE_3_RIGHT -> Constants.DrivebaseConstants.RIGHT_STATION_POSE_3;
             default -> swerve.getPose();
         };
+    }
+
+    public Pose2d flippedStationPose() {
+        return AllianceFlipUtil.shouldFlip() ? AllianceFlipUtil.flip(selectedStationPose()) : selectedStationPose();
     }
 
     public enum ReefSide {
