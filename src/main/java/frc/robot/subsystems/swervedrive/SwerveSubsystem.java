@@ -12,9 +12,11 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -62,7 +64,7 @@ public class SwerveSubsystem extends SubsystemBase {
     /**
      * Enable vision odometry updates while driving.
      */
-    private final boolean visionDriveTest = true;
+    private final boolean visionDriveTest = false;
     /**
      * PhotonVision class to keep an accurate odometry.
      */
@@ -244,11 +246,11 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param pose Target {@link Pose2d} to go to.
      * @return PathFinding command
      */
-    public Command driveToPose(Pose2d pose) {
+    public Command driveToPoseOld(Pose2d pose, double scaleSpeed) {
 // Create the constraints to use while pathfinding
         PathConstraints constraints = new PathConstraints(
-                swerveDrive.getMaximumChassisVelocity(), 4.0,
-                swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
+                swerveDrive.getMaximumChassisVelocity() * scaleSpeed, 4.0 * scaleSpeed,
+                swerveDrive.getMaximumChassisAngularVelocity() * scaleSpeed, Units.degreesToRadians(720) * scaleSpeed);
 
 // Since AutoBuilder is configured, we can use it to build pathfinding commands
         return AutoBuilder.pathfindToPose(
@@ -257,6 +259,47 @@ public class SwerveSubsystem extends SubsystemBase {
                 edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
         );
     }
+
+    /**
+     * Use PathPlanner Path finding to go to a point on the field.
+     *
+     * @param pose Target {@link Pose2d} to go to.
+     * @return PathFinding command
+     */
+    public Command driveToPose(Supplier<Pose2d> pose, double scaleSpeed)
+    {
+        PathConstraints constraints = new PathConstraints(
+                swerveDrive.getMaximumChassisVelocity() * scaleSpeed,
+                4.0 * scaleSpeed,
+                swerveDrive.getMaximumChassisAngularVelocity() * scaleSpeed,
+                Units.degreesToRadians(720) * scaleSpeed);
+        PPHolonomicDriveController holo = new PPHolonomicDriveController(
+                // PPHolonomicController is the built-in path following controller for holonomic drive trains
+                new PIDConstants(5.0, 0.0, 0.0),
+                // Translation PID constants
+                new PIDConstants(5.0, 0.0, 0.0)
+                // Rotation PID constants
+        );
+        return
+            AutoBuilder.pathfindToPose(
+                            pose.get(),
+                    constraints,
+                    edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
+            )
+                    .until(() ->
+                            MathUtil.isNear(pose.get().getX(), getPose().getX(), 2) &&
+                                    MathUtil.isNear(pose.get().getY(), getPose().getY(), 2))
+                    .andThen(defer(() -> {
+                        PathPlannerTrajectoryState state = new PathPlannerTrajectoryState();
+                        return startRun(() -> {
+                            holo.reset(swerveDrive.getPose(), swerveDrive.getRobotVelocity());
+                            state.pose = pose.get();
+                        }, () -> swerveDrive.drive(holo.calculateRobotRelativeSpeeds(swerveDrive.getPose(), state)));
+                    }));
+
+    }
+
+
 
     /**
      * Drive with {@link SwerveSetpointGenerator} from 254, implemented by PathPlanner.

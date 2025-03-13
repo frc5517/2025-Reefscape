@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -11,8 +12,7 @@ import frc.robot.Constants;
 import maniplib.ManipElevator;
 import maniplib.motors.ManipSparkMax;
 
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Millimeters;
+import static edu.wpi.first.units.Units.*;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -22,6 +22,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final Trigger topLimit = new Trigger(() -> elevator.nearMax(Millimeters.convertFrom(.5, Inches)));
     private final DigitalInput elevatorLimitSwitch = new DigitalInput(Constants.ElevatorConstants.kBottomLimitPort);
     private final Trigger bottomLimit = new Trigger(() -> !elevatorLimitSwitch.get());
+    private boolean scaleHeightHit = false;
+    private final Trigger scaleHeightHitTrigger = new Trigger(() -> scaleHeightHit);
 
     public ElevatorSubsystem() {
         rightElevatorMotor.setMotorBrake(true);
@@ -93,6 +95,25 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public double getHeight() {
         return Units.metersToInches(elevator.getHeightMeters());
+    }
+
+    public double scaleForDrive(double inputSpeed, double lowestOutput, double highestOutput) {
+        double multipleNormalized =
+                1.0 - (elevator.getHeightMeters() - Constants.ElevatorConstants.elevatorConfig.kMinHeight.in(Meters))
+                / (Constants.ElevatorConstants.elevatorConfig.kMaxHeight.in(Meters) - Constants.ElevatorConstants.elevatorConfig.kMinHeight.in(Meters));
+        double multiple =
+                Math.pow(multipleNormalized, 1);
+        return
+                multiple > highestOutput ? inputSpeed :
+                        multiple < lowestOutput ? lowestOutput : inputSpeed * multiple;
+    }
+
+    public Trigger scaleHeightHit() {
+        double multiple =
+                1.0 - (elevator.getHeightMeters() - Constants.ElevatorConstants.elevatorConfig.kMinHeight.in(Meters))
+                        / (Constants.ElevatorConstants.elevatorConfig.kMaxHeight.in(Meters) - Constants.ElevatorConstants.elevatorConfig.kMinHeight.in(Meters));
+        scaleHeightHit = multiple > 0.8;
+        return scaleHeightHitTrigger;
     }
 
     public void stopElevator() {

@@ -44,14 +44,13 @@ public class RobotContainer {
             intakeShooterSubsystem
     );
 
-    private final Trigger elevatorSlow = new Trigger(() -> elevatorSubsystem.getHeight() > 30);
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
                     () -> driverXbox.getLeftY() * -1,
                     () -> driverXbox.getLeftX() * -1)
             .withControllerRotationAxis(() -> driverXbox.getRightX() * -1)
             .deadband(Constants.OperatorConstants.DEADBAND)
-            .scaleTranslation(0.6)
-            .scaleRotation(0.3)
+            .scaleTranslation(.8)
+            .scaleRotation(.4)
             .allianceRelativeControl(true);
     SwerveInputStream robotOriented = driveAngularVelocity.copy()
             .robotRelative(true)
@@ -76,7 +75,6 @@ public class RobotContainer {
 
     private void configureBindings() {
         Command driveRobotOriented = drivebase.driveFieldOriented(robotOriented);
-        Command driveFieldOriented = drivebase.driveFieldOriented(driveAngularVelocity);
 
         ledSubsystem.setDefaultCommand(ledSubsystem.runPatternBoth(
                 LEDPattern.solid(ledSubsystem.editColor(Color.kFirstRed)),
@@ -85,6 +83,13 @@ public class RobotContainer {
 
         // Default Commands
         drivebase.setDefaultCommand(driveRobotOriented);
+
+        elevatorSubsystem.scaleHeightHit().whileTrue(Commands.runEnd(
+                () -> robotOriented.scaleTranslation(elevatorSubsystem.scaleForDrive(0.8, .3, .8))
+                        .scaleRotation(elevatorSubsystem.scaleForDrive(0.4, .3, .8)),
+                () -> robotOriented.scaleTranslation(0.8)
+                        .scaleRotation(0.6)
+        ));
 
         armSubsystem.setAutoStow();
         elevatorSubsystem.setAutoStow();
@@ -108,24 +113,17 @@ public class RobotContainer {
         driverXbox.leftBumper().onTrue(Commands.runOnce(poseSelector::cycleStationSlotDown));
         driverXbox.rightBumper().onTrue(Commands.runOnce(poseSelector::cycleStationSlotUp));
 
-        elevatorSlow.whileTrue(Commands.runEnd(
-                () -> robotOriented.scaleTranslation(.3)
-                        .scaleRotation(.15),
-                () -> robotOriented.scaleRotation(.6)
-                        .scaleRotation(.3)
-        ));
-
-        driverXbox.rightTrigger().whileTrue(Commands.runEnd(
-                () -> robotOriented.scaleTranslation(.8)
-                        .scaleRotation(.4),
-                () -> robotOriented.scaleTranslation(.6)
-                        .scaleRotation(.3)
-        ));
         driverXbox.leftTrigger().whileTrue(Commands.runEnd(
-                () -> robotOriented.scaleTranslation(.3)
-                        .scaleTranslation(.15),
-                () -> robotOriented.scaleTranslation(.6)
-                        .scaleTranslation(.3)
+                () -> robotOriented.scaleTranslation(0.3)
+                        .scaleRotation(0.2),
+                () -> robotOriented.scaleTranslation(0.8)
+                        .scaleRotation(0.6)
+        ));
+        driverXbox.rightTrigger().whileTrue(Commands.runEnd(
+                () -> robotOriented.scaleTranslation(1)
+                        .scaleRotation(.75),
+                () -> robotOriented.scaleTranslation(.8)
+                        .scaleRotation(.6)
         ));
 
         driverXbox.back().toggleOnTrue(Commands.runEnd(
@@ -141,13 +139,11 @@ public class RobotContainer {
         ));
 
         driverXbox.a().whileTrue(Commands.defer(() -> drivebase.driveToPose(
-                AllianceFlipUtil.shouldFlip() ?
-                        AllianceFlipUtil.flip(poseSelector.reefPose()) :
-                        poseSelector.reefPose()), Set.of(drivebase)));
+                poseSelector::flippedReefPose,
+                elevatorSubsystem.scaleForDrive(1, .5, .9)), Set.of(drivebase)));
         driverXbox.b().whileTrue(Commands.defer(() -> drivebase.driveToPose(
-                AllianceFlipUtil.shouldFlip() ?
-                        AllianceFlipUtil.flip(poseSelector.stationPose()) :
-                        poseSelector.stationPose()), Set.of(drivebase)));
+                poseSelector::flippedStationPose,
+                elevatorSubsystem.scaleForDrive(1, .5, .9)), Set.of(drivebase)));
 
         // Operator Auto Controls
         operatorXbox.a().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToStation());
@@ -205,8 +201,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("cycleStationDown", Commands.runOnce(poseSelector::cycleStationSlotDown));
         NamedCommands.registerCommand("selectLeft", Commands.runOnce(poseSelector::selectLeft));
         NamedCommands.registerCommand("selectRight", Commands.runOnce(poseSelector::selectRight));
-        NamedCommands.registerCommand("driveToReef", Commands.defer(() -> drivebase.driveToPose(poseSelector.reefPose()), Set.of(drivebase)));
-        NamedCommands.registerCommand("driveToStation", Commands.defer(() -> drivebase.driveToPose(poseSelector.stationPose()), Set.of(drivebase)));
+        NamedCommands.registerCommand("driveToReef", Commands.defer(() -> drivebase.driveToPose(poseSelector::flippedReefPose, elevatorSubsystem.scaleForDrive(.8, .5, .9)), Set.of(drivebase)));
+        NamedCommands.registerCommand("driveToStation", Commands.defer(() -> drivebase.driveToPose(poseSelector::flippedStationPose, elevatorSubsystem.scaleForDrive(.8, .5, .9)), Set.of(drivebase)));
 
         autoChooser = AutoBuilder.buildAutoChooser();
 
