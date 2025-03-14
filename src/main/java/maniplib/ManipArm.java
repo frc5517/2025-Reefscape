@@ -1,5 +1,6 @@
 package maniplib;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.*;
@@ -293,6 +294,20 @@ public class ManipArm extends SubsystemBase {
                         armConstants.kArmReduction,
                         absEncoderAngle
                                 .minus(armConstants.kArmOffsetToHorizantalZero)).in(Rotations));
+    }
+
+    /**
+     * A trigger for when the angle is at an acceptable tolerance.
+     *
+     * @param angle     Angle in Degrees.
+     * @param tolerance Tolerance in Degrees.
+     * @return {@link Trigger}
+     */
+    public Trigger atAngle(double angle, double tolerance) {
+        return new Trigger(() -> MathUtil.isNear(angle,
+                getAngle().in(Degrees),
+                tolerance)
+        );
     }
 
     /**

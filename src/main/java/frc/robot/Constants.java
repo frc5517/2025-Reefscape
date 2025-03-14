@@ -29,57 +29,22 @@ import static edu.wpi.first.units.Units.*;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static final double MAX_SPEED = Units.feetToMeters(14.5);
-
-
-    public static final Mechanism2d sideRobotView = new Mechanism2d(ArmConstants.armConfig.kArmLength * 2,
-            ElevatorConstants.elevatorConfig.kMaxHeight.in(
-                    Meters) +
-                    ArmConstants.armConfig.kArmLength);
-    public static final MechanismRoot2d kElevatorCarriage;
-    public static final MechanismLigament2d kArmMech;
-    public static final MechanismLigament2d kElevatorTower;
-
-    static {
-        kElevatorCarriage = Constants.sideRobotView.getRoot("ElevatorCarriage",
-                ArmConstants.armConfig.kArmLength,
-                ElevatorConstants.elevatorConfig.kStartingHeightSim.in(
-                        Meters));
-        kArmMech = kElevatorCarriage.append(
-                new MechanismLigament2d(
-                        "Arm",
-                        ArmConstants.armConfig.kArmLength,
-                        ArmConstants.armConfig.kArmStartingAngle.in(Degrees),
-                        6,
-                        new Color8Bit(Color.kYellow)));
-        kElevatorTower = kElevatorCarriage.append(new MechanismLigament2d(
-                "Elevator",
-                ElevatorConstants.elevatorConfig.kStartingHeightSim.in(Meters),
-                -90,
-                6,
-                new Color8Bit(Color.kRed)));
-    }
-
     public static class OperatorConstants {
         public static final double DEADBAND = 0.1;
     }
 
     public static final class ArmConstants {
         public static final int kArmABSID = 1; // DIO
-
         public static final double kArmSpeed = 0.3;
         public static final double kL1Setpoint = -20;
         public static final double kL2Setpoint = -20;
         public static final double kL3Setpoint = -20;
         public static final double kL4Setpoint = -35;
-
         public static final double kStationSetpoint = 32;
-
         public static final double kDealgaeHigh = -15;
         public static final double kDealgaeLow = -15;
-
         public static final double kStowSetpoint = 70;
-
+        public static final double kAutoScoreToleranceDegrees = .5;
         public static final ManipArmConstants armConfig =
                 new ManipArmConstants(
                         DCMotor.getNEO(1),
@@ -114,20 +79,18 @@ public final class Constants {
         public static final double kL2Setpoint = 6;
         public static final double kL3Setpoint = 25;
         public static final double kL4Setpoint = 60.5;
-
         public static final double kStationSetpoint = 1;
-
         public static final double kDealgaeHigh = 37.5;
         public static final double kDealgaeLow = 20;
-
         public static final double kStowSetpoint = 0;
-
+        public static final double kSlowElevatorHeightInches = 30;
+        public static final double kAutoScoreToleranceInches = .5;
         public static final ManipElevatorConstants elevatorConfig =
                 new ManipElevatorConstants(
                         DCMotor.getNEO(2),
-                        32,
-                        0,
+                        38,
                         1,
+                        0.01,
                         0.08,
                         3.07,
                         0.01,
@@ -150,13 +113,14 @@ public final class Constants {
 
     public static final class IntakeShooterConstants {
         public static final int kIntakeShooterCoralSensorID = 0; // DIO
-
         public static final double kIntakeSpeed = .3;
         public static final double kShootSpeed = .5;
+        public static final double kIntakekG = .2;
     }
 
     public static final class ClimberConstants {
         public static final double kClimberSpeed = 1;
+        public static final int kClimbLimitPort = 3;
     }
 
     public static final class AddressableConstants {
@@ -167,15 +131,40 @@ public final class Constants {
     }
 
     public static final class DrivebaseConstants {
+        public static final double MAX_SPEED = Units.feetToMeters(14.5);
+        public static final double kScaleSpeedMax = 0.8;
+        public static final double kScaleSpeedMin = 0.3;
         // Hold time on motor brakes when disabled
         public static final double WHEEL_LOCK_TIME = 10; // seconds
 
+        // Drive to pose constants
+        public static final double kDistanceUntilPID = Units.inchesToMeters(12);
+        public static final double kAtReefTolerance = Units.inchesToMeters(.2);
+        public static final double kAtStationTolerance = Units.inchesToMeters(.2);
+
+
+        // Drive to pose from SwerveInputStream constants.
         public static final ProfiledPIDController driveToPoseXPID =
-                new ProfiledPIDController(150, 0, 0,
-                        new TrapezoidProfile.Constraints(360, 720));
+                new ProfiledPIDController(
+                        150,
+                        0,
+                        0,
+                        new TrapezoidProfile.Constraints(
+                                360,
+                                720));
 
         public static final ProfiledPIDController driveToPoseOmegaPID =
-                new ProfiledPIDController(50, 0, 0, new TrapezoidProfile.Constraints(360, 720));
+                new ProfiledPIDController(
+                        50,
+                        0,
+                        0,
+                        new TrapezoidProfile.Constraints(
+                                360,
+                                720));
+
+        //
+        // Pose offsets below. Proceed with caution!
+        //
 
         public static final Transform2d BRANCH_OFFSET_LEFT = new Transform2d(
                 Units.inchesToMeters(-30), // Offset away from reef.
@@ -202,6 +191,17 @@ public final class Constants {
                 Units.inchesToMeters(-10), // Added several times to achieve all 5 poses.
                 Rotation2d.kZero
         );
+
+        public static final Transform2d CAGE_OFFSET = new Transform2d(
+                Units.inchesToMeters(-30),
+                Units.inchesToMeters(0),
+                Rotation2d.k180deg
+        );
+
+        //
+        // Constant poses below, proceed with EXTREME CAUTION!!
+        //
+
         public static final Pose2d LEFT_STATION_CENTER_POSE =
                 new Pose2d(
                         Units.inchesToMeters(33.526),
@@ -212,6 +212,22 @@ public final class Constants {
                         Units.inchesToMeters(33.526),
                         Units.inchesToMeters(25.824),
                         Rotation2d.fromDegrees(234.011));
+
+        public static final Pose2d kLeftCage =
+                new Pose2d(
+                        Units.inchesToMeters(345.428),
+                        Units.inchesToMeters(286.779),
+                        Rotation2d.kZero);
+        public static final Pose2d kMiddleCage =
+                new Pose2d(
+                        Units.inchesToMeters(345.428),
+                        Units.inchesToMeters(242.855),
+                        Rotation2d.kZero);
+        public static final Pose2d kRightCage =
+                new Pose2d(
+                        Units.inchesToMeters(345.428),
+                        Units.inchesToMeters(199.947),
+                        Rotation2d.kZero);
 
         public static final Pose2d LEFT_STATION_POSE_1 = LEFT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
@@ -230,6 +246,13 @@ public final class Constants {
         public static final Pose2d RIGHT_STATION_POSE_3 = RIGHT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
                 .plus(SLOT_OFFSET_LEFT);
+
+        public static final Pose2d LEFT_CAGE_POSE = kLeftCage
+                .plus(CAGE_OFFSET);
+        public static final Pose2d MIDDLE_CAGE_POSE = kMiddleCage
+                .plus(CAGE_OFFSET);
+        public static final Pose2d RIGHT_CAGE_POSE = kRightCage
+                .plus(CAGE_OFFSET);
 
         public static final Pose2d SOUTH_FACE_POSE = new Pose2d(
                 Units.inchesToMeters(144.003),
@@ -283,30 +306,55 @@ public final class Constants {
     }
 
     public static final class VisionConstants {
-        // Coordinate system, makes x, y, and z easy. https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
+        // Coordinate system, makes x, y, and z easy.
+        // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
         // Bottom Camera Constants
         public static final Rotation3d kBottomCamRotation = new Rotation3d(
-                Units.degreesToRadians(0), // side-to-side rotation.
-                Units.degreesToRadians(0), // front-to-back rotation.
-                Units.degreesToRadians(0) // front-to-back rotation.
-        );
+                Units.degreesToRadians(0),
+                Units.degreesToRadians(0),
+                Units.degreesToRadians(0));
         public static final Translation3d kBottomCamPosition = new Translation3d(
-                Units.inchesToMeters(2), // horizontal.
-                Units.inchesToMeters(0), // vertical.
-                Units.inchesToMeters(8) // perpendicular to x and y.
-        );
+                Units.inchesToMeters(2),
+                Units.inchesToMeters(0),
+                Units.inchesToMeters(8));
 
         // Top Camera Constants
         public static final Rotation3d kTopCamRotation = new Rotation3d(
-                Units.degreesToRadians(0), // side-to-side rotation.
-                Units.degreesToRadians(-40), // front-to-back rotation.
-                Units.degreesToRadians(0) // front-to-back rotation.
-        );
+                Units.degreesToRadians(0),
+                Units.degreesToRadians(-40),
+                Units.degreesToRadians(0));
         public static final Translation3d kTopCamPosition = new Translation3d(
-                Units.inchesToMeters(2), // horizontal.
-                Units.inchesToMeters(0), // vertical.
-                Units.inchesToMeters(35) // perpendicular to x and y.
-        );
+                Units.inchesToMeters(2),
+                Units.inchesToMeters(0),
+                Units.inchesToMeters(35));
+    }
+
+    public static final Mechanism2d sideRobotView = new Mechanism2d(ArmConstants.armConfig.kArmLength * 2,
+            ElevatorConstants.elevatorConfig.kMaxHeight.in(
+                    Meters) +
+                    ArmConstants.armConfig.kArmLength);
+    public static final MechanismRoot2d kElevatorCarriage;
+    public static final MechanismLigament2d kArmMech;
+    public static final MechanismLigament2d kElevatorTower;
+
+    static {
+        kElevatorCarriage = Constants.sideRobotView.getRoot("ElevatorCarriage",
+                ArmConstants.armConfig.kArmLength,
+                ElevatorConstants.elevatorConfig.kStartingHeightSim.in(
+                        Meters));
+        kArmMech = kElevatorCarriage.append(
+                new MechanismLigament2d(
+                        "Arm",
+                        ArmConstants.armConfig.kArmLength,
+                        ArmConstants.armConfig.kArmStartingAngle.in(Degrees),
+                        6,
+                        new Color8Bit(Color.kYellow)));
+        kElevatorTower = kElevatorCarriage.append(new MechanismLigament2d(
+                "Elevator",
+                ElevatorConstants.elevatorConfig.kStartingHeightSim.in(Meters),
+                -90,
+                6,
+                new Color8Bit(Color.kRed)));
     }
 
 }
