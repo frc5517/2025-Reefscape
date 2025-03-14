@@ -192,7 +192,16 @@ public class RobotContainer {
         NamedCommands.registerCommand("intake", intakeShooterSubsystem.intake());
         NamedCommands.registerCommand("shoot", intakeShooterSubsystem.shoot());
 
-        NamedCommands.registerCommand("togglePID", superStructure.toggleOperatorControls().andThen(superStructure.updateStowCommand()));
+        NamedCommands.registerCommand("enablePID", superStructure.enablePID()
+                .andThen(superStructure.updateStowCommand()));
+        NamedCommands.registerCommand("disablePID", superStructure.disablePID()
+                .andThen(superStructure.updateStowCommand()));
+
+        NamedCommands.registerCommand("getCoral", superStructure.getCoral());
+        NamedCommands.registerCommand("scoreL1", superStructure.scoreL1());
+        NamedCommands.registerCommand("scoreL2", superStructure.scoreL2());
+        NamedCommands.registerCommand("scoreL3", superStructure.scoreL3());
+        NamedCommands.registerCommand("scoreL4", superStructure.scoreL4());
 
         NamedCommands.registerCommand("selectSouth", Commands.runOnce(poseSelector::selectSouth));
         NamedCommands.registerCommand("selectSoutheast", Commands.runOnce(poseSelector::selectSouthEast));

@@ -83,6 +83,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         return elevator.setGoal(Constants.ElevatorConstants.kDealgaeLow);
     }
 
+    public Command elevatorToStow() {
+        return elevator.setGoal(Constants.ElevatorConstants.kStowSetpoint);
+    }
+
     public Command elevatorUp() {
         return Commands.runEnd(() -> elevator.runElevatorSpeed(Constants.ElevatorConstants.kElevatorSpeed),
                 () -> elevator.runkG(), elevator);

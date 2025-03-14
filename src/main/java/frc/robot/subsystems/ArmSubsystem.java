@@ -75,6 +75,10 @@ public class ArmSubsystem extends SubsystemBase {
         return arm.setGoal(ArmConstants.kDealgaeLow);
     }
 
+    public Command armToStow() {
+        return arm.setGoal(Constants.ArmConstants.kStowSetpoint);
+    }
+
     public Command armUp() {
         return arm.runArmSpeedCommand(Constants.ArmConstants.kArmSpeed);
     }

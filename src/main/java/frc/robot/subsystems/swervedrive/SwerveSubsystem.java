@@ -744,16 +744,6 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Adds X, Y, and Omega velocities divided by 3 and checks if it's greater than given tolerance.
-     */
-    public Trigger hasStopped(double tolerance) {
-        return new Trigger(() ->
-                getRobotVelocity().vxMetersPerSecond +
-                        getRobotVelocity().vyMetersPerSecond +
-                        getRobotVelocity().omegaRadiansPerSecond / 3 < tolerance);
-    }
-
-    /**
      * Gets the swerve drive object.
      *
      * @return {@link SwerveDrive}
