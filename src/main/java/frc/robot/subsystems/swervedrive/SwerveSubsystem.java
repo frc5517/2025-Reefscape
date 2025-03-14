@@ -16,7 +16,6 @@ import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,6 +29,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.Vision.Cameras;
@@ -86,7 +86,7 @@ public class SwerveSubsystem extends SubsystemBase {
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being created.
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         try {
-            swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED, startingPose);
+            swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.DrivebaseConstants.MAX_SPEED, startingPose);
             // Alternative method if you don't want to supply the conversion factor via JSON files.
             // swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed, angleConversionFactor, driveConversionFactor);
         } catch (Exception e) {
@@ -118,7 +118,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg) {
         swerveDrive = new SwerveDrive(driveCfg,
                 controllerCfg,
-                Constants.MAX_SPEED,
+                Constants.DrivebaseConstants.MAX_SPEED,
                 new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)),
                         Rotation2d.fromDegrees(0)));
     }
@@ -266,40 +266,58 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param pose Target {@link Pose2d} to go to.
      * @return PathFinding command
      */
-    public Command driveToPose(Supplier<Pose2d> pose, double scaleSpeed)
-    {
+    public Command driveToPose(Supplier<Pose2d> pose, double scaleSpeed) {
         PathConstraints constraints = new PathConstraints(
                 swerveDrive.getMaximumChassisVelocity() * scaleSpeed,
-                4.0 * scaleSpeed,
+                5.0 * scaleSpeed,
                 swerveDrive.getMaximumChassisAngularVelocity() * scaleSpeed,
                 Units.degreesToRadians(720) * scaleSpeed);
         PPHolonomicDriveController holo = new PPHolonomicDriveController(
                 // PPHolonomicController is the built-in path following controller for holonomic drive trains
-                new PIDConstants(5.0, 0.0, 0.0),
+                new PIDConstants(4.8, 0.0, 0.01),
                 // Translation PID constants
                 new PIDConstants(5.0, 0.0, 0.0)
                 // Rotation PID constants
         );
         return
-            AutoBuilder.pathfindToPose(
-                            pose.get(),
-                    constraints,
-                    edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
-            )
-                    .until(() ->
-                            MathUtil.isNear(pose.get().getX(), getPose().getX(), 2) &&
-                                    MathUtil.isNear(pose.get().getY(), getPose().getY(), 2))
-                    .andThen(defer(() -> {
-                        PathPlannerTrajectoryState state = new PathPlannerTrajectoryState();
-                        return startRun(() -> {
-                            holo.reset(swerveDrive.getPose(), swerveDrive.getRobotVelocity());
-                            state.pose = pose.get();
-                        }, () -> swerveDrive.drive(holo.calculateRobotRelativeSpeeds(swerveDrive.getPose(), state)));
-                    }));
+                // Path find to pose
+                AutoBuilder.pathfindToPose(
+                                pose.get(),
+                                constraints,
+                                edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
+                        )
+                        // Until within distanceUntilPID constant.
+                        .until(() -> poseIsNear(pose.get(), getPose(),
+                                Constants.DrivebaseConstants.kDistanceUntilPID))
+                        // Then switch to Holonomic pid control.
+                        .andThen(defer(() -> {
+                            PathPlannerTrajectoryState state = new PathPlannerTrajectoryState();
+                            return startRun(() -> {
+                                holo.reset(swerveDrive.getPose(), swerveDrive.getRobotVelocity());
+                                state.pose = pose.get();
+                            }, () -> swerveDrive.drive(holo.calculateRobotRelativeSpeeds(swerveDrive.getPose(), state).times(scaleSpeed)));
+                        }));
 
     }
 
-
+    /**
+     * Checks given pose matches an expected value within a tolerance.
+     *
+     * @param expected        The expected value
+     * @param actual          The actual value
+     * @param toleranceMeters The allowed difference between the actual and the expected value in meters
+     * @return Whether the actual value is within the allowed tolerance
+     */
+    public boolean poseIsNear(Pose2d expected, Pose2d actual, double toleranceMeters) {
+        double expectedX = expected.getX();
+        double expectedY = expected.getY();
+        double actualX = actual.getX();
+        double actualY = actual.getY();
+        // Gets the absolute value of expected pose minus actual pose, if the actual pose is exactly right it would return 0.
+        // Since it is unreasonable to reach 0 a tolerance is added to reach a reasonable state.
+        return Math.abs(expectedX - actualX) < toleranceMeters
+                && Math.abs(expectedY - actualY) < toleranceMeters;
+    }
 
     /**
      * Drive with {@link SwerveSetpointGenerator} from 254, implemented by PathPlanner.
@@ -626,7 +644,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 headingX,
                 headingY,
                 getHeading().getRadians(),
-                Constants.MAX_SPEED);
+                Constants.DrivebaseConstants.MAX_SPEED);
     }
 
     /**
@@ -645,7 +663,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 scaledInputs.getY(),
                 angle.getRadians(),
                 getHeading().getRadians(),
-                Constants.MAX_SPEED);
+                Constants.DrivebaseConstants.MAX_SPEED);
     }
 
     /**
@@ -705,6 +723,34 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public void addFakeVisionReading() {
         swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
+    }
+
+    public Command driveForwards() {
+        return run(() -> {
+            swerveDrive.drive(new Translation2d(1, 0), 0, false, false);
+        }).finallyDo(() -> swerveDrive.drive(new Translation2d(0, 0), 0, false, false));
+    }
+
+    public Command driveBackwards() {
+        return run(() -> {
+            swerveDrive.drive(new Translation2d(-1, 0), 0, false, false);
+        }).finallyDo(() -> swerveDrive.drive(new Translation2d(0, 0), 0, false, false));
+    }
+
+    public Command stopDrive() {
+        return runOnce(() -> {
+            swerveDrive.drive(new Translation2d(0, 0), 0, false, false);
+        });
+    }
+
+    /**
+     * Adds X, Y, and Omega velocities divided by 3 and checks if it's greater than given tolerance.
+     */
+    public Trigger hasStopped(double tolerance) {
+        return new Trigger(() ->
+                getRobotVelocity().vxMetersPerSecond +
+                        getRobotVelocity().vyMetersPerSecond +
+                        getRobotVelocity().omegaRadiansPerSecond / 3 < tolerance);
     }
 
     /**

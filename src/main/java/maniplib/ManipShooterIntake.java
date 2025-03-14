@@ -46,7 +46,7 @@ public class ManipShooterIntake extends SubsystemBase {
     public Command runVoltageCommand(double voltage) {
         return runEnd(
                 () -> {
-                    motor.setVoltage(voltage);
+                    runVoltage(voltage);
                 }, this::stopShooter
         );
     }

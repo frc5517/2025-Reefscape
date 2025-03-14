@@ -213,6 +213,19 @@ public class PoseSelector extends SubsystemBase {
         return AllianceFlipUtil.shouldFlip() ? AllianceFlipUtil.flip(selectedStationPose()) : selectedStationPose();
     }
 
+    public Pose2d selectedCagePose() {
+        return switch (stationSlot) {
+            case POSE_1 -> Constants.DrivebaseConstants.LEFT_CAGE_POSE;
+            case POSE_2 -> Constants.DrivebaseConstants.MIDDLE_CAGE_POSE;
+            case POSE_3 -> Constants.DrivebaseConstants.RIGHT_CAGE_POSE;
+            default -> swerve.getPose();
+        };
+    }
+
+    public Pose2d flippedCagePose() {
+        return AllianceFlipUtil.shouldFlip() ? AllianceFlipUtil.flip(selectedCagePose()) : selectedCagePose();
+    }
+
     public enum ReefSide {
         NORTH,
         NORTHEAST,
