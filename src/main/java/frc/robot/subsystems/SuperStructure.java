@@ -52,7 +52,7 @@ public class SuperStructure extends SubsystemBase {
     private Command driveToReef() {
         return Commands.defer(() -> drivebase.driveToPose(
                 poseSelector::flippedReefPose,
-                elevator.scaleForDrive(1)), Set.of(drivebase));
+                .8), Set.of(drivebase));
     }
 
     private Trigger atReef() {
@@ -76,7 +76,9 @@ public class SuperStructure extends SubsystemBase {
                         .alongWith(structureToStation())
                         .alongWith(intakeShooter.intake())
                         .until(intakeShooter.getCoralTrigger())
+                        .withTimeout(3)
                         .andThen(drivebase.driveBackwards()
+                                .alongWith(forceStow())
                                 .withTimeout(.5));
     }
 
@@ -95,6 +97,7 @@ public class SuperStructure extends SubsystemBase {
                                 .until(intakeShooter.getCoralTrigger().negate())
                         ).andThen(
                                 drivebase.driveBackwards()
+                                        .alongWith(forceStow())
                                         .withTimeout(0.5)
                         );
     }
@@ -113,6 +116,7 @@ public class SuperStructure extends SubsystemBase {
                                 .until(intakeShooter.getCoralTrigger().negate())
                         ).andThen(
                                 drivebase.driveBackwards()
+                                        .alongWith(forceStow())
                                         .withTimeout(0.5)
                         );
     }
@@ -131,6 +135,7 @@ public class SuperStructure extends SubsystemBase {
                                 .until(intakeShooter.getCoralTrigger().negate())
                         ).andThen(
                                 drivebase.driveBackwards()
+                                        .alongWith(forceStow())
                                         .withTimeout(0.5)
                         );
     }
@@ -149,6 +154,7 @@ public class SuperStructure extends SubsystemBase {
                                 .until(intakeShooter.getCoralTrigger().negate())
                         ).andThen(
                                 drivebase.driveBackwards()
+                                        .alongWith(forceStow())
                                         .withTimeout(0.5)
                         );
     }
@@ -196,9 +202,27 @@ public class SuperStructure extends SubsystemBase {
                         .alongWith(elevator.elevatorToDealgaeLow());
     }
 
+    public Command forceStow() {
+        return
+                arm.armToStow()
+                        .alongWith(elevator.elevatorToStow());
+    }
+
     public Command toggleOperatorControls() {
         return runOnce(() -> {
             isOperatorManualBoolean = !isOperatorManualBoolean;
+        });
+    }
+
+    public Command enablePID() {
+        return runOnce(() -> {
+            isOperatorManualBoolean = false;
+        });
+    }
+
+    public Command disablePID() {
+        return runOnce(() -> {
+            isOperatorManualBoolean = true;
         });
     }
 
