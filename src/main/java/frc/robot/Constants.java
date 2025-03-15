@@ -115,7 +115,7 @@ public final class Constants {
         public static final int kIntakeShooterCoralSensorID = 0; // DIO
         public static final double kIntakeSpeed = .3;
         public static final double kShootSpeed = .5;
-        public static final double kIntakekG = .2;
+        public static final double kIntakekG = .0;
     }
 
     public static final class ClimberConstants {
@@ -131,7 +131,7 @@ public final class Constants {
     }
 
     public static final class DrivebaseConstants {
-        public static final double MAX_SPEED = Units.feetToMeters(14.5);
+        public static final double MAX_SPEED = Units.feetToMeters(11.5);
         public static final double kScaleSpeedMax = 0.8;
         public static final double kScaleSpeedMin = 0.3;
         // Hold time on motor brakes when disabled
@@ -139,8 +139,8 @@ public final class Constants {
 
         // Drive to pose constants
         public static final double kDistanceUntilPID = Units.inchesToMeters(12);
-        public static final double kAtReefTolerance = Units.inchesToMeters(.2);
-        public static final double kAtStationTolerance = Units.inchesToMeters(.2);
+        public static final double kAtReefTolerance = Units.inchesToMeters(.01);
+        public static final double kAtStationTolerance = Units.inchesToMeters(.01);
 
 
         // Drive to pose from SwerveInputStream constants.
@@ -176,19 +176,19 @@ public final class Constants {
                 Rotation2d.kZero);
 
         public static final Transform2d STATION_OFFSET = new Transform2d(
-                Units.inchesToMeters(-20),
+                Units.inchesToMeters(6.5),
                 Units.inchesToMeters(0),
                 Rotation2d.kZero
         );
 
         public static final Transform2d SLOT_OFFSET_LEFT = new Transform2d(
                 Units.inchesToMeters(0),
-                Units.inchesToMeters(10), // Added several times to achieve all 5 poses.
+                Units.inchesToMeters(24), // Added several times to achieve all 5 poses.
                 Rotation2d.kZero
         );
         public static final Transform2d SLOT_OFFSET_RIGHT = new Transform2d(
                 Units.inchesToMeters(0),
-                Units.inchesToMeters(-10), // Added several times to achieve all 5 poses.
+                Units.inchesToMeters(-24), // Added several times to achieve all 5 poses.
                 Rotation2d.kZero
         );
 
@@ -311,20 +311,20 @@ public final class Constants {
         // Bottom Camera Constants
         public static final Rotation3d kBottomCamRotation = new Rotation3d(
                 Units.degreesToRadians(0),
-                Units.degreesToRadians(0),
+                Units.degreesToRadians(10),
                 Units.degreesToRadians(0));
         public static final Translation3d kBottomCamPosition = new Translation3d(
-                Units.inchesToMeters(2),
+                Units.inchesToMeters(3),
                 Units.inchesToMeters(0),
                 Units.inchesToMeters(8));
 
         // Top Camera Constants
         public static final Rotation3d kTopCamRotation = new Rotation3d(
                 Units.degreesToRadians(0),
-                Units.degreesToRadians(-40),
+                Units.degreesToRadians(25),
                 Units.degreesToRadians(0));
         public static final Translation3d kTopCamPosition = new Translation3d(
-                Units.inchesToMeters(2),
+                Units.inchesToMeters(4),
                 Units.inchesToMeters(0),
                 Units.inchesToMeters(35));
     }

@@ -133,13 +133,13 @@ public class RobotContainer {
 
         driverXbox.a().whileTrue(Commands.defer(() -> drivebase.driveToPose(
                 poseSelector::flippedReefPose,
-                elevatorSubsystem.scaleForDrive(1)), Set.of(drivebase)));
+                .6), Set.of(drivebase)));
         driverXbox.b().whileTrue(Commands.defer(() -> drivebase.driveToPose(
                 poseSelector::flippedStationPose,
-                elevatorSubsystem.scaleForDrive(1)), Set.of(drivebase)));
+                .6), Set.of(drivebase)));
         driverXbox.y().whileTrue(Commands.defer(() -> drivebase.driveToPose(
                 poseSelector::flippedCagePose,
-                elevatorSubsystem.scaleForDrive(1)), Set.of(drivebase)));
+                .7), Set.of(drivebase)));
 
         // Operator Auto Controls
         // Operator score controls

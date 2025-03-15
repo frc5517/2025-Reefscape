@@ -20,20 +20,18 @@ public class ClimbSubsystem extends SubsystemBase {
      */
     //creates climb limit switch
     public static final DigitalInput climbBottomLimit = new DigitalInput(3);
-    public static final Trigger climbBottomTrigger = new Trigger(() -> climbBottomLimit.get());
+    public static final Trigger climbBottomTrigger = new Trigger(() -> !climbBottomLimit.get());
    
     private final SparkMax climbMotor = new SparkMax(15, MotorType.kBrushless);
 
     public ClimbSubsystem() {
-        SmartDashboard.putNumber("Climb Encoder", climbMotor.getEncoder().getPosition());
-        SmartDashboard.putBoolean("Climb Bottom Limit", climbBottomLimit.get());
-
         climbBottomTrigger.onTrue(run(this::stopClimb));
     }
 
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
+        SmartDashboard.putNumber("Climb Encoder", climbMotor.getEncoder().getPosition());
+        SmartDashboard.putBoolean("Climb Bottom Limit", !climbBottomLimit.get());
     }
 
     public Command climbUp() {

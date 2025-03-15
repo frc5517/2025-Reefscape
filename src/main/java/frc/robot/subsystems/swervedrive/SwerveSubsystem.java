@@ -64,7 +64,7 @@ public class SwerveSubsystem extends SubsystemBase {
     /**
      * Enable vision odometry updates while driving.
      */
-    private final boolean visionDriveTest = false;
+    private final boolean visionDriveTest = true;
     /**
      * PhotonVision class to keep an accurate odometry.
      */
@@ -270,11 +270,11 @@ public class SwerveSubsystem extends SubsystemBase {
         PathConstraints constraints = new PathConstraints(
                 swerveDrive.getMaximumChassisVelocity() * scaleSpeed,
                 5.0 * scaleSpeed,
-                swerveDrive.getMaximumChassisAngularVelocity() * scaleSpeed,
-                Units.degreesToRadians(720) * scaleSpeed);
+                swerveDrive.getMaximumChassisAngularVelocity(),
+                Units.degreesToRadians(720));
         PPHolonomicDriveController holo = new PPHolonomicDriveController(
                 // PPHolonomicController is the built-in path following controller for holonomic drive trains
-                new PIDConstants(4.8, 0.0, 0.01),
+                new PIDConstants(5.4, 0.0, 0.1),
                 // Translation PID constants
                 new PIDConstants(5.0, 0.0, 0.0)
                 // Rotation PID constants

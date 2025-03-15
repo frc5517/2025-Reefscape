@@ -52,7 +52,7 @@ public class SuperStructure extends SubsystemBase {
     private Command driveToReef() {
         return Commands.defer(() -> drivebase.driveToPose(
                 poseSelector::flippedReefPose,
-                .8), Set.of(drivebase));
+                .6), Set.of(drivebase));
     }
 
     private Trigger atReef() {
@@ -67,7 +67,7 @@ public class SuperStructure extends SubsystemBase {
     private Command driveToStation() {
         return Commands.defer(() -> drivebase.driveToPose(
                 poseSelector::flippedStationPose,
-                1), Set.of(drivebase));
+                .5), Set.of(drivebase));
     }
 
     public Command getCoral() {
@@ -76,7 +76,6 @@ public class SuperStructure extends SubsystemBase {
                         .alongWith(structureToStation())
                         .alongWith(intakeShooter.intake())
                         .until(intakeShooter.getCoralTrigger())
-                        .withTimeout(3)
                         .andThen(drivebase.driveBackwards()
                                 .alongWith(forceStow())
                                 .withTimeout(.5));
