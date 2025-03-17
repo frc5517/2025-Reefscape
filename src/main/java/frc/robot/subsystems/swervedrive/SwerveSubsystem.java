@@ -263,7 +263,7 @@ public class SwerveSubsystem extends SubsystemBase {
                         .until(() -> poseIsNear(
                                 pose.get(),
                                 getPose(),
-                                Constants.DrivebaseConstants.kMoveToPoseTolerance
+                                Constants.DrivebaseConstants.kTranslationTolerance
                         ));
 
     }
@@ -730,7 +730,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public Command stopDrive() {
         return runOnce(() -> {
-            swerveDrive.drive(new Translation2d(0, 0), 0, false, false);
+            swerveDrive.drive(new ChassisSpeeds(0, 0, 0));
         });
     }
 

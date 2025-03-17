@@ -152,7 +152,14 @@ public class RobotContainer {
                 .andThen(drivebase.driveBackwards()
                         .withTimeout(.5)));
 
-        // Operator Auto Controls
+        // Toggle between PID auto controls and manual
+        operatorXbox.leftTrigger()
+                .and(operatorXbox.rightTrigger())
+                .onTrue(superStructure.toggleOperatorControls()
+                        .andThen(superStructure.updateStowCommand())
+                        .andThen(superStructure.runOnce(superStructure::stopAllManipulators)));
+
+        // Operator Auto Controls1
         // Move structure with pid while holding povLeft
         operatorXbox.a().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.getCoral());
         operatorXbox.b().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.scoreL2());

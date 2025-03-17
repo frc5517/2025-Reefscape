@@ -186,10 +186,11 @@ public final class Constants {
         public static final double kDistanceUntilPID = Units.inchesToMeters(1);
         public static final double kRotationGoalBeforePID = 1;
         public static final LinearVelocity kPathfindEndGoalVelocity = MetersPerSecond.of(5);
-        public static final double kMoveToPoseTolerance = Units.inchesToMeters(.3);
+        public static final double kTranslationTolerance = Units.inchesToMeters(.2);
+        public static final double kRotationTolerance = 1; // Degrees
 
         // Pathplanner holonomic controller
-        public static final PIDConstants kPPTranslationPID = new PIDConstants(7.0, 0.0, 0.0);
+        public static final PIDConstants kPPTranslationPID = new PIDConstants(5.86, 0.0, 0.01);
         public static final PIDConstants kPPRotationPID = new PIDConstants(5.0, 0.0, 0.0);
 
         //

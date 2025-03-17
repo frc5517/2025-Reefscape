@@ -51,9 +51,11 @@ public class SuperStructure extends SubsystemBase {
     }
 
     private Command driveToReef() {
-        return Commands.defer(() -> drivebase.driveToPose(
-                poseSelector::flippedReefPose,
-                .7), Set.of(drivebase));
+        return Commands.defer(() ->
+                drivebase.driveToPose(
+                        poseSelector::flippedReefPose,
+                        .7
+                ), Set.of(drivebase));
     }
 
     private Trigger atReef() {
@@ -61,21 +63,24 @@ public class SuperStructure extends SubsystemBase {
                 drivebase.poseIsNear(
                         poseSelector.flippedReefPose(),
                         drivebase.getPose(),
-                        Constants.DrivebaseConstants.kMoveToPoseTolerance
+                        Constants.DrivebaseConstants.kTranslationTolerance,
+                        Constants.DrivebaseConstants.kRotationTolerance
                 ));
     }
 
     private Command driveToStation() {
-        return Commands.defer(() -> drivebase.driveToPose(
-                poseSelector::flippedStationPose,
-                .7), Set.of(drivebase));
+        return Commands.defer(() ->
+                drivebase.driveToPose(
+                        poseSelector::flippedStationPose,
+                        .7
+                ), Set.of(drivebase));
     }
     private Trigger atStation() {
         return new Trigger(() ->
                 drivebase.poseIsNear(
                         poseSelector.flippedStationPose(),
                         drivebase.getPose(),
-                        Constants.DrivebaseConstants.kMoveToPoseTolerance
+                        Constants.DrivebaseConstants.kTranslationTolerance
                 ));
     }
 
