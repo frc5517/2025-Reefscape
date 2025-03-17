@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,7 +20,7 @@ public class ClimbSubsystem extends SubsystemBase {
     //creates climb limit switch
     public static final DigitalInput climbBottomLimit = new DigitalInput(3);
     public static final Trigger climbBottomTrigger = new Trigger(() -> !climbBottomLimit.get());
-   
+
     private final SparkMax climbMotor = new SparkMax(15, MotorType.kBrushless);
 
     public ClimbSubsystem() {

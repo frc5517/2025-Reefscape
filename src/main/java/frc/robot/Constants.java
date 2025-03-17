@@ -4,12 +4,14 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import maniplib.utils.ManipArmConstants;
 import maniplib.utils.ManipElevatorConstants;
+import maniplib.utils.ManipIntakeShooterConstants;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -29,6 +32,34 @@ import static edu.wpi.first.units.Units.*;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public static final Mechanism2d sideRobotView = new Mechanism2d(ArmConstants.armConfig.kArmLength * 2,
+            ElevatorConstants.elevatorConfig.kMaxHeight.in(
+                    Meters) +
+                    ArmConstants.armConfig.kArmLength);
+    public static final MechanismRoot2d kElevatorCarriage;
+    public static final MechanismLigament2d kArmMech;
+    public static final MechanismLigament2d kElevatorTower;
+
+    static {
+        kElevatorCarriage = Constants.sideRobotView.getRoot("ElevatorCarriage",
+                ArmConstants.armConfig.kArmLength,
+                ElevatorConstants.elevatorConfig.kStartingHeightSim.in(
+                        Meters));
+        kArmMech = kElevatorCarriage.append(
+                new MechanismLigament2d(
+                        "Arm",
+                        ArmConstants.armConfig.kArmLength,
+                        ArmConstants.armConfig.kArmStartingAngle.in(Degrees),
+                        6,
+                        new Color8Bit(Color.kYellow)));
+        kElevatorTower = kElevatorCarriage.append(new MechanismLigament2d(
+                "Elevator",
+                ElevatorConstants.elevatorConfig.kStartingHeightSim.in(Meters),
+                -90,
+                6,
+                new Color8Bit(Color.kRed)));
+    }
+
     public static class OperatorConstants {
         public static final double DEADBAND = 0.1;
     }
@@ -112,10 +143,18 @@ public final class Constants {
     }
 
     public static final class IntakeShooterConstants {
+        public static final int kIntakeShooterMotorID = 11;
         public static final int kIntakeShooterCoralSensorID = 0; // DIO
         public static final double kIntakeSpeed = .3;
         public static final double kShootSpeed = .5;
         public static final double kIntakekG = .0;
+
+        public static final ManipIntakeShooterConstants intakeShooterConfig =
+                new ManipIntakeShooterConstants(
+                        DCMotor.getNeo550(1),
+                        10,
+                        0.001
+                );
     }
 
     public static final class ClimberConstants {
@@ -138,29 +177,21 @@ public final class Constants {
         public static final double WHEEL_LOCK_TIME = 10; // seconds
 
         // Drive to pose constants
-        public static final double kDistanceUntilPID = Units.inchesToMeters(12);
-        public static final double kAtReefTolerance = Units.inchesToMeters(.01);
-        public static final double kAtStationTolerance = Units.inchesToMeters(.01);
+        // Offset used to update the pose during driveToPose
+        public static final Transform2d kToPoseUpdateOffset = new Transform2d(
+                Units.inchesToMeters(-12),
+                Units.inchesToMeters(0),
+                Rotation2d.kZero);
+        // Tolerance distance until going to PPHolonomic PID
+        public static final double kDistanceUntilPID = Units.inchesToMeters(1);
+        public static final double kRotationGoalBeforePID = 1;
+        public static final LinearVelocity kPathfindEndGoalVelocity = MetersPerSecond.of(5);
+        public static final double kTranslationTolerance = Units.inchesToMeters(.2);
+        public static final double kRotationTolerance = 1; // Degrees
 
-
-        // Drive to pose from SwerveInputStream constants.
-        public static final ProfiledPIDController driveToPoseXPID =
-                new ProfiledPIDController(
-                        150,
-                        0,
-                        0,
-                        new TrapezoidProfile.Constraints(
-                                360,
-                                720));
-
-        public static final ProfiledPIDController driveToPoseOmegaPID =
-                new ProfiledPIDController(
-                        50,
-                        0,
-                        0,
-                        new TrapezoidProfile.Constraints(
-                                360,
-                                720));
+        // Pathplanner holonomic controller
+        public static final PIDConstants kPPTranslationPID = new PIDConstants(5.86, 0.0, 0.01);
+        public static final PIDConstants kPPRotationPID = new PIDConstants(5.0, 0.0, 0.0);
 
         //
         // Pose offsets below. Proceed with caution!
@@ -192,8 +223,9 @@ public final class Constants {
                 Rotation2d.kZero
         );
 
+        public static final double kCageXOffset = -30; // Used to decide how far to drive into the cage
         public static final Transform2d CAGE_OFFSET = new Transform2d(
-                Units.inchesToMeters(-30),
+                Units.inchesToMeters(kCageXOffset),
                 Units.inchesToMeters(0),
                 Rotation2d.k180deg
         );
@@ -201,18 +233,6 @@ public final class Constants {
         //
         // Constant poses below, proceed with EXTREME CAUTION!!
         //
-
-        public static final Pose2d LEFT_STATION_CENTER_POSE =
-                new Pose2d(
-                        Units.inchesToMeters(33.526),
-                        Units.inchesToMeters(291.176),
-                        Rotation2d.fromDegrees(125.989));
-        public static final Pose2d RIGHT_STATION_CENTER_POSE =
-                new Pose2d(
-                        Units.inchesToMeters(33.526),
-                        Units.inchesToMeters(25.824),
-                        Rotation2d.fromDegrees(234.011));
-
         public static final Pose2d kLeftCage =
                 new Pose2d(
                         Units.inchesToMeters(345.428),
@@ -228,7 +248,22 @@ public final class Constants {
                         Units.inchesToMeters(345.428),
                         Units.inchesToMeters(199.947),
                         Rotation2d.kZero);
-
+        public static final Pose2d LEFT_CAGE_POSE = kLeftCage
+                .plus(CAGE_OFFSET);
+        public static final Pose2d MIDDLE_CAGE_POSE = kMiddleCage
+                .plus(CAGE_OFFSET);
+        public static final Pose2d RIGHT_CAGE_POSE = kRightCage
+                .plus(CAGE_OFFSET);
+        public static final Pose2d LEFT_STATION_CENTER_POSE =
+                new Pose2d(
+                        Units.inchesToMeters(33.526),
+                        Units.inchesToMeters(291.176),
+                        Rotation2d.fromDegrees(125.989));
+        public static final Pose2d RIGHT_STATION_CENTER_POSE =
+                new Pose2d(
+                        Units.inchesToMeters(33.526),
+                        Units.inchesToMeters(25.824),
+                        Rotation2d.fromDegrees(234.011));
         public static final Pose2d LEFT_STATION_POSE_1 = LEFT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
                 .plus(SLOT_OFFSET_LEFT);
@@ -237,7 +272,6 @@ public final class Constants {
         public static final Pose2d LEFT_STATION_POSE_3 = LEFT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
                 .plus(SLOT_OFFSET_RIGHT);
-
         public static final Pose2d RIGHT_STATION_POSE_1 = RIGHT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
                 .plus(SLOT_OFFSET_RIGHT);
@@ -246,14 +280,6 @@ public final class Constants {
         public static final Pose2d RIGHT_STATION_POSE_3 = RIGHT_STATION_CENTER_POSE
                 .plus(STATION_OFFSET)
                 .plus(SLOT_OFFSET_LEFT);
-
-        public static final Pose2d LEFT_CAGE_POSE = kLeftCage
-                .plus(CAGE_OFFSET);
-        public static final Pose2d MIDDLE_CAGE_POSE = kMiddleCage
-                .plus(CAGE_OFFSET);
-        public static final Pose2d RIGHT_CAGE_POSE = kRightCage
-                .plus(CAGE_OFFSET);
-
         public static final Pose2d SOUTH_FACE_POSE = new Pose2d(
                 Units.inchesToMeters(144.003),
                 Units.inchesToMeters(158.500),
@@ -308,53 +334,37 @@ public final class Constants {
     public static final class VisionConstants {
         // Coordinate system, makes x, y, and z easy.
         // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
-        // Bottom Camera Constants
-        public static final Rotation3d kBottomCamRotation = new Rotation3d(
+        // Reef Camera Constants
+        public static final Rotation3d kReefCamRotation = new Rotation3d(
                 Units.degreesToRadians(0),
-                Units.degreesToRadians(10),
+                Units.degreesToRadians(-10),
                 Units.degreesToRadians(0));
-        public static final Translation3d kBottomCamPosition = new Translation3d(
+        public static final Translation3d kReefCamPosition = new Translation3d(
                 Units.inchesToMeters(3),
                 Units.inchesToMeters(0),
                 Units.inchesToMeters(8));
 
-        // Top Camera Constants
-        public static final Rotation3d kTopCamRotation = new Rotation3d(
+        // Climb Camera Constants
+        public static final Rotation3d kClimbCamRotation = new Rotation3d(
                 Units.degreesToRadians(0),
                 Units.degreesToRadians(25),
                 Units.degreesToRadians(0));
-        public static final Translation3d kTopCamPosition = new Translation3d(
+        public static final Translation3d kClimbCamPosition = new Translation3d(
                 Units.inchesToMeters(4),
                 Units.inchesToMeters(0),
                 Units.inchesToMeters(35));
-    }
 
-    public static final Mechanism2d sideRobotView = new Mechanism2d(ArmConstants.armConfig.kArmLength * 2,
-            ElevatorConstants.elevatorConfig.kMaxHeight.in(
-                    Meters) +
-                    ArmConstants.armConfig.kArmLength);
-    public static final MechanismRoot2d kElevatorCarriage;
-    public static final MechanismLigament2d kArmMech;
-    public static final MechanismLigament2d kElevatorTower;
+        // Intake Camera Constants
+        public static final Rotation3d kIntakeCamRotation = new Rotation3d(
+                Units.degreesToRadians(0),
+                Units.degreesToRadians(-25),
+                Units.degreesToRadians(0));
+        public static final Translation3d kIntakeCamPosition = new Translation3d(
+                Units.inchesToMeters(4),
+                Units.inchesToMeters(0),
+                Units.inchesToMeters(35));
 
-    static {
-        kElevatorCarriage = Constants.sideRobotView.getRoot("ElevatorCarriage",
-                ArmConstants.armConfig.kArmLength,
-                ElevatorConstants.elevatorConfig.kStartingHeightSim.in(
-                        Meters));
-        kArmMech = kElevatorCarriage.append(
-                new MechanismLigament2d(
-                        "Arm",
-                        ArmConstants.armConfig.kArmLength,
-                        ArmConstants.armConfig.kArmStartingAngle.in(Degrees),
-                        6,
-                        new Color8Bit(Color.kYellow)));
-        kElevatorTower = kElevatorCarriage.append(new MechanismLigament2d(
-                "Elevator",
-                ElevatorConstants.elevatorConfig.kStartingHeightSim.in(Meters),
-                -90,
-                6,
-                new Color8Bit(Color.kRed)));
+
     }
 
 }

@@ -12,6 +12,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.pathfinding.Pathfinder;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
@@ -19,6 +20,7 @@ import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -26,15 +28,13 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
-import frc.robot.subsystems.swervedrive.Vision.Cameras;
 import org.json.simple.parser.ParseException;
-import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -48,7 +48,6 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -137,6 +136,7 @@ public class SwerveSubsystem extends SubsystemBase {
             swerveDrive.updateOdometry();
             vision.updatePoseEstimation(swerveDrive);
         }
+        SmartDashboard.putNumber("Max Angular", swerveDrive.getMaximumChassisAngularVelocity());
     }
 
     @Override
@@ -173,12 +173,12 @@ public class SwerveSubsystem extends SubsystemBase {
                             swerveDrive.setChassisSpeeds(speedsRobotRelative);
                         }
                     },
-                    // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+                    // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also, optionally outputs individual module feedforwards
                     new PPHolonomicDriveController(
-                            // PPHolonomicController is the built in path following controller for holonomic drive trains
-                            new PIDConstants(5.0, 0.0, 0.0),
+                            // PPHolonomicController is the built-in path following controller for holonomic drive trains
+                            Constants.DrivebaseConstants.kPPTranslationPID,
                             // Translation PID constants
-                            new PIDConstants(5.0, 0.0, 0.0)
+                            Constants.DrivebaseConstants.kPPRotationPID
                             // Rotation PID constants
                     ),
                     config,
@@ -209,27 +209,6 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Aim the robot at the target returned by PhotonVision.
-     *
-     * @return A {@link Command} which will run the alignment.
-     */
-    public Command aimAtTarget(Cameras camera) {
-
-        return run(() -> {
-            Optional<PhotonPipelineResult> resultO = camera.getBestResult();
-            if (resultO.isPresent()) {
-                var result = resultO.get();
-                if (result.hasTargets()) {
-                    drive(getTargetSpeeds(0,
-                            0,
-                            Rotation2d.fromDegrees(result.getBestTarget()
-                                    .getYaw()))); // Not sure if this will work, more math may be required.
-                }
-            }
-        });
-    }
-
-    /**
      * Get the path follower with events.
      *
      * @param pathName PathPlanner path name.
@@ -246,57 +225,46 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param pose Target {@link Pose2d} to go to.
      * @return PathFinding command
      */
-    public Command driveToPoseOld(Pose2d pose, double scaleSpeed) {
-// Create the constraints to use while pathfinding
-        PathConstraints constraints = new PathConstraints(
-                swerveDrive.getMaximumChassisVelocity() * scaleSpeed, 4.0 * scaleSpeed,
-                swerveDrive.getMaximumChassisAngularVelocity() * scaleSpeed, Units.degreesToRadians(720) * scaleSpeed);
-
-// Since AutoBuilder is configured, we can use it to build pathfinding commands
-        return AutoBuilder.pathfindToPose(
-                pose,
-                constraints,
-                edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
-        );
-    }
-
-    /**
-     * Use PathPlanner Path finding to go to a point on the field.
-     *
-     * @param pose Target {@link Pose2d} to go to.
-     * @return PathFinding command
-     */
     public Command driveToPose(Supplier<Pose2d> pose, double scaleSpeed) {
         PathConstraints constraints = new PathConstraints(
                 swerveDrive.getMaximumChassisVelocity() * scaleSpeed,
-                5.0 * scaleSpeed,
+                5.0,
                 swerveDrive.getMaximumChassisAngularVelocity(),
                 Units.degreesToRadians(720));
         PPHolonomicDriveController holo = new PPHolonomicDriveController(
                 // PPHolonomicController is the built-in path following controller for holonomic drive trains
-                new PIDConstants(5.4, 0.0, 0.1),
+                Constants.DrivebaseConstants.kPPTranslationPID,
                 // Translation PID constants
-                new PIDConstants(5.0, 0.0, 0.0)
+                Constants.DrivebaseConstants.kPPRotationPID
                 // Rotation PID constants
         );
+        Pose2d alignToTag  = pose.get().plus(
+                Constants.DrivebaseConstants.kToPoseUpdateOffset);
         return
                 // Path find to pose
                 AutoBuilder.pathfindToPose(
-                                pose.get(),
+                                alignToTag,
                                 constraints,
-                                edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
-                        )
+                                Constants.DrivebaseConstants.kPathfindEndGoalVelocity) // Goal end velocity in meters/sec
                         // Until within distanceUntilPID constant.
-                        .until(() -> poseIsNear(pose.get(), getPose(),
-                                Constants.DrivebaseConstants.kDistanceUntilPID))
+                        .until(() -> poseIsNear(alignToTag, getPose(),
+                                Constants.DrivebaseConstants.kDistanceUntilPID,
+                                Constants.DrivebaseConstants.kRotationGoalBeforePID))
                         // Then switch to Holonomic pid control.
                         .andThen(defer(() -> {
                             PathPlannerTrajectoryState state = new PathPlannerTrajectoryState();
                             return startRun(() -> {
                                 holo.reset(swerveDrive.getPose(), swerveDrive.getRobotVelocity());
                                 state.pose = pose.get();
-                            }, () -> swerveDrive.drive(holo.calculateRobotRelativeSpeeds(swerveDrive.getPose(), state).times(scaleSpeed)));
-                        }));
+                            }, () -> swerveDrive.drive(
+                                    holo.calculateRobotRelativeSpeeds(swerveDrive.getPose(), state)
+                                            .times(scaleSpeed * 0.75)));
+                        }))
+                        .until(() -> poseIsNear(
+                                pose.get(),
+                                getPose(),
+                                Constants.DrivebaseConstants.kTranslationTolerance
+                        ));
 
     }
 
@@ -318,6 +286,29 @@ public class SwerveSubsystem extends SubsystemBase {
         return Math.abs(expectedX - actualX) < toleranceMeters
                 && Math.abs(expectedY - actualY) < toleranceMeters;
     }
+
+    /**
+     * Checks given pose matches an expected value within a tolerance.
+     *
+     * @param expected        The expected value
+     * @param actual          The actual value
+     * @param toleranceMeters The allowed difference between the actual and the expected value in meters
+     * @return Whether the actual value is within the allowed tolerance
+     */
+    public boolean poseIsNear(Pose2d expected, Pose2d actual, double toleranceMeters, double toleranceDegrees) {
+        double expectedRotation = expected.getRotation().getDegrees();
+        double actualRotation = actual.getRotation().getDegrees();
+        // Gets the absolute value of expected pose minus actual pose, if the actual pose is exactly right it would return 0.
+        // Since it is unreasonable to reach 0 a tolerance is added to reach a reasonable state.
+        return
+                poseIsNear(
+                        expected,
+                        actual,
+                        toleranceMeters) &&
+                Math.abs(expectedRotation - actualRotation) < toleranceDegrees;
+    }
+
+
 
     /**
      * Drive with {@link SwerveSetpointGenerator} from 254, implemented by PathPlanner.
@@ -739,7 +730,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public Command stopDrive() {
         return runOnce(() -> {
-            swerveDrive.drive(new Translation2d(0, 0), 0, false, false);
+            swerveDrive.drive(new ChassisSpeeds(0, 0, 0));
         });
     }
 

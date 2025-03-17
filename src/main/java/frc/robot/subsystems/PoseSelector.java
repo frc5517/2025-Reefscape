@@ -150,6 +150,28 @@ public class PoseSelector extends SubsystemBase {
     }
 
     /**
+     * Selects slot 1 for coral station and cages.
+     */
+    public void selectSlot1() {
+        stationSlot = StationSlot.POSE_1;
+        updateStationPose();
+    }
+    /**
+     * Selects slot 2 for coral station and cages.
+     */
+    public void selectSlot2() {
+        stationSlot = StationSlot.POSE_2;
+        updateStationPose();
+    }
+    /**
+     * Selects slot 3 for coral station and cages.
+     */
+    public void selectSlot3() {
+        stationSlot = StationSlot.POSE_3;
+        updateStationPose();
+    }
+
+    /**
      * Updates the selectedPose angle and current selected pose if fed separate side and branch data.
      *
      * @param together whether to update from branch and side data or directly from current selected pose.

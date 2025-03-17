@@ -4,6 +4,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -50,9 +51,11 @@ public class SuperStructure extends SubsystemBase {
     }
 
     private Command driveToReef() {
-        return Commands.defer(() -> drivebase.driveToPose(
-                poseSelector::flippedReefPose,
-                .6), Set.of(drivebase));
+        return Commands.defer(() ->
+                drivebase.driveToPose(
+                        poseSelector::flippedReefPose,
+                        .7
+                ), Set.of(drivebase));
     }
 
     private Trigger atReef() {
@@ -60,14 +63,25 @@ public class SuperStructure extends SubsystemBase {
                 drivebase.poseIsNear(
                         poseSelector.flippedReefPose(),
                         drivebase.getPose(),
-                        Constants.DrivebaseConstants.kAtReefTolerance
+                        Constants.DrivebaseConstants.kTranslationTolerance,
+                        Constants.DrivebaseConstants.kRotationTolerance
                 ));
     }
 
     private Command driveToStation() {
-        return Commands.defer(() -> drivebase.driveToPose(
-                poseSelector::flippedStationPose,
-                .5), Set.of(drivebase));
+        return Commands.defer(() ->
+                drivebase.driveToPose(
+                        poseSelector::flippedStationPose,
+                        .7
+                ), Set.of(drivebase));
+    }
+    private Trigger atStation() {
+        return new Trigger(() ->
+                drivebase.poseIsNear(
+                        poseSelector.flippedStationPose(),
+                        drivebase.getPose(),
+                        Constants.DrivebaseConstants.kTranslationTolerance
+                ));
     }
 
     public Command getCoral() {
@@ -76,6 +90,7 @@ public class SuperStructure extends SubsystemBase {
                         .alongWith(structureToStation())
                         .alongWith(intakeShooter.intake())
                         .until(intakeShooter.getCoralTrigger())
+                        .withTimeout(5)
                         .andThen(drivebase.driveBackwards()
                                 .alongWith(forceStow())
                                 .withTimeout(.5));
@@ -86,71 +101,13 @@ public class SuperStructure extends SubsystemBase {
                 driveToReef()
                         .alongWith(structureToL1())
                         .until(atReef()
-                                .and(structuresAtL1()))
+                                .and(structureAtL1()))
+                        .andThen(drivebase.stopDrive())
                         .andThen(
-                                drivebase.stopDrive()
-                                        .withTimeout(.1))
-                        .andThen(intakeShooter.shoot()
-                                .alongWith(structureToL1())
-                                .withTimeout(2)
-                                .until(intakeShooter.getCoralTrigger().negate())
-                        ).andThen(
-                                drivebase.driveBackwards()
-                                        .alongWith(forceStow())
-                                        .withTimeout(0.5)
-                        );
-    }
-    public Command scoreL2() {
-        return
-                driveToReef()
-                        .alongWith(structureToL2())
-                        .until(atReef()
-                                .and(structuresAtL2()))
-                        .andThen(
-                                drivebase.stopDrive()
-                                        .withTimeout(.1))
-                        .andThen(intakeShooter.shoot()
-                                .alongWith(structureToL2())
-                                .withTimeout(2)
-                                .until(intakeShooter.getCoralTrigger().negate())
-                        ).andThen(
-                                drivebase.driveBackwards()
-                                        .alongWith(forceStow())
-                                        .withTimeout(0.5)
-                        );
-    }
-    public Command scoreL3() {
-        return
-                driveToReef()
-                        .alongWith(structureToL3())
-                        .until(atReef()
-                                .and(structuresAtL3()))
-                        .andThen(
-                                drivebase.stopDrive()
-                                        .withTimeout(.1))
-                        .andThen(intakeShooter.shoot()
-                                .alongWith(structureToL3())
-                                .withTimeout(2)
-                                .until(intakeShooter.getCoralTrigger().negate())
-                        ).andThen(
-                                drivebase.driveBackwards()
-                                        .alongWith(forceStow())
-                                        .withTimeout(0.5)
-                        );
-    }
-    public Command scoreL4() {
-        return
-                driveToReef()
-                        .alongWith(structureToL4())
-                        .until(atReef()
-                                .and(structuresAtL4()))
-                        .andThen(
-                                drivebase.stopDrive()
-                                        .withTimeout(.1))
-                        .andThen(intakeShooter.shoot()
-                                .alongWith(structureToL4())
-                                .withTimeout(2)
-                                .until(intakeShooter.getCoralTrigger().negate())
+                                intakeShooter.shoot()
+                                        .alongWith(structureToL1())
+                                        .withTimeout(2)
+                                        .until(intakeShooter.getCoralTrigger().negate())
                         ).andThen(
                                 drivebase.driveBackwards()
                                         .alongWith(forceStow())
@@ -158,6 +115,62 @@ public class SuperStructure extends SubsystemBase {
                         );
     }
 
+    public Command scoreL2() {
+        return
+                driveToReef()
+                        .alongWith(structureToL2())
+                        .until(atReef()
+                                .and(structureAtL2()))
+                        .andThen(drivebase.stopDrive())
+                        .andThen(
+                                intakeShooter.shoot()
+                                        .alongWith(structureToL2())
+                                        .withTimeout(2)
+                                        .until(intakeShooter.getCoralTrigger().negate())
+                        ).andThen(
+                                drivebase.driveBackwards()
+                                        .alongWith(forceStow())
+                                        .withTimeout(0.5)
+                        );
+    }
+
+    public Command scoreL3() {
+        return
+                driveToReef()
+                        .alongWith(structureToL3())
+                        .until(atReef()
+                                .and(structureAtL3()))
+                        .andThen(drivebase.stopDrive())
+                        .andThen(
+                                intakeShooter.shoot()
+                                        .alongWith(structureToL3())
+                                        .withTimeout(2)
+                                        .until(intakeShooter.getCoralTrigger().negate())
+                        ).andThen(
+                                drivebase.driveBackwards()
+                                        .alongWith(forceStow())
+                                        .withTimeout(0.5)
+                        );
+    }
+
+    public Command scoreL4() {
+        return
+                driveToReef()
+                        .alongWith(structureToL4())
+                        .until(atReef()
+                                .and(structureAtL4()))
+                        .andThen(drivebase.stopDrive())
+                        .andThen(
+                                intakeShooter.shoot()
+                                        .alongWith(structureToL4())
+                                        .withTimeout(2)
+                                        .until(intakeShooter.getCoralTrigger().negate())
+                        ).andThen(
+                                drivebase.driveBackwards()
+                                        .alongWith(forceStow())
+                                        .withTimeout(0.5)
+                        );
+    }
 
     public Command structureToL1() {
         return
@@ -233,16 +246,7 @@ public class SuperStructure extends SubsystemBase {
         return isOperatorManual;
     }
 
-    private Trigger atStation() {
-        return new Trigger(() ->
-                drivebase.poseIsNear(
-                        poseSelector.flippedStationPose(),
-                        drivebase.getPose(),
-                        Constants.DrivebaseConstants.kAtStationTolerance
-                ));
-    }
-
-    public Trigger structuresAtL1() {
+    public Trigger structureAtL1() {
         return
                 elevator.atHeight(
                                 Units.inchesToMeters(Constants.ElevatorConstants.kL1Setpoint),
@@ -252,7 +256,8 @@ public class SuperStructure extends SubsystemBase {
                                 Constants.ArmConstants.kAutoScoreToleranceDegrees
                         ));
     }
-    public Trigger structuresAtL2() {
+
+    public Trigger structureAtL2() {
         return
                 elevator.atHeight(
                                 Units.inchesToMeters(Constants.ElevatorConstants.kL2Setpoint),
@@ -262,7 +267,8 @@ public class SuperStructure extends SubsystemBase {
                                 Constants.ArmConstants.kAutoScoreToleranceDegrees
                         ));
     }
-    public Trigger structuresAtL3() {
+
+    public Trigger structureAtL3() {
         return
                 elevator.atHeight(
                                 Units.inchesToMeters(Constants.ElevatorConstants.kL3Setpoint),
@@ -272,7 +278,8 @@ public class SuperStructure extends SubsystemBase {
                                 Constants.ArmConstants.kAutoScoreToleranceDegrees
                         ));
     }
-    public Trigger structuresAtL4() {
+
+    public Trigger structureAtL4() {
         return
                 elevator.atHeight(
                                 Units.inchesToMeters(Constants.ElevatorConstants.kL4Setpoint),
@@ -295,5 +302,12 @@ public class SuperStructure extends SubsystemBase {
             elevator.stopElevator();
             arm.stopArm();
         });
+    }
+
+    private enum scoreLevel {
+        L1,
+        L2,
+        L3,
+        L4
     }
 }

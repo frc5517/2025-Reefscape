@@ -7,6 +7,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -69,14 +70,20 @@ public class RobotContainer {
     private void configureBindings() {
         Command driveRobotOriented = drivebase.driveFieldOriented(robotOriented);
 
+        //
         ledSubsystem.setDefaultCommand(ledSubsystem.runPatternBoth(
                 LEDPattern.solid(ledSubsystem.editColor(Color.kFirstRed)),
                 LEDPattern.solid(ledSubsystem.editColor(Color.kCadetBlue))
         ));
 
-        // Default Commands
+        // Sets default drive command
         drivebase.setDefaultCommand(driveRobotOriented);
 
+        // Setup auto stow
+        armSubsystem.setAutoStow();
+        elevatorSubsystem.setAutoStow();
+
+        // enable auto slow with elevator height
         elevatorSubsystem.scaleHeightHit().whileTrue(Commands.runEnd(
                 () -> robotOriented.scaleTranslation(elevatorSubsystem.scaleForDrive(0.8))
                         .scaleRotation(elevatorSubsystem.scaleForDrive(0.4)),
@@ -84,34 +91,31 @@ public class RobotContainer {
                         .scaleRotation(0.6)
         ));
 
-        armSubsystem.setAutoStow();
-        elevatorSubsystem.setAutoStow();
-        operatorXbox.leftTrigger()
-                .and(operatorXbox.rightTrigger())
-                .onTrue(superStructure.toggleOperatorControls()
-                        .andThen(superStructure.updateStowCommand())
-                        .andThen(superStructure.runOnce(superStructure::stopAllManipulators)));
-
         // Driver Controls
-        driverXbox.pov(0).onTrue(Commands.runOnce(poseSelector::selectNorth));
-        driverXbox.pov(45).onTrue(Commands.runOnce(poseSelector::selectNorthEast));
-        driverXbox.pov(135).onTrue(Commands.runOnce(poseSelector::selectSouthEast));
-        driverXbox.pov(180).onTrue(Commands.runOnce(poseSelector::selectSouth));
-        driverXbox.pov(225).onTrue(Commands.runOnce(poseSelector::selectSouthWest));
-        driverXbox.pov(315).onTrue(Commands.runOnce(poseSelector::selectNorthWest));
+        // Cardinal direction selector for reef pose
+        driverXbox.povUp().onTrue(Commands.runOnce(poseSelector::selectNorth));
+        driverXbox.povUpRight().onTrue(Commands.runOnce(poseSelector::selectNorthEast));
+        driverXbox.povDownRight().onTrue(Commands.runOnce(poseSelector::selectSouthEast));
+        driverXbox.povDown().onTrue(Commands.runOnce(poseSelector::selectSouth));
+        driverXbox.povDownLeft().onTrue(Commands.runOnce(poseSelector::selectSouthWest));
+        driverXbox.povUpLeft().onTrue(Commands.runOnce(poseSelector::selectNorthWest));
 
-        driverXbox.pov(90).onTrue(Commands.runOnce(poseSelector::selectRight));
-        driverXbox.pov(270).onTrue(Commands.runOnce(poseSelector::selectLeft));
+        // Choose left or right pose, used in station and reef
+        driverXbox.povRight().onTrue(Commands.runOnce(poseSelector::selectRight));
+        driverXbox.povLeft().onTrue(Commands.runOnce(poseSelector::selectLeft));
 
+        // Cycle cage and station poses
         driverXbox.leftBumper().onTrue(Commands.runOnce(poseSelector::cycleStationSlotDown));
         driverXbox.rightBumper().onTrue(Commands.runOnce(poseSelector::cycleStationSlotUp));
 
+        // Slow speed while holding left trigger
         driverXbox.leftTrigger().whileTrue(Commands.runEnd(
                 () -> robotOriented.scaleTranslation(0.3)
                         .scaleRotation(0.2),
                 () -> robotOriented.scaleTranslation(0.8)
                         .scaleRotation(0.6)
         ));
+        // Boost speed while holding right trigger
         driverXbox.rightTrigger().whileTrue(Commands.runEnd(
                 () -> robotOriented.scaleTranslation(1)
                         .scaleRotation(.75),
@@ -119,11 +123,13 @@ public class RobotContainer {
                         .scaleRotation(.6)
         ));
 
+        // Toggle to invert controls
         driverXbox.back().toggleOnTrue(Commands.runEnd(
                 () -> robotOriented.translationHeadingOffset(true),
                 () -> robotOriented.translationHeadingOffset(false)
         ));
 
+        // Toggle field or robot relative speeds
         driverXbox.start().toggleOnTrue(Commands.runEnd(
                 () -> robotOriented.robotRelative(false)
                         .allianceRelativeControl(true),
@@ -131,49 +137,66 @@ public class RobotContainer {
                         .allianceRelativeControl(false)
         ));
 
+        // Drive to reef
         driverXbox.a().whileTrue(Commands.defer(() -> drivebase.driveToPose(
                 poseSelector::flippedReefPose,
                 .6), Set.of(drivebase)));
+        // Drive to station
         driverXbox.b().whileTrue(Commands.defer(() -> drivebase.driveToPose(
                 poseSelector::flippedStationPose,
                 .6), Set.of(drivebase)));
+        // Drive into climb
         driverXbox.y().whileTrue(Commands.defer(() -> drivebase.driveToPose(
-                poseSelector::flippedCagePose,
-                .7), Set.of(drivebase)));
+                        poseSelector::flippedCagePose,
+                        .7), Set.of(drivebase))
+                .andThen(drivebase.driveBackwards()
+                        .withTimeout(.5)));
 
-        // Operator Auto Controls
-        // Operator score controls
+        // Toggle between PID auto controls and manual
+        operatorXbox.leftTrigger()
+                .and(operatorXbox.rightTrigger())
+                .onTrue(superStructure.toggleOperatorControls()
+                        .andThen(superStructure.updateStowCommand())
+                        .andThen(superStructure.runOnce(superStructure::stopAllManipulators)));
+
+        // Operator Auto Controls1
+        // Move structure with pid while holding povLeft
         operatorXbox.a().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.getCoral());
         operatorXbox.b().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.scoreL2());
         operatorXbox.x().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.scoreL3());
         operatorXbox.y().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.scoreL4());
 
         // Operator basic PID
+        // Auto score and collect while holding face buttons
         operatorXbox.a().and(superStructure.isOperatorManual().negate().and(operatorXbox.povLeft())).whileTrue(superStructure.structureToStation());
         operatorXbox.b().and(superStructure.isOperatorManual().negate().and(operatorXbox.povLeft())).whileTrue(superStructure.structureToL2());
         operatorXbox.x().and(superStructure.isOperatorManual().negate().and(operatorXbox.povLeft())).whileTrue(superStructure.structureToL3());
         operatorXbox.y().and(superStructure.isOperatorManual().negate().and(operatorXbox.povLeft())).whileTrue(superStructure.structureToL4());
 
+        // Move structure to dealgae while holding povUp or povDown
         operatorXbox.povUp().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToDealgaeHigh());
         operatorXbox.povDown().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToDealgaeLow());
 
+        // Intake and shoot with bumpers
         operatorXbox.leftBumper().and(superStructure.isOperatorManual().negate()).whileTrue(intakeShooterSubsystem.intakeUntilSensed());
         operatorXbox.rightBumper().and(superStructure.isOperatorManual().negate()).whileTrue(intakeShooterSubsystem.shoot());
 
-        operatorXbox.start().and(superStructure.isOperatorManual().negate()).onTrue(superStructure.stopAllManipulators());
-
         // Operator Manual Controls
+        // Elevator manual up and down while holding A or B.
         operatorXbox.a().and(superStructure.isOperatorManual()).whileTrue(elevatorSubsystem.elevatorUp());
         operatorXbox.b().and(superStructure.isOperatorManual()).whileTrue(elevatorSubsystem.elevatorDown());
 
+        // Arm manual up and down while holding X or Y
         operatorXbox.x().and(superStructure.isOperatorManual()).whileTrue(armSubsystem.armUp());
         operatorXbox.y().and(superStructure.isOperatorManual()).whileTrue(armSubsystem.armDown());
 
+        // Manual intake and shoot without auto stop while holding bumpers
         operatorXbox.leftBumper().and(superStructure.isOperatorManual()).whileTrue(intakeShooterSubsystem.intake());
         operatorXbox.rightBumper().and(superStructure.isOperatorManual()).whileTrue(intakeShooterSubsystem.shoot());
 
-        operatorXbox.start().and(superStructure.isOperatorManual()).whileTrue(climbSubsystem.climbUp());
-        operatorXbox.back().and(superStructure.isOperatorManual()).whileTrue(climbSubsystem.climbDown());
+        // Climb anytime while holding start or back
+        operatorXbox.start().whileTrue(climbSubsystem.climbUp());
+        operatorXbox.back().whileTrue(climbSubsystem.climbDown());
     }
 
     public void seedEncoders() {
@@ -203,14 +226,18 @@ public class RobotContainer {
         NamedCommands.registerCommand("scoreL3", superStructure.scoreL3());
         NamedCommands.registerCommand("scoreL4", superStructure.scoreL4());
 
+        NamedCommands.registerCommand("cycleStationUp", Commands.runOnce(poseSelector::cycleStationSlotUp));
+        NamedCommands.registerCommand("cycleStationDown", Commands.runOnce(poseSelector::cycleStationSlotDown));
+        NamedCommands.registerCommand("selectSlot1", Commands.runOnce(poseSelector::selectSlot1));
+        NamedCommands.registerCommand("selectSlot2", Commands.runOnce(poseSelector::selectSlot2));
+        NamedCommands.registerCommand("selectSlot3", Commands.runOnce(poseSelector::selectSlot3));
+
         NamedCommands.registerCommand("selectSouth", Commands.runOnce(poseSelector::selectSouth));
         NamedCommands.registerCommand("selectSoutheast", Commands.runOnce(poseSelector::selectSouthEast));
         NamedCommands.registerCommand("selectSouthwest", Commands.runOnce(poseSelector::selectSouthWest));
         NamedCommands.registerCommand("selectNorth", Commands.runOnce(poseSelector::selectNorth));
         NamedCommands.registerCommand("selectNortheast", Commands.runOnce(poseSelector::selectNorthEast));
         NamedCommands.registerCommand("selectNorthwest", Commands.runOnce(poseSelector::selectNorthWest));
-        NamedCommands.registerCommand("cycleStationUp", Commands.runOnce(poseSelector::cycleStationSlotUp));
-        NamedCommands.registerCommand("cycleStationDown", Commands.runOnce(poseSelector::cycleStationSlotDown));
         NamedCommands.registerCommand("selectLeft", Commands.runOnce(poseSelector::selectLeft));
         NamedCommands.registerCommand("selectRight", Commands.runOnce(poseSelector::selectRight));
         NamedCommands.registerCommand("driveToReef", Commands.defer(() -> drivebase.driveToPose(poseSelector::flippedReefPose, elevatorSubsystem.scaleForDrive(.8)), Set.of(drivebase)));
