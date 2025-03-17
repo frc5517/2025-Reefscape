@@ -19,9 +19,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final ManipSparkMax leftElevatorMotor = new ManipSparkMax(13);
     private final ManipElevator elevator = new ManipElevator(leftElevatorMotor, Constants.ElevatorConstants.elevatorConfig);
     private final Trigger topLimit = new Trigger(() -> elevator.nearMax(Millimeters.convertFrom(.5, Inches)));
+    private final Trigger scaleHeightHit = new Trigger(() -> scaleForDrive(1) < Constants.DrivebaseConstants.kScaleSpeedMax);
     private final DigitalInput elevatorLimitSwitch = new DigitalInput(Constants.ElevatorConstants.kBottomLimitPort);
     private final Trigger bottomLimit = new Trigger(() -> !elevatorLimitSwitch.get());
-    private final Trigger scaleHeightHit = new Trigger(() -> scaleForDrive(1) < Constants.DrivebaseConstants.kScaleSpeedMax);
 
     public ElevatorSubsystem() {
         rightElevatorMotor.setMotorBrake(true);

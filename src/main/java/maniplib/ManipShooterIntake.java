@@ -1,22 +1,72 @@
 package maniplib;
 
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import maniplib.motors.ManipMotor;
+import maniplib.utils.ManipIntakeShooterConstants;
 import maniplib.utils.PIDControlType;
 
 public class ManipShooterIntake extends SubsystemBase {
 
     private final ManipMotor motor;
+    private final ManipIntakeShooterConstants constants;
+
+    private final FlywheelSim flywheelSim;
 
     /**
      * Initialize the {@link ManipShooterIntake} to be used.
      *
      * @param motor motor to set as the lead motor for this {@link ManipShooterIntake}
      */
-    public ManipShooterIntake(ManipMotor motor) {
+    public ManipShooterIntake(ManipMotor motor, ManipIntakeShooterConstants constants) {
         this.motor = motor;
+        this.constants = constants;
+
+        motor.setGearbox(
+                constants.gearbox);
+
         motor.setPIDControlType(PIDControlType.ControlType.VELOCITY);
+
+        flywheelSim = new FlywheelSim(
+                LinearSystemId.createFlywheelSystem(
+                        constants.gearbox,
+                        constants.MOI,
+                        constants.MOI),
+                constants.gearbox,
+                0.02 / 4096.0);
+    }
+
+    @Override
+    public void periodic() {
+        if (Telemetry.manipVerbosity.ordinal() <= Telemetry.ManipTelemetry.LOW.ordinal()) {
+        }
+        if (Telemetry.manipVerbosity.ordinal() <= Telemetry.ManipTelemetry.HIGH.ordinal()) {
+            SmartDashboard.putNumber("Intake Shooter Applied Output", motor.getAppliedOutput());
+        }
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        // Set simulated input
+        flywheelSim.setInput(motor.getAppliedOutput() * RoboRioSim.getVInVoltage());
+        // Then update it
+        flywheelSim.update(0.02);
+
+        // Then iterate rev devices from sim values
+        motor.iterateRevSim(
+                flywheelSim.getAngularVelocityRPM(),
+                RoboRioSim.getVInVoltage(),
+                0.02);
+
+        RoboRioSim.setVInVoltage(
+                BatterySim.calculateDefaultBatteryLoadedVoltage(
+                        flywheelSim.getCurrentDrawAmps())
+        );
     }
 
     /**

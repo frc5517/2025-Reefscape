@@ -293,19 +293,27 @@ public class Vision {
      */
     enum Cameras {
         /**
-         * Bottom Camera
+         * Reef Camera
          */
-        BOTTOM_CAM("BottomCamera",
-                Constants.VisionConstants.kBottomCamRotation,
-                Constants.VisionConstants.kBottomCamPosition,
+        REEF_CAM("ReefCamera",
+                Constants.VisionConstants.kReefCamRotation,
+                Constants.VisionConstants.kReefCamPosition,
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
         /**
-         * Top Camera
+         * Climb Camera
          */
-        TOP_CAM("TopCamera",
-                Constants.VisionConstants.kTopCamRotation,
-                Constants.VisionConstants.kTopCamPosition,
+        CLIMB_CAM("ClimbCamera",
+                Constants.VisionConstants.kClimbCamRotation,
+                Constants.VisionConstants.kClimbCamPosition,
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+
+        /**
+         * Intake Camera
+         */
+        INTAKE_CAM("IntakeCamera",
+                Constants.VisionConstants.kIntakeCamRotation,
+                Constants.VisionConstants.kIntakeCamPosition,
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
 

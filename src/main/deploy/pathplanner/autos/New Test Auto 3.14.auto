@@ -33,13 +33,13 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "selectLeft"
+                        "name": "selectRight"
                       }
                     },
                     {
                       "type": "named",
                       "data": {
-                        "name": "cycleStationUp"
+                        "name": "selectSlot2"
                       }
                     }
                   ]
@@ -56,6 +56,12 @@
                 "type": "named",
                 "data": {
                   "name": "scoreL4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "selectLeft"
                 }
               },
               {

@@ -14,8 +14,9 @@ import maniplib.motors.ManipSparkMax;
 
 public class IntakeShooterSubsystem extends SubsystemBase {
 
-    private final ManipSparkMax intakeMotor = new ManipSparkMax(11);
-    private final ManipShooterIntake intakeShooter = new ManipShooterIntake(intakeMotor);
+    private final ManipSparkMax intakeMotor = new ManipSparkMax(IntakeShooterConstants.kIntakeShooterMotorID);
+    private final ManipShooterIntake intakeShooter = new ManipShooterIntake(intakeMotor,
+            IntakeShooterConstants.intakeShooterConfig);
 
     private final DigitalInput coralSensor = new DigitalInput(IntakeShooterConstants.kIntakeShooterCoralSensorID);
 
@@ -33,6 +34,7 @@ public class IntakeShooterSubsystem extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
         SmartDashboard.putBoolean("Coral Trigger", coralTrigger.getAsBoolean());
+        SmartDashboard.putNumber("Intake Applied Output", intakeMotor.getAppliedOutput());
     }
 
     public Command intake() {
@@ -50,7 +52,12 @@ public class IntakeShooterSubsystem extends SubsystemBase {
     }
 
     public Command shoot() {
-        return intakeShooter.runSpeedCommand(IntakeShooterConstants.kShootSpeed);
+        return intakeShooter.runSpeedCommand(Constants.IntakeShooterConstants.kShootSpeed);
+    }
+
+    public Command shootUntilGone() {
+        return shoot()
+                .until(coralTrigger.negate());
     }
 
     public void stopIntakeShooter() {
