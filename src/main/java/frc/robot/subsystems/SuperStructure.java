@@ -50,43 +50,9 @@ public class SuperStructure extends SubsystemBase {
         elevator.setElevatorStow(isOperatorManualBoolean);
     }
 
-    private Command driveToReef() {
-        return Commands.defer(() ->
-                drivebase.driveToPose(
-                        poseSelector::flippedReefPose,
-                        .7
-                ), Set.of(drivebase));
-    }
-
-    private Trigger atReef() {
-        return new Trigger(() ->
-                drivebase.poseIsNear(
-                        poseSelector.flippedReefPose(),
-                        drivebase.getPose(),
-                        Constants.DrivebaseConstants.kTranslationTolerance,
-                        Constants.DrivebaseConstants.kRotationTolerance
-                ));
-    }
-
-    private Command driveToStation() {
-        return Commands.defer(() ->
-                drivebase.driveToPose(
-                        poseSelector::flippedStationPose,
-                        .7
-                ), Set.of(drivebase));
-    }
-    private Trigger atStation() {
-        return new Trigger(() ->
-                drivebase.poseIsNear(
-                        poseSelector.flippedStationPose(),
-                        drivebase.getPose(),
-                        Constants.DrivebaseConstants.kTranslationTolerance
-                ));
-    }
-
     public Command getCoral() {
         return
-                driveToStation()
+                drivebase.driveToStation(poseSelector)
                         .alongWith(structureToStation())
                         .alongWith(intakeShooter.intake())
                         .until(intakeShooter.getCoralTrigger())
@@ -98,11 +64,10 @@ public class SuperStructure extends SubsystemBase {
 
     public Command scoreL1() {
         return
-                driveToReef()
+                drivebase.driveToReef(poseSelector)
                         .alongWith(structureToL1())
-                        .until(atReef()
+                        .until(drivebase.atReef(poseSelector)
                                 .and(structureAtL1()))
-                        .andThen(drivebase.stopDrive())
                         .andThen(
                                 intakeShooter.shoot()
                                         .alongWith(structureToL1())
@@ -117,11 +82,10 @@ public class SuperStructure extends SubsystemBase {
 
     public Command scoreL2() {
         return
-                driveToReef()
+                drivebase.driveToReef(poseSelector)
                         .alongWith(structureToL2())
-                        .until(atReef()
+                        .until(drivebase.atReef(poseSelector)
                                 .and(structureAtL2()))
-                        .andThen(drivebase.stopDrive())
                         .andThen(
                                 intakeShooter.shoot()
                                         .alongWith(structureToL2())
@@ -136,11 +100,10 @@ public class SuperStructure extends SubsystemBase {
 
     public Command scoreL3() {
         return
-                driveToReef()
+                drivebase.driveToReef(poseSelector)
                         .alongWith(structureToL3())
-                        .until(atReef()
+                        .until(drivebase.atReef(poseSelector)
                                 .and(structureAtL3()))
-                        .andThen(drivebase.stopDrive())
                         .andThen(
                                 intakeShooter.shoot()
                                         .alongWith(structureToL3())
@@ -155,11 +118,10 @@ public class SuperStructure extends SubsystemBase {
 
     public Command scoreL4() {
         return
-                driveToReef()
+                drivebase.driveToReef(poseSelector)
                         .alongWith(structureToL4())
-                        .until(atReef()
+                        .until(drivebase.atReef(poseSelector)
                                 .and(structureAtL4()))
-                        .andThen(drivebase.stopDrive())
                         .andThen(
                                 intakeShooter.shoot()
                                         .alongWith(structureToL4())

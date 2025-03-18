@@ -32,8 +32,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.commands.ProfileToPose;
+import frc.robot.subsystems.PoseSelector;
 import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -48,6 +51,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -225,7 +229,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param pose Target {@link Pose2d} to go to.
      * @return PathFinding command
      */
-    public Command driveToPose(Supplier<Pose2d> pose, double scaleSpeed) {
+    public Command driveToPoseOLD(Supplier<Pose2d> pose, double scaleSpeed) {
         PathConstraints constraints = new PathConstraints(
                 swerveDrive.getMaximumChassisVelocity() * scaleSpeed,
                 5.0,
@@ -266,6 +270,78 @@ public class SwerveSubsystem extends SubsystemBase {
                                 Constants.DrivebaseConstants.kTranslationTolerance
                         ));
 
+    }
+
+    /**
+     * Use PathPlanner Path finding to go to a point on the field.
+     *
+     * @param pose Target {@link Pose2d} to go to.
+     * @return PathFinding command
+     */
+    public Command driveToPose(Supplier<Pose2d> pose, double scaleSpeed) {
+        PathConstraints constraints = new PathConstraints(
+                swerveDrive.getMaximumChassisVelocity() * scaleSpeed,
+                5.0,
+                swerveDrive.getMaximumChassisAngularVelocity(),
+                Units.degreesToRadians(720));
+        PPHolonomicDriveController holo = new PPHolonomicDriveController(
+                // PPHolonomicController is the built-in path following controller for holonomic drive trains
+                Constants.DrivebaseConstants.kPPTranslationPID,
+                // Translation PID constants
+                Constants.DrivebaseConstants.kPPRotationPID
+                // Rotation PID constants
+        );
+        Pose2d alignToTag  = pose.get().plus(
+                Constants.DrivebaseConstants.kToPoseUpdateOffset);
+        return
+                // Path find to pose
+                AutoBuilder.pathfindToPose(
+                                alignToTag,
+                                constraints,
+                                Constants.DrivebaseConstants.kPathfindEndGoalVelocity) // Goal end velocity in meters/sec
+                        // Until within distanceUntilPID constant.
+                        .until(() -> poseIsNear(alignToTag, getPose(),
+                                Constants.DrivebaseConstants.kDistanceUntilPID,
+                                Constants.DrivebaseConstants.kRotationGoalBeforePID))
+                        // Then switch to Holonomic pid control.
+                        .andThen(
+                                new ProfileToPose(this, pose)
+                        );
+
+    }
+
+    public Command driveToReef(PoseSelector poseSelector) {
+        return Commands.defer(() ->
+                driveToPose(
+                        poseSelector::flippedReefPose,
+                        .7
+                ), Set.of(this));
+    }
+
+    public Trigger atReef(PoseSelector poseSelector) {
+        return new Trigger(() ->
+                poseIsNear(
+                        poseSelector.flippedReefPose(),
+                        getPose(),
+                        Constants.DrivebaseConstants.kTranslationTolerance,
+                        Constants.DrivebaseConstants.kRotationTolerance
+                ));
+    }
+
+    public Command driveToStation(PoseSelector poseSelector) {
+        return Commands.defer(() ->
+                driveToPose(
+                        poseSelector::flippedStationPose,
+                        .7
+                ), Set.of(this));
+    }
+    public Trigger atStation(PoseSelector poseSelector) {
+        return new Trigger(() ->
+                poseIsNear(
+                        poseSelector.flippedStationPose(),
+                        getPose(),
+                        Constants.DrivebaseConstants.kTranslationTolerance
+                ));
     }
 
     /**
