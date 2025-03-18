@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import maniplib.utils.ManipArmConstants;
 import maniplib.utils.ManipElevatorConstants;
 import maniplib.utils.ManipIntakeShooterConstants;
@@ -115,7 +116,7 @@ public final class Constants {
         public static final double kDealgaeLow = 20;
         public static final double kStowSetpoint = 0;
         public static final double kSlowElevatorHeightInches = 30;
-        public static final double kAutoScoreToleranceInches = .5;
+        public static final double kAutoScoreToleranceInches = Robot.isSimulation() ? 2 : .5;
         public static final ManipElevatorConstants elevatorConfig =
                 new ManipElevatorConstants(
                         DCMotor.getNEO(2),
@@ -179,14 +180,14 @@ public final class Constants {
         // Drive to pose constants
         // Offset used to update the pose during driveToPose
         public static final Transform2d kToPoseUpdateOffset = new Transform2d(
-                Units.inchesToMeters(-12),
+                Units.inchesToMeters(-24),
                 Units.inchesToMeters(0),
                 Rotation2d.kZero);
         // Tolerance distance until going to PPHolonomic PID
-        public static final double kDistanceUntilPID = Units.inchesToMeters(1);
+        public static final double kDistanceUntilPID = Units.inchesToMeters(3);
         public static final double kRotationGoalBeforePID = 1;
-        public static final LinearVelocity kPathfindEndGoalVelocity = MetersPerSecond.of(5);
-        public static final double kTranslationTolerance = Units.inchesToMeters(.2);
+        public static final LinearVelocity kPathfindEndGoalVelocity = MetersPerSecond.of(10);
+        public static final double kTranslationTolerance = Units.inchesToMeters(Robot.isSimulation() ? 2 : .1);
         public static final double kRotationTolerance = 1; // Degrees
 
         // Pathplanner holonomic controller
@@ -207,7 +208,7 @@ public final class Constants {
                 Rotation2d.kZero);
 
         public static final Transform2d STATION_OFFSET = new Transform2d(
-                Units.inchesToMeters(6.5),
+                Units.inchesToMeters(-2),
                 Units.inchesToMeters(0),
                 Rotation2d.kZero
         );
