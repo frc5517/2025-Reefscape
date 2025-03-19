@@ -34,7 +34,10 @@ public class RobotContainer {
     private final AddressableLEDSubsystem ledSubsystem = new AddressableLEDSubsystem();
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
     private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-    private final IntakeShooterSubsystem intakeShooterSubsystem = new IntakeShooterSubsystem();
+    private final IntakeShooterSubsystem intakeShooterSubsystem = new IntakeShooterSubsystem(
+            drivebase,
+            elevatorSubsystem,
+            armSubsystem);
     private final ClimbSubsystem climbSubsystem = new ClimbSubsystem();
     private final SuperStructure superStructure = new SuperStructure(
             armSubsystem,

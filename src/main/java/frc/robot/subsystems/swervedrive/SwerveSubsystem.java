@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.commands.ProfileToPose;
 import frc.robot.subsystems.PoseSelector;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -221,55 +222,6 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command getAutonomousCommand(String pathName) {
         // Create a path following command using AutoBuilder. This will also trigger event markers.
         return new PathPlannerAuto(pathName);
-    }
-
-    /**
-     * Use PathPlanner Path finding to go to a point on the field.
-     *
-     * @param pose Target {@link Pose2d} to go to.
-     * @return PathFinding command
-     */
-    public Command driveToPoseOLD(Supplier<Pose2d> pose, double scaleSpeed) {
-        PathConstraints constraints = new PathConstraints(
-                swerveDrive.getMaximumChassisVelocity() * scaleSpeed,
-                5.0,
-                swerveDrive.getMaximumChassisAngularVelocity(),
-                Units.degreesToRadians(720));
-        PPHolonomicDriveController holo = new PPHolonomicDriveController(
-                // PPHolonomicController is the built-in path following controller for holonomic drive trains
-                Constants.DrivebaseConstants.kPPTranslationPID,
-                // Translation PID constants
-                Constants.DrivebaseConstants.kPPRotationPID
-                // Rotation PID constants
-        );
-        Pose2d alignToTag  = pose.get().plus(
-                Constants.DrivebaseConstants.kToPoseUpdateOffset);
-        return
-                // Path find to pose
-                AutoBuilder.pathfindToPose(
-                                alignToTag,
-                                constraints,
-                                Constants.DrivebaseConstants.kPathfindEndGoalVelocity) // Goal end velocity in meters/sec
-                        // Until within distanceUntilPID constant.
-                        .until(() -> poseIsNear(alignToTag, getPose(),
-                                Constants.DrivebaseConstants.kDistanceUntilPID,
-                                Constants.DrivebaseConstants.kRotationGoalBeforePID))
-                        // Then switch to Holonomic pid control.
-                        .andThen(defer(() -> {
-                            PathPlannerTrajectoryState state = new PathPlannerTrajectoryState();
-                            return startRun(() -> {
-                                holo.reset(swerveDrive.getPose(), swerveDrive.getRobotVelocity());
-                                state.pose = pose.get();
-                            }, () -> swerveDrive.drive(
-                                    holo.calculateRobotRelativeSpeeds(swerveDrive.getPose(), state)
-                                            .times(scaleSpeed * 0.75)));
-                        }))
-                        .until(() -> poseIsNear(
-                                pose.get(),
-                                getPose(),
-                                Constants.DrivebaseConstants.kTranslationTolerance
-                        ));
-
     }
 
     /**
@@ -682,6 +634,13 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public void setMotorBrake(boolean brake) {
         swerveDrive.setMotorIdleMode(brake);
+    }
+
+    /**
+     * @return {@link SwerveDriveSimulation} from MapleSim.
+     */
+    public SwerveDriveSimulation getMapleDrive() {
+        return swerveDrive.getMapleSimDrive().isPresent() ? swerveDrive.getMapleSimDrive().get() : null;
     }
 
     /**
