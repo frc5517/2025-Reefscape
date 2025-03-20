@@ -77,6 +77,7 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         m_robotContainer.setMotorBrake(true);
+        m_robotContainer.lockDrive();
         disabledTimer.reset();
         disabledTimer.start();
     }

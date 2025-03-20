@@ -348,7 +348,7 @@ public final class Constants {
         // Climb Camera Constants
         public static final Rotation3d kClimbCamRotation = new Rotation3d(
                 Units.degreesToRadians(0),
-                Units.degreesToRadians(25),
+                Units.degreesToRadians(35),
                 Units.degreesToRadians(0));
         public static final Translation3d kClimbCamPosition = new Translation3d(
                 Units.inchesToMeters(4),
@@ -358,12 +358,12 @@ public final class Constants {
         // Intake Camera Constants
         public static final Rotation3d kIntakeCamRotation = new Rotation3d(
                 Units.degreesToRadians(0),
-                Units.degreesToRadians(-25),
+                Units.degreesToRadians(-35),
                 Units.degreesToRadians(0));
         public static final Translation3d kIntakeCamPosition = new Translation3d(
                 Units.inchesToMeters(4),
-                Units.inchesToMeters(0),
-                Units.inchesToMeters(35));
+                Units.inchesToMeters(-6.75),
+                Units.inchesToMeters(34));
 
 
     }

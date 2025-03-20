@@ -276,4 +276,7 @@ public class RobotContainer {
     public void setMotorBrake(boolean brake) {
         drivebase.setMotorBrake(brake);
     }
+    public void lockDrive() {
+        Commands.run(drivebase::lock, drivebase);
+    }
 }
