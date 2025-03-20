@@ -125,7 +125,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     @Override
     public void simulationPeriodic() {
         // Update the simulation Mechanism.
-        Constants.kElevatorCarriage.setPosition(Constants.ArmConstants.armConfig.kArmLength, elevator.getMechLength());
+        Constants.kElevatorCarriage.setPosition(Constants.ArmConstants.armConfig.kArmLength +
+                Constants.ElevatorConstants.kCenterToElevator, elevator.getMechLength() +
+                Units.inchesToMeters(Constants.ElevatorConstants.kBottomCarriageToArmInches));
         Constants.kElevatorTower.setLength(elevator.getMechLength());
     }
 }

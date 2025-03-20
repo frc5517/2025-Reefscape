@@ -7,7 +7,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -17,6 +16,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import swervelib.SwerveInputStream;
@@ -34,7 +34,10 @@ public class RobotContainer {
     private final AddressableLEDSubsystem ledSubsystem = new AddressableLEDSubsystem();
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
     private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-    private final IntakeShooterSubsystem intakeShooterSubsystem = new IntakeShooterSubsystem();
+    private final IntakeShooterSubsystem intakeShooterSubsystem = new IntakeShooterSubsystem(
+            drivebase,
+            elevatorSubsystem,
+            armSubsystem);
     private final ClimbSubsystem climbSubsystem = new ClimbSubsystem();
     private final SuperStructure superStructure = new SuperStructure(
             armSubsystem,
@@ -43,15 +46,25 @@ public class RobotContainer {
             drivebase,
             poseSelector
     );
-    SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
+    SwerveInputStream swerveStream = SwerveInputStream.of(drivebase.getSwerveDrive(),
                     () -> driverXbox.getLeftY() * -1,
                     () -> driverXbox.getLeftX() * -1)
+            .cubeTranslationControllerAxis(true)
             .withControllerRotationAxis(() -> driverXbox.getRightX() * -1)
             .deadband(Constants.OperatorConstants.DEADBAND)
             .scaleTranslation(.8)
             .scaleRotation(.4)
-            .allianceRelativeControl(true);
-    SwerveInputStream robotOriented = driveAngularVelocity.copy()
+            .robotRelative(true)
+            .allianceRelativeControl(false)
+            .translationHeadingOffset(Rotation2d.k180deg);
+    SwerveInputStream opSwerveStream = SwerveInputStream.of(drivebase.getSwerveDrive(),
+                    () -> operatorXbox.getLeftY() * -1,
+                    () -> operatorXbox.getLeftX() * -1)
+            .cubeTranslationControllerAxis(true)
+            .withControllerRotationAxis(() -> operatorXbox.getRightX() * -1)
+            .deadband(Constants.OperatorConstants.DEADBAND)
+            .scaleTranslation(.8)
+            .scaleRotation(.4)
             .robotRelative(true)
             .allianceRelativeControl(false)
             .translationHeadingOffset(Rotation2d.k180deg);
@@ -68,7 +81,8 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        Command driveRobotOriented = drivebase.driveFieldOriented(robotOriented);
+        Command driveRobotOriented = drivebase.driveFieldOriented(swerveStream);
+        Command opDriveRobotOriented = drivebase.driveFieldOriented(opSwerveStream);
 
         //
         ledSubsystem.setDefaultCommand(ledSubsystem.runPatternBoth(
@@ -85,9 +99,9 @@ public class RobotContainer {
 
         // enable auto slow with elevator height
         elevatorSubsystem.scaleHeightHit().whileTrue(Commands.runEnd(
-                () -> robotOriented.scaleTranslation(elevatorSubsystem.scaleForDrive(0.8))
+                () -> swerveStream.scaleTranslation(elevatorSubsystem.scaleForDrive(0.8))
                         .scaleRotation(elevatorSubsystem.scaleForDrive(0.4)),
-                () -> robotOriented.scaleTranslation(0.8)
+                () -> swerveStream.scaleTranslation(0.8)
                         .scaleRotation(0.6)
         ));
 
@@ -110,30 +124,30 @@ public class RobotContainer {
 
         // Slow speed while holding left trigger
         driverXbox.leftTrigger().whileTrue(Commands.runEnd(
-                () -> robotOriented.scaleTranslation(0.3)
+                () -> swerveStream.scaleTranslation(0.3)
                         .scaleRotation(0.2),
-                () -> robotOriented.scaleTranslation(0.8)
+                () -> swerveStream.scaleTranslation(0.8)
                         .scaleRotation(0.6)
         ));
         // Boost speed while holding right trigger
         driverXbox.rightTrigger().whileTrue(Commands.runEnd(
-                () -> robotOriented.scaleTranslation(1)
+                () -> swerveStream.scaleTranslation(1)
                         .scaleRotation(.75),
-                () -> robotOriented.scaleTranslation(.8)
+                () -> swerveStream.scaleTranslation(.8)
                         .scaleRotation(.6)
         ));
 
         // Toggle to invert controls
         driverXbox.back().toggleOnTrue(Commands.runEnd(
-                () -> robotOriented.translationHeadingOffset(true),
-                () -> robotOriented.translationHeadingOffset(false)
+                () -> swerveStream.translationHeadingOffset(true),
+                () -> swerveStream.translationHeadingOffset(false)
         ));
 
         // Toggle field or robot relative speeds
         driverXbox.start().toggleOnTrue(Commands.runEnd(
-                () -> robotOriented.robotRelative(false)
+                () -> swerveStream.robotRelative(false)
                         .allianceRelativeControl(true),
-                () -> robotOriented.robotRelative(true)
+                () -> swerveStream.robotRelative(true)
                         .allianceRelativeControl(false)
         ));
 
@@ -152,34 +166,45 @@ public class RobotContainer {
                 .andThen(drivebase.driveBackwards()
                         .withTimeout(.5)));
 
+        // Operator Auto Controls
+        // Advanced control toggles
         // Toggle between PID auto controls and manual
         operatorXbox.leftTrigger()
                 .and(operatorXbox.rightTrigger())
                 .onTrue(superStructure.toggleOperatorControls()
                         .andThen(superStructure.updateStowCommand())
                         .andThen(superStructure.runOnce(superStructure::stopAllManipulators)));
+        // Toggle between score commands and pid setpoint control
+        operatorXbox.povLeft().and(superStructure.isOperatorManual().negate()).onTrue(superStructure.toggleOpScore());
 
-        // Operator Auto Controls1
+        Trigger manual = superStructure.isOperatorManual();
+        Trigger score = superStructure.isOperatorScore();
+        Trigger notManual = superStructure.isOperatorManual().negate();
+        Trigger notScore = superStructure.isOperatorScore().negate();
+        Trigger manualScore = manual.and(score);
+        Trigger notManualScore = notManual.and(score);
+        Trigger notManualNotScore = notManual.and(notScore);
+
         // Move structure with pid while holding povLeft
-        operatorXbox.a().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.getCoral());
-        operatorXbox.b().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.scoreL2());
-        operatorXbox.x().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.scoreL3());
-        operatorXbox.y().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.scoreL4());
+        operatorXbox.a().and(notManualNotScore).whileTrue(superStructure.getCoral());
+        operatorXbox.b().and(notManualNotScore).whileTrue(superStructure.scoreL2());
+        operatorXbox.x().and(notManualNotScore).whileTrue(superStructure.scoreL3());
+        operatorXbox.y().and(notManualNotScore).whileTrue(superStructure.scoreL4());
 
         // Operator basic PID
         // Auto score and collect while holding face buttons
-        operatorXbox.a().and(superStructure.isOperatorManual().negate().and(operatorXbox.povLeft())).whileTrue(superStructure.structureToStation());
-        operatorXbox.b().and(superStructure.isOperatorManual().negate().and(operatorXbox.povLeft())).whileTrue(superStructure.structureToL2());
-        operatorXbox.x().and(superStructure.isOperatorManual().negate().and(operatorXbox.povLeft())).whileTrue(superStructure.structureToL3());
-        operatorXbox.y().and(superStructure.isOperatorManual().negate().and(operatorXbox.povLeft())).whileTrue(superStructure.structureToL4());
+        operatorXbox.a().and(notManualScore).whileTrue(superStructure.structureToStation());
+        operatorXbox.b().and(notManualScore).whileTrue(superStructure.structureToL2());
+        operatorXbox.x().and(notManualScore).whileTrue(superStructure.structureToL3());
+        operatorXbox.y().and(notManualScore).whileTrue(superStructure.structureToL4());
 
         // Move structure to dealgae while holding povUp or povDown
-        operatorXbox.povUp().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToDealgaeHigh());
-        operatorXbox.povDown().and(superStructure.isOperatorManual().negate()).whileTrue(superStructure.structureToDealgaeLow());
+        operatorXbox.povUp().and(notManual).whileTrue(superStructure.structureToDealgaeHigh());
+        operatorXbox.povDown().and(notManual).whileTrue(superStructure.structureToDealgaeLow());
 
         // Intake and shoot with bumpers
-        operatorXbox.leftBumper().and(superStructure.isOperatorManual().negate()).whileTrue(intakeShooterSubsystem.intakeUntilSensed());
-        operatorXbox.rightBumper().and(superStructure.isOperatorManual().negate()).whileTrue(intakeShooterSubsystem.shoot());
+        operatorXbox.leftBumper().and(notManual).whileTrue(intakeShooterSubsystem.intakeUntilSensed());
+        operatorXbox.rightBumper().and(notManual).whileTrue(intakeShooterSubsystem.shoot());
 
         // Operator Manual Controls
         // Elevator manual up and down while holding A or B.

@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -101,6 +102,10 @@ public class ArmSubsystem extends SubsystemBase {
 
     public void seedArmEncoder() {
         arm.addAbsoluteEncoderValue(armABS.get() * -1);
+    }
+
+    public Angle getAngle() {
+        return arm.getAngle();
     }
 
     @Override

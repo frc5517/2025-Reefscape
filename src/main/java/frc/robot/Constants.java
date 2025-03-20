@@ -5,19 +5,17 @@
 package frc.robot;
 
 import com.pathplanner.lib.config.PIDConstants;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import maniplib.utils.ManipArmConstants;
 import maniplib.utils.ManipElevatorConstants;
 import maniplib.utils.ManipIntakeShooterConstants;
@@ -55,7 +53,7 @@ public final class Constants {
                         new Color8Bit(Color.kYellow)));
         kElevatorTower = kElevatorCarriage.append(new MechanismLigament2d(
                 "Elevator",
-                ElevatorConstants.elevatorConfig.kStartingHeightSim.in(Meters),
+                ElevatorConstants.elevatorConfig.kStartingHeightSim.in(Meters), // Add bottom carriage to bottom arm distance
                 -90,
                 6,
                 new Color8Bit(Color.kRed)));
@@ -117,6 +115,8 @@ public final class Constants {
         public static final double kStowSetpoint = 0;
         public static final double kSlowElevatorHeightInches = 30;
         public static final double kAutoScoreToleranceInches = Robot.isSimulation() ? 2 : .5;
+        public static final double kBottomCarriageToArmInches = 32;
+        public static final double kCenterToElevator = Units.inchesToMeters(10);
         public static final ManipElevatorConstants elevatorConfig =
                 new ManipElevatorConstants(
                         DCMotor.getNEO(2),
@@ -187,7 +187,7 @@ public final class Constants {
         public static final double kDistanceUntilPID = Units.inchesToMeters(3);
         public static final double kRotationGoalBeforePID = 1;
         public static final LinearVelocity kPathfindEndGoalVelocity = MetersPerSecond.of(10);
-        public static final double kTranslationTolerance = Units.inchesToMeters(Robot.isSimulation() ? 2 : .1);
+        public static final double kTranslationTolerance = .1;
         public static final double kRotationTolerance = 1; // Degrees
 
         // Pathplanner holonomic controller
@@ -208,7 +208,7 @@ public final class Constants {
                 Rotation2d.kZero);
 
         public static final Transform2d STATION_OFFSET = new Transform2d(
-                Units.inchesToMeters(-2),
+                Units.inchesToMeters(-15),
                 Units.inchesToMeters(0),
                 Rotation2d.kZero
         );

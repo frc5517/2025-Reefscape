@@ -1,16 +1,13 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-
-import java.util.Set;
 
 
 public class SuperStructure extends SubsystemBase {
@@ -23,6 +20,8 @@ public class SuperStructure extends SubsystemBase {
 
     private boolean isOperatorManualBoolean = true;
     private final Trigger isOperatorManual = new Trigger(() -> isOperatorManualBoolean);
+    private boolean isOperatorScoreBoolean = true;
+    private final Trigger isOperatorScore = new Trigger(() -> isOperatorScoreBoolean);
 
     /**
      * Initialize the robot control {@link SuperStructure}
@@ -54,9 +53,10 @@ public class SuperStructure extends SubsystemBase {
         return
                 drivebase.driveToStation(poseSelector)
                         .alongWith(structureToStation())
-                        .alongWith(intakeShooter.intake())
-                        .until(intakeShooter.getCoralTrigger())
-                        .withTimeout(5)
+                        .until(drivebase.atStation(poseSelector))
+                        .andThen(intakeShooter.intake()
+                                .withTimeout(2)
+                                .until(intakeShooter.getCoralTrigger().negate()))
                         .andThen(drivebase.driveBackwards()
                                 .alongWith(forceStow())
                                 .withTimeout(.5));
@@ -182,32 +182,6 @@ public class SuperStructure extends SubsystemBase {
                         .alongWith(elevator.elevatorToStow());
     }
 
-    public Command toggleOperatorControls() {
-        return runOnce(() -> {
-            isOperatorManualBoolean = !isOperatorManualBoolean;
-        });
-    }
-
-    public Command enablePID() {
-        return runOnce(() -> {
-            isOperatorManualBoolean = false;
-        });
-    }
-
-    public Command disablePID() {
-        return runOnce(() -> {
-            isOperatorManualBoolean = true;
-        });
-    }
-
-    public Command updateStowCommand() {
-        return runOnce(this::updateAutoStow);
-    }
-
-    public Trigger isOperatorManual() {
-        return isOperatorManual;
-    }
-
     public Trigger structureAtL1() {
         return
                 elevator.atHeight(
@@ -252,14 +226,47 @@ public class SuperStructure extends SubsystemBase {
                         ));
     }
 
+    public Command enablePID() {
+        return runOnce(() -> {
+            isOperatorManualBoolean = false;
+        });
+    }
+
+    public Command disablePID() {
+        return runOnce(() -> {
+            isOperatorManualBoolean = true;
+        });
+    }
+
+    public Command toggleOperatorControls() {
+        return runOnce(() -> {
+            isOperatorManualBoolean = !isOperatorManualBoolean;
+        });
+    }
+
+    public Trigger isOperatorManual() {
+        return isOperatorManual;
+    }
+
+    public Command updateStowCommand() {
+        return runOnce(this::updateAutoStow);
+    }
+
+    public Command toggleOpScore() {
+        return runOnce(() -> {
+            isOperatorScoreBoolean = !isOperatorScoreBoolean;
+        });
+    }
+
+    public Trigger isOperatorScore() {
+        return isOperatorScore;
+    }
 
     /**
      * A command to stop all manipulator motors.
-     *
-     * @return a command to stop all manipulator motors.
      */
-    public Command stopAllManipulators() {
-        return run(() -> {
+    public void stopAllManipulators() {
+        run(() -> {
             intakeShooter.stopIntakeShooter();
             elevator.stopElevator();
             arm.stopArm();
