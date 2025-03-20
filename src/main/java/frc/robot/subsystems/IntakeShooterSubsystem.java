@@ -52,10 +52,6 @@ public class IntakeShooterSubsystem extends SubsystemBase {
     public IntakeShooterSubsystem(SwerveSubsystem drivebase, ElevatorSubsystem elevator, ArmSubsystem arm) {
         intakeMotor.setMotorBrake(true);
 
-        if (RobotBase.isSimulation()) {
-            coralTrigger = new Trigger(() -> false);
-        }
-
         this.swerve = drivebase;
         this.elevator = elevator;
         this.arm = arm;
@@ -66,7 +62,10 @@ public class IntakeShooterSubsystem extends SubsystemBase {
                 IntakeSimulation.IntakeSide.FRONT,
                 1
         );
-        SimulatedArena.getInstance().resetFieldForAuto();
+        if (RobotBase.isSimulation()) {
+            SimulatedArena.getInstance().resetFieldForAuto();
+            coralTrigger = new Trigger(() -> intakeSimulation.getGamePiecesAmount() > 0);
+        }
     }
 
     @Override

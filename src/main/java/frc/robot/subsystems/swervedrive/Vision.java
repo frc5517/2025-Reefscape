@@ -393,7 +393,7 @@ public class Vision {
             if (Robot.isSimulation()) {
                 SimCameraProperties cameraProp = new SimCameraProperties();
                 // A 640 x 480 camera with a 100 degree diagonal FOV.
-                cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(100));
+                cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(70));
                 // Approximate detection noise with average and standard deviation error in pixels.
                 cameraProp.setCalibError(0.25, 0.08);
                 // Set the camera image capture framerate (Note: this is limited by robot loop rate).
@@ -465,24 +465,23 @@ public class Vision {
         /**
          * Update the latest results, cached with a maximum refresh rate of 1req/15ms. Sorts the list by timestamp.
          */
-        private void updateUnreadResults() {
+        private void updateUnreadResults()
+        {
             double mostRecentTimestamp = resultsList.isEmpty() ? 0.0 : resultsList.get(0).getTimestampSeconds();
-            double currentTimestamp = Microseconds.of(NetworkTablesJNI.now()).in(Seconds);
-            double debounceTime = Milliseconds.of(15).in(Seconds);
-            for (PhotonPipelineResult result : resultsList) {
+            for (PhotonPipelineResult result : resultsList)
+            {
                 mostRecentTimestamp = Math.max(mostRecentTimestamp, result.getTimestampSeconds());
             }
-            if ((resultsList.isEmpty() || (currentTimestamp - mostRecentTimestamp >= debounceTime)) &&
-                    (currentTimestamp - lastReadTimestamp) >= debounceTime) {
-                resultsList = Robot.isReal() ? camera.getAllUnreadResults() : cameraSim.getCamera().getAllUnreadResults();
-                lastReadTimestamp = currentTimestamp;
-                resultsList.sort((PhotonPipelineResult a, PhotonPipelineResult b) -> {
-                    return a.getTimestampSeconds() >= b.getTimestampSeconds() ? 1 : -1;
-                });
-                if (!resultsList.isEmpty()) {
-                    updateEstimatedGlobalPose();
-                }
+
+            resultsList = Robot.isReal() ? camera.getAllUnreadResults() : cameraSim.getCamera().getAllUnreadResults();
+            resultsList.sort((PhotonPipelineResult a, PhotonPipelineResult b) -> {
+                return a.getTimestampSeconds() >= b.getTimestampSeconds() ? 1 : -1;
+            });
+            if (!resultsList.isEmpty())
+            {
+                updateEstimatedGlobalPose();
             }
+
         }
 
         /**
@@ -495,9 +494,11 @@ public class Vision {
          * @return An {@link EstimatedRobotPose} with an estimated pose, estimate timestamp, and targets used for
          * estimation.
          */
-        private void updateEstimatedGlobalPose() {
+        private void updateEstimatedGlobalPose()
+        {
             Optional<EstimatedRobotPose> visionEst = Optional.empty();
-            for (var change : resultsList) {
+            for (var change : resultsList)
+            {
                 visionEst = poseEstimator.update(change);
                 updateEstimationStdDevs(visionEst, change.getTargets());
             }

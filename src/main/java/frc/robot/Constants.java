@@ -10,6 +10,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -186,7 +187,7 @@ public final class Constants {
         public static final double kDistanceUntilPID = Units.inchesToMeters(3);
         public static final double kRotationGoalBeforePID = 1;
         public static final LinearVelocity kPathfindEndGoalVelocity = MetersPerSecond.of(10);
-        public static final double kTranslationTolerance = Units.inchesToMeters(Robot.isSimulation() ? 2 : .1);
+        public static final double kTranslationTolerance = .1;
         public static final double kRotationTolerance = 1; // Degrees
 
         // Pathplanner holonomic controller
@@ -207,7 +208,7 @@ public final class Constants {
                 Rotation2d.kZero);
 
         public static final Transform2d STATION_OFFSET = new Transform2d(
-                Units.inchesToMeters(-2),
+                Units.inchesToMeters(-15),
                 Units.inchesToMeters(0),
                 Rotation2d.kZero
         );
