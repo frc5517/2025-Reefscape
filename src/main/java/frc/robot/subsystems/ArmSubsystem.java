@@ -21,6 +21,9 @@ public class ArmSubsystem extends SubsystemBase {
 
     private final DutyCycleEncoder armABS = new DutyCycleEncoder(ArmConstants.kArmABSID);
 
+    private boolean isDealgaeLockedBoolean = false;
+    private final Trigger isDealgaeLocked = new Trigger(() -> isDealgaeLockedBoolean);
+
     public ArmSubsystem() {
         arm.enableDefaultLimits();
     }
@@ -64,16 +67,20 @@ public class ArmSubsystem extends SubsystemBase {
         return arm.setGoal(Constants.ArmConstants.kL4Setpoint);
     }
 
+    public Command armToProcessor() {
+        return arm.setGoal(ArmConstants.kProcessorSetpoint);
+    }
+
     public Command armToStation() {
         return arm.setGoal(Constants.ArmConstants.kStationSetpoint);
     }
 
     public Command armToDealgaeHigh() {
-        return arm.setGoal(ArmConstants.kDealgaeHigh);
+        return arm.setGoal(ArmConstants.kDealgae);
     }
 
     public Command armToDealgaeLow() {
-        return arm.setGoal(ArmConstants.kDealgaeLow);
+        return arm.setGoal(ArmConstants.kDealgae);
     }
 
     public Command armToStow() {

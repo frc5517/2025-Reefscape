@@ -248,6 +248,26 @@ public class PoseSelector extends SubsystemBase {
         return AllianceFlipUtil.shouldFlip() ? AllianceFlipUtil.flip(selectedCagePose()) : selectedCagePose();
     }
 
+    public Pose2d selectedAlgaePose() {
+        return switch (reefSide) {
+            case NORTH -> Constants.DrivebaseConstants.ALGAE_NORTH;
+            case NORTHEAST -> Constants.DrivebaseConstants.ALGAE_NORTHEAST;
+            case SOUTHEAST -> Constants.DrivebaseConstants.ALGAE_SOUTHEAST;
+            case SOUTH -> Constants.DrivebaseConstants.ALGAE_SOUTH;
+            case SOUTHWEST -> Constants.DrivebaseConstants.ALGAE_SOUTHWEST;
+            case NORTHWEST -> Constants.DrivebaseConstants.ALGAE_NORTHWEST;
+            default -> swerve.getPose();
+        };
+    }
+
+    public Pose2d flippedAlgaePose() {
+        return AllianceFlipUtil.shouldFlip() ? AllianceFlipUtil.flip(selectedAlgaePose()) : selectedAlgaePose();
+    }
+
+    public Pose2d flippedProcessorPose() {
+        return AllianceFlipUtil.shouldFlip() ? AllianceFlipUtil.flip(Constants.DrivebaseConstants.PROCESSOR) : Constants.DrivebaseConstants.PROCESSOR;
+    }
+
     public enum ReefSide {
         NORTH,
         NORTHEAST,

@@ -142,6 +142,17 @@ public class SwerveSubsystem extends SubsystemBase {
             vision.updatePoseEstimation(swerveDrive);
         }
         SmartDashboard.putNumber("Max Angular", swerveDrive.getMaximumChassisAngularVelocity());
+
+        if (!isMoving(0.01)) {
+            lock();
+        }
+    }
+
+    public boolean isMoving(double tolerance) {
+        return
+                (getRobotVelocity().omegaRadiansPerSecond +
+                        getRobotVelocity().vyMetersPerSecond +
+                        getRobotVelocity().vxMetersPerSecond) / 3 > tolerance;
     }
 
     @Override
@@ -259,14 +270,48 @@ public class SwerveSubsystem extends SubsystemBase {
                         .andThen(
                                 new ProfileToPose(this, pose)
                         );
-
     }
+
+    /**
+     * Use PathPlanner Path finding to go to a point on the field.
+     *
+     * @param pose Target {@link Pose2d} to go to.
+     * @return PathFinding command
+     */
+    public Command driveToPosePP(Supplier<Pose2d> pose, double scaleSpeed) {
+        PathConstraints constraints = new PathConstraints(
+                swerveDrive.getMaximumChassisVelocity() * scaleSpeed,
+                5.0,
+                swerveDrive.getMaximumChassisAngularVelocity(),
+                Units.degreesToRadians(720));
+        PPHolonomicDriveController holo = new PPHolonomicDriveController(
+                // PPHolonomicController is the built-in path following controller for holonomic drive trains
+                Constants.DrivebaseConstants.kPPTranslationPID,
+                // Translation PID constants
+                Constants.DrivebaseConstants.kPPRotationPID
+                // Rotation PID constants
+        );
+        Pose2d alignToTag  = pose.get().plus(
+                Constants.DrivebaseConstants.kToPoseUpdateOffset);
+        return
+                // Path find to pose
+                AutoBuilder.pathfindToPose(
+                                alignToTag,
+                                constraints,
+                                Constants.DrivebaseConstants.kPathfindEndGoalVelocity) // Goal end velocity in meters/sec
+                        // Until within distanceUntilPID constant.
+                        .until(() -> poseIsNear(alignToTag, getPose(),
+                                Constants.DrivebaseConstants.kDistanceUntilPID,
+                                Constants.DrivebaseConstants.kRotationGoalBeforePID));
+    }
+
+
 
     public Command driveToReef(PoseSelector poseSelector) {
         return Commands.defer(() ->
                 driveToPose(
                         poseSelector::flippedReefPose,
-                        .7
+                        Constants.DrivebaseConstants.kDriveToReef
                 ), Set.of(this));
     }
 
@@ -284,7 +329,7 @@ public class SwerveSubsystem extends SubsystemBase {
         return Commands.defer(() ->
                 driveToPose(
                         poseSelector::flippedStationPose,
-                        .7
+                        Constants.DrivebaseConstants.kDriveToStation
                 ), Set.of(this));
     }
     public Trigger atStation(PoseSelector poseSelector) {
@@ -292,7 +337,56 @@ public class SwerveSubsystem extends SubsystemBase {
                 poseIsNear(
                         poseSelector.flippedStationPose(),
                         getPose(),
-                        Constants.DrivebaseConstants.kTranslationTolerance
+                        Constants.DrivebaseConstants.kTranslationTolerance,
+                        Constants.DrivebaseConstants.kRotationTolerance
+                ));
+    }
+    public Command driveToProcessor(PoseSelector poseSelector) {
+        return Commands.defer(() ->
+                driveToPose(
+                        poseSelector::flippedProcessorPose,
+                        Constants.DrivebaseConstants.kDriveToProcessor
+                ), Set.of(this));
+    }
+    public Trigger atProcessor(PoseSelector poseSelector) {
+        return new Trigger(() ->
+                poseIsNear(
+                        poseSelector.flippedProcessorPose(),
+                        getPose(),
+                        Constants.DrivebaseConstants.kTranslationTolerance,
+                        Constants.DrivebaseConstants.kRotationTolerance
+                ));
+    }
+    public Command driveToAlgae(PoseSelector poseSelector) {
+        return Commands.defer(() ->
+                driveToPose(
+                        poseSelector::flippedAlgaePose,
+                        Constants.DrivebaseConstants.kDriveToAlgae
+                ), Set.of(this));
+    }
+    public Trigger atAlgae(PoseSelector poseSelector) {
+        return new Trigger(() ->
+                poseIsNear(
+                        poseSelector.flippedAlgaePose(),
+                        getPose(),
+                        Constants.DrivebaseConstants.kTranslationTolerance,
+                        Constants.DrivebaseConstants.kRotationTolerance
+                ));
+    }
+    public Command driveToCage(PoseSelector poseSelector) {
+        return Commands.defer(() ->
+                driveToPosePP(
+                        poseSelector::flippedCagePose,
+                        Constants.DrivebaseConstants.kDriveToCage
+                ), Set.of(this));
+    }
+    public Trigger atCage(PoseSelector poseSelector) {
+        return new Trigger(() ->
+                poseIsNear(
+                        poseSelector.flippedCagePose(),
+                        getPose(),
+                        Constants.DrivebaseConstants.kTranslationTolerance,
+                        Constants.DrivebaseConstants.kRotationTolerance
                 ));
     }
 
@@ -436,7 +530,7 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command driveToDistanceCommand(double distanceInMeters, double speedInMetersPerSecond) {
         return run(() -> drive(new ChassisSpeeds(speedInMetersPerSecond, 0, 0)))
-                .until(() -> swerveDrive.getPose().getTranslation().getDistance(new Translation2d(0, 0)) >
+                .until(() -> swerveDrive.getPose().getTranslation().getDistance(new Translation2d(distanceInMeters, 0)) >
                         distanceInMeters);
     }
 

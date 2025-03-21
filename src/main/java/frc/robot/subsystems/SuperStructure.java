@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,7 +19,7 @@ public class SuperStructure extends SubsystemBase {
 
     private boolean isOperatorManualBoolean = true;
     private final Trigger isOperatorManual = new Trigger(() -> isOperatorManualBoolean);
-    private boolean isOperatorScoreBoolean = true;
+    private boolean isOperatorScoreBoolean = false;
     private final Trigger isOperatorScore = new Trigger(() -> isOperatorScoreBoolean);
 
     /**
@@ -134,6 +133,56 @@ public class SuperStructure extends SubsystemBase {
                         );
     }
 
+    public Command dealgaeLowAndScore() {
+        return
+                drivebase.driveToAlgae(poseSelector)
+                        .alongWith(structureToDealgaeLow())
+                        .alongWith(intakeShooter.intake())
+                        .withTimeout(5)
+                        .until(intakeShooter.getAlgaeTrigger())
+                        .andThen(
+                                structureToProcessor()
+                                        .alongWith(drivebase.driveBackwards())
+                                        .withTimeout(0.5))
+                        .andThen(
+                                structureToProcessor()
+                                        .alongWith(drivebase.driveToProcessor(poseSelector)))
+                        .until(drivebase.atProcessor(poseSelector))
+                        .andThen(
+                                structureToProcessor()
+                                        .alongWith(drivebase.driveBackwards())
+                                        .withTimeout(0.5))
+                        .andThen(
+                                structureToProcessor()
+                                        .alongWith(drivebase.driveBackwards())
+                                        .withTimeout(0.5));
+    }
+
+    public Command dealgaeHighAndScore() {
+        return
+                drivebase.driveToAlgae(poseSelector)
+                        .alongWith(structureToDealgaeHigh())
+                        .alongWith(intakeShooter.intake())
+                        .withTimeout(5)
+                        .until(intakeShooter.getAlgaeTrigger())
+                        .andThen(
+                                structureToProcessor()
+                                        .alongWith(drivebase.driveBackwards())
+                        .withTimeout(0.5))
+                        .andThen(
+                                structureToProcessor()
+                                        .alongWith(drivebase.driveToProcessor(poseSelector)))
+                        .until(drivebase.atProcessor(poseSelector))
+                        .andThen(
+                                structureToProcessor()
+                                        .alongWith(drivebase.driveBackwards())
+                                        .withTimeout(0.5))
+                        .andThen(
+                                structureToProcessor()
+                                        .alongWith(drivebase.driveBackwards())
+                                        .withTimeout(0.5));
+    }
+
     public Command structureToL1() {
         return
                 arm.armToL1()
@@ -156,6 +205,12 @@ public class SuperStructure extends SubsystemBase {
         return
                 arm.armToL4()
                         .alongWith(elevator.elevatorToL4());
+    }
+
+    public Command structureToProcessor() {
+        return
+                arm.armToProcessor()
+                        .alongWith(elevator.elevatorToProcessor());
     }
 
     public Command structureToStation() {
@@ -222,6 +277,28 @@ public class SuperStructure extends SubsystemBase {
                                 Units.inchesToMeters(Constants.ElevatorConstants.kAutoScoreToleranceInches))
                         .and(arm.atAngle(
                                 Constants.ArmConstants.kL4Setpoint,
+                                Constants.ArmConstants.kAutoScoreToleranceDegrees
+                        ));
+    }
+
+    public Trigger structureAtDealgaeLow() {
+        return
+                elevator.atHeight(
+                                Units.inchesToMeters(Constants.ElevatorConstants.kDealgaeLow),
+                                Units.inchesToMeters(Constants.ElevatorConstants.kAutoScoreToleranceInches))
+                        .and(arm.atAngle(
+                                Constants.ArmConstants.kDealgae,
+                                Constants.ArmConstants.kAutoScoreToleranceDegrees
+                        ));
+    }
+
+    public Trigger structureAtDealgaeHigh() {
+        return
+                elevator.atHeight(
+                                Units.inchesToMeters(Constants.ElevatorConstants.kDealgaeHigh),
+                                Units.inchesToMeters(Constants.ElevatorConstants.kAutoScoreToleranceInches))
+                        .and(arm.atAngle(
+                                Constants.ArmConstants.kDealgae,
                                 Constants.ArmConstants.kAutoScoreToleranceDegrees
                         ));
     }

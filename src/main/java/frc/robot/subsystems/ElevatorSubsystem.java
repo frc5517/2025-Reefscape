@@ -71,6 +71,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         return elevator.setGoal(Constants.ElevatorConstants.kL4Setpoint);
     }
 
+    public Command elevatorToProcessor() {
+        return elevator.setGoal(Constants.ElevatorConstants.kProcessorSetpoint);
+    }
+
     public Command elevatorToStation() {
         return elevator.setGoal(Constants.ElevatorConstants.kStationSetpoint);
     }

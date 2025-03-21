@@ -10,7 +10,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
@@ -70,9 +69,9 @@ public final class Constants {
         public static final double kL2Setpoint = -20;
         public static final double kL3Setpoint = -20;
         public static final double kL4Setpoint = -35;
+        public static final double kProcessorSetpoint = 0;
         public static final double kStationSetpoint = 32;
-        public static final double kDealgaeHigh = -15;
-        public static final double kDealgaeLow = -15;
+        public static final double kDealgae = -15;
         public static final double kStowSetpoint = 70;
         public static final double kAutoScoreToleranceDegrees = .5;
         public static final ManipArmConstants armConfig =
@@ -109,6 +108,7 @@ public final class Constants {
         public static final double kL2Setpoint = 6;
         public static final double kL3Setpoint = 25;
         public static final double kL4Setpoint = 60.5;
+        public static final double kProcessorSetpoint = 2;
         public static final double kStationSetpoint = 1;
         public static final double kDealgaeHigh = 37.5;
         public static final double kDealgaeLow = 20;
@@ -144,8 +144,9 @@ public final class Constants {
     }
 
     public static final class IntakeShooterConstants {
-        public static final int kIntakeShooterMotorID = 11;
-        public static final int kIntakeShooterCoralSensorID = 0; // DIO
+        public static final int kMotorID = 11;
+        public static final int kCoralSensorID = 0; // DIO
+        public static final int kAlgaeSensorID = 10;
         public static final double kIntakeSpeed = .3;
         public static final double kShootSpeed = .5;
         public static final double kIntakekG = .0;
@@ -177,6 +178,13 @@ public final class Constants {
         // Hold time on motor brakes when disabled
         public static final double WHEEL_LOCK_TIME = 10; // seconds
 
+        // Drive to pose speeds
+        public static final double kDriveToReef = .7;
+        public static final double kDriveToStation = .7;
+        public static final double kDriveToProcessor = .7;
+        public static final double kDriveToAlgae = .7;
+        public static final double kDriveToCage = .8;
+
         // Drive to pose constants
         // Offset used to update the pose during driveToPose
         public static final Transform2d kToPoseUpdateOffset = new Transform2d(
@@ -197,7 +205,14 @@ public final class Constants {
         //
         // Pose offsets below. Proceed with caution!
         //
-
+        public static final Transform2d PROCESSOR_OFFSET = new Transform2d(
+                Units.inchesToMeters(-30),
+                Units.inchesToMeters(0),
+                Rotation2d.kZero);
+        public static final Transform2d ALGAE_OFFSET = new Transform2d(
+                Units.inchesToMeters(-10),
+                Units.inchesToMeters(0),
+                Rotation2d.kZero);
         public static final Transform2d BRANCH_OFFSET_LEFT = new Transform2d(
                 Units.inchesToMeters(-30), // Offset away from reef.
                 Units.inchesToMeters(13 / 2.0), // Offset to left branch.
@@ -206,34 +221,33 @@ public final class Constants {
                 Units.inchesToMeters(-30), // Offset away from reef.
                 Units.inchesToMeters(-13 / 2.0), // Offset to right branch.
                 Rotation2d.kZero);
-
         public static final Transform2d STATION_OFFSET = new Transform2d(
                 Units.inchesToMeters(-15),
                 Units.inchesToMeters(0),
-                Rotation2d.kZero
-        );
-
+                Rotation2d.kZero);
         public static final Transform2d SLOT_OFFSET_LEFT = new Transform2d(
                 Units.inchesToMeters(0),
                 Units.inchesToMeters(24), // Added several times to achieve all 5 poses.
-                Rotation2d.kZero
-        );
+                Rotation2d.kZero);
         public static final Transform2d SLOT_OFFSET_RIGHT = new Transform2d(
                 Units.inchesToMeters(0),
-                Units.inchesToMeters(-24), // Added several times to achieve all 5 poses.
-                Rotation2d.kZero
-        );
-
-        public static final double kCageXOffset = -30; // Used to decide how far to drive into the cage
+                Units.inchesToMeters(-30), // Added several times to achieve all 5 poses.
+                Rotation2d.kZero);
         public static final Transform2d CAGE_OFFSET = new Transform2d(
-                Units.inchesToMeters(kCageXOffset),
+                Units.inchesToMeters(-32 - 20), // cage pose - offset
                 Units.inchesToMeters(0),
-                Rotation2d.k180deg
-        );
+                Rotation2d.k180deg);
 
         //
         // Constant poses below, proceed with EXTREME CAUTION!!
         //
+        public static final Pose2d kProcessorCenter =
+                new Pose2d(
+                        Units.inchesToMeters(235.726),
+                        0,
+                        Rotation2d.fromDegrees(-90));
+        public static final Pose2d PROCESSOR = kProcessorCenter
+                .plus(PROCESSOR_OFFSET);
         public static final Pose2d kLeftCage =
                 new Pose2d(
                         Units.inchesToMeters(345.428),
@@ -330,6 +344,19 @@ public final class Constants {
                 SOUTHWEST_FACE_POSE.plus(BRANCH_OFFSET_LEFT);
         public static final Pose2d REEF_SOUTHWEST_RIGHT_POSE =
                 SOUTHWEST_FACE_POSE.plus(BRANCH_OFFSET_RIGHT);
+
+        public static final Pose2d ALGAE_NORTH =
+                NORTH_FACE_POSE.plus(ALGAE_OFFSET);
+        public static final Pose2d ALGAE_NORTHEAST =
+                NORTHEAST_FACE_POSE.plus(ALGAE_OFFSET);
+        public static final Pose2d ALGAE_NORTHWEST =
+                NORTHWEST_FACE_POSE.plus(ALGAE_OFFSET);
+        public static final Pose2d ALGAE_SOUTH =
+                SOUTH_FACE_POSE.plus(ALGAE_OFFSET);
+        public static final Pose2d ALGAE_SOUTHEAST =
+                SOUTHEAST_FACE_POSE.plus(ALGAE_OFFSET);
+        public static final Pose2d ALGAE_SOUTHWEST =
+                SOUTHWEST_FACE_POSE.plus(ALGAE_OFFSET);
     }
 
     public static final class VisionConstants {
@@ -364,8 +391,6 @@ public final class Constants {
                 Units.inchesToMeters(4),
                 Units.inchesToMeters(-6.75),
                 Units.inchesToMeters(34));
-
-
     }
 
 }

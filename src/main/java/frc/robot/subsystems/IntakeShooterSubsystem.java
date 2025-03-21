@@ -24,13 +24,15 @@ import static edu.wpi.first.units.Units.*;
 
 public class IntakeShooterSubsystem extends SubsystemBase {
 
-    private final ManipSparkMax intakeMotor = new ManipSparkMax(IntakeShooterConstants.kIntakeShooterMotorID);
+    private final ManipSparkMax intakeMotor = new ManipSparkMax(IntakeShooterConstants.kMotorID);
     private final ManipShooterIntake intakeShooter = new ManipShooterIntake(intakeMotor,
             IntakeShooterConstants.intakeShooterConfig);
 
-    private final DigitalInput coralSensor = new DigitalInput(IntakeShooterConstants.kIntakeShooterCoralSensorID);
+    private final DigitalInput coralSensor = new DigitalInput(IntakeShooterConstants.kCoralSensorID);
+    private final DigitalInput algaeSensor = new DigitalInput(IntakeShooterConstants.kAlgaeSensorID);
 
     private Trigger coralTrigger = new Trigger(coralSensor::get);
+    private final Trigger algaeTrigger = new Trigger(() -> false);
 
     // Maple sim stuff
     private final SwerveSubsystem swerve;
@@ -89,6 +91,10 @@ public class IntakeShooterSubsystem extends SubsystemBase {
 
     public Trigger getCoralTrigger() {
         return coralTrigger;
+    }
+
+    public Trigger getAlgaeTrigger() {
+        return algaeTrigger;
     }
 
     public Command shoot() {
