@@ -7,6 +7,8 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -152,19 +154,15 @@ public class RobotContainer {
         ));
 
         // Drive to reef
-        driverXbox.a().whileTrue(Commands.defer(() -> drivebase.driveToPose(
-                poseSelector::flippedReefPose,
-                .6), Set.of(drivebase)));
+        driverXbox.a().whileTrue(drivebase.driveToReef(poseSelector));
         // Drive to station
-        driverXbox.b().whileTrue(Commands.defer(() -> drivebase.driveToPose(
-                poseSelector::flippedStationPose,
-                .6), Set.of(drivebase)));
+        driverXbox.b().whileTrue(drivebase.driveToStation(poseSelector));
         // Drive into climb
-        driverXbox.y().whileTrue(Commands.defer(() -> drivebase.driveToPose(
-                        poseSelector::flippedCagePose,
-                        .7), Set.of(drivebase))
+        driverXbox.y().whileTrue(
+                drivebase.driveToCage(poseSelector)
+                        .until(drivebase.atCage(poseSelector))
                 .andThen(drivebase.driveBackwards()
-                        .withTimeout(.5)));
+                        .withTimeout(.6)));
 
         // Operator Auto Controls
         // Advanced control toggles
@@ -186,21 +184,25 @@ public class RobotContainer {
         Trigger notManualNotScore = notManual.and(notScore);
 
         // Move structure with pid while holding povLeft
-        operatorXbox.a().and(notManualNotScore).whileTrue(superStructure.getCoral());
-        operatorXbox.b().and(notManualNotScore).whileTrue(superStructure.scoreL2());
-        operatorXbox.x().and(notManualNotScore).whileTrue(superStructure.scoreL3());
-        operatorXbox.y().and(notManualNotScore).whileTrue(superStructure.scoreL4());
+        operatorXbox.a().and(notManualScore).whileTrue(superStructure.getCoral());
+        operatorXbox.b().and(notManualScore).whileTrue(superStructure.scoreL2());
+        operatorXbox.x().and(notManualScore).whileTrue(superStructure.scoreL3());
+        operatorXbox.y().and(notManualScore).whileTrue(superStructure.scoreL4());
 
         // Operator basic PID
         // Auto score and collect while holding face buttons
-        operatorXbox.a().and(notManualScore).whileTrue(superStructure.structureToStation());
-        operatorXbox.b().and(notManualScore).whileTrue(superStructure.structureToL2());
-        operatorXbox.x().and(notManualScore).whileTrue(superStructure.structureToL3());
-        operatorXbox.y().and(notManualScore).whileTrue(superStructure.structureToL4());
+        operatorXbox.a().and(notManualNotScore).whileTrue(superStructure.structureToStation());
+        operatorXbox.b().and(notManualNotScore).whileTrue(superStructure.structureToL2());
+        operatorXbox.x().and(notManualNotScore).whileTrue(superStructure.structureToL3());
+        operatorXbox.y().and(notManualNotScore).whileTrue(superStructure.structureToL4());
+
+        // Auto dealgae and score into processor
+        operatorXbox.povUp().and(notManualScore).whileTrue(superStructure.dealgaeHighAndScore());
+        operatorXbox.povDown().and(notManualScore).whileTrue(superStructure.dealgaeLowAndScore());
 
         // Move structure to dealgae while holding povUp or povDown
-        operatorXbox.povUp().and(notManual).whileTrue(superStructure.structureToDealgaeHigh());
-        operatorXbox.povDown().and(notManual).whileTrue(superStructure.structureToDealgaeLow());
+        operatorXbox.povUp().and(notManualNotScore).whileTrue(superStructure.structureToDealgaeHigh());
+        operatorXbox.povDown().and(notManualNotScore).whileTrue(superStructure.structureToDealgaeLow());
 
         // Intake and shoot with bumpers
         operatorXbox.leftBumper().and(notManual).whileTrue(intakeShooterSubsystem.intakeUntilSensed());
@@ -277,6 +279,6 @@ public class RobotContainer {
         drivebase.setMotorBrake(brake);
     }
     public void lockDrive() {
-        Commands.run(drivebase::lock, drivebase);
+        Commands.runOnce(drivebase::lock, drivebase);
     }
 }
