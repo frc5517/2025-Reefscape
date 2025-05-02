@@ -13,9 +13,9 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 public class AddressableLEDSubsystem extends SubsystemBase {
 
-    private final AddressableLED led = new AddressableLED(9);
+    private final AddressableLED led = new AddressableLED(Constants.AddressableConstants.kLedPort);
     private final AddressableLEDBuffer buffer = new AddressableLEDBuffer(320);
-    private final LEDPattern rainbow = LEDPattern.rainbow(255, 128);
+    public final LEDPattern rainbow = LEDPattern.rainbow(255, 128);
     private final AddressableLEDBufferView underGlow = buffer.createView(0, 100);
     private final AddressableLEDBufferView elevatorGlow = buffer.createView(101, 319);
     private LEDPattern elevatorPattern = LEDPattern.solid(editColor(Color.kPurple));
@@ -35,6 +35,8 @@ public class AddressableLEDSubsystem extends SubsystemBase {
         elevatorPattern.applyTo(elevatorGlow);
         underPattern.applyTo(underGlow);
         led.setData(buffer);
+
+        //scrollingRainbow(5);
     }
 
     public Color editColor(Color color) {
@@ -53,6 +55,19 @@ public class AddressableLEDSubsystem extends SubsystemBase {
                 Constants.AddressableConstants.kLedSpacing);
         underPattern = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(scrollMetersPerSecond),
                 Constants.AddressableConstants.kLedSpacing);
+    }
+
+    public Command scrollingRainbowCommand(boolean isUnder, boolean isElevator, double scrollMetersPerSecond) {
+        return run(() -> {
+            if (isUnder) {
+                underPattern = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(scrollMetersPerSecond),
+                        Constants.AddressableConstants.kLedSpacing);
+            }
+            if (isElevator) {
+                elevatorPattern = rainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(scrollMetersPerSecond),
+                        Constants.AddressableConstants.kLedSpacing);
+            }
+        });
     }
 
     public void setPatternElevator(LEDPattern pattern) {

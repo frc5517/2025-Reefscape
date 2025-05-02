@@ -32,13 +32,13 @@ public class IntakeShooterSubsystem extends SubsystemBase {
     private final DigitalInput algaeSensor = new DigitalInput(IntakeShooterConstants.kAlgaeSensorID);
 
     private Trigger coralTrigger = new Trigger(coralSensor::get);
-    private final Trigger algaeTrigger = new Trigger(() -> false);
+    private final Trigger algaeTrigger = new Trigger(() -> !algaeSensor.get());
 
     // Maple sim stuff
     private final SwerveSubsystem swerve;
     private final ElevatorSubsystem elevator;
     private final ArmSubsystem arm;
-    private final IntakeSimulation intakeSimulation;
+    private IntakeSimulation intakeSimulation = null;
 
     StructArrayPublisher<Pose3d> coralPoses = NetworkTableInstance.getDefault()
             .getTable("SmartDashboard")
@@ -57,14 +57,15 @@ public class IntakeShooterSubsystem extends SubsystemBase {
         this.swerve = drivebase;
         this.elevator = elevator;
         this.arm = arm;
-        this.intakeSimulation = IntakeSimulation.InTheFrameIntake(
-                "Coral",
-                drivebase.getMapleDrive(),
-                Inches.of(5),
-                IntakeSimulation.IntakeSide.FRONT,
-                1
-        );
+
         if (RobotBase.isSimulation()) {
+            this.intakeSimulation = IntakeSimulation.InTheFrameIntake(
+                    "Coral",
+                    drivebase.getMapleDrive(),
+                    Inches.of(5),
+                    IntakeSimulation.IntakeSide.FRONT,
+                    1
+            );
             SimulatedArena.getInstance().resetFieldForAuto();
             coralTrigger = new Trigger(() -> intakeSimulation.getGamePiecesAmount() > 0);
         }
@@ -74,6 +75,7 @@ public class IntakeShooterSubsystem extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
         SmartDashboard.putBoolean("Coral Trigger", coralTrigger.getAsBoolean());
+        SmartDashboard.putBoolean("Algae Trigger", algaeTrigger.getAsBoolean());
         SmartDashboard.putNumber("Intake Applied Output", intakeMotor.getAppliedOutput());
     }
 
@@ -89,6 +91,23 @@ public class IntakeShooterSubsystem extends SubsystemBase {
                 .until(coralTrigger);
     }
 
+    public Command pullBackIntake() {
+        return
+                intakeShooter.runSpeedCommand(-IntakeShooterConstants.kPullBackInSpeed);
+    }
+
+    public Command intakeAlgae() {
+        return
+                Commands.runEnd(() -> intakeShooter.runSpeed(IntakeShooterConstants.kIntakeAlgaeSpeed),
+                        () -> intakeShooter.runVoltage(IntakeShooterConstants.kIntakekG), intakeShooter);
+    }
+
+    public Command intakeAlgaeUntilSensed() {
+        return
+                intakeAlgae()
+                        .until(algaeTrigger);
+    }
+
     public Trigger getCoralTrigger() {
         return coralTrigger;
     }
@@ -98,14 +117,27 @@ public class IntakeShooterSubsystem extends SubsystemBase {
     }
 
     public Command shoot() {
-        return RobotBase.isSimulation() ?
-                simShoot() :
-                intakeShooter.runSpeedCommand(Constants.IntakeShooterConstants.kShootSpeed);
+        return
+                Commands.runEnd(
+                        () -> intakeShooter.runSpeed(IntakeShooterConstants.kShootSpeed),
+                        intakeShooter::stopShooter,
+                        intakeShooter);
     }
 
     public Command shootUntilGone() {
         return shoot()
                 .until(coralTrigger.negate());
+    }
+
+    public Command shootAlgae() {
+        return
+                intakeShooter.runSpeedCommand(-IntakeShooterConstants.kShootAlgaeSpeed);
+    }
+
+    public Command shootAlgaeUntilGone() {
+        return
+                shootAlgae()
+                        .until(algaeTrigger);
     }
 
     public void stopIntakeShooter() {

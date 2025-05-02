@@ -107,7 +107,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                         / (Constants.ElevatorConstants.elevatorConfig.kMaxHeight.in(Meters) - Constants.ElevatorConstants.elevatorConfig.kMinHeight.in(Meters));
         return
                 multiple > Constants.DrivebaseConstants.kScaleSpeedMax ? inputSpeed :
-                        multiple < Constants.DrivebaseConstants.kScaleSpeedMin ? Constants.DrivebaseConstants.kScaleSpeedMin : inputSpeed * multiple;
+                        multiple < Constants.DrivebaseConstants.kScaleSpeedMin ? Constants.DrivebaseConstants.kScaleSpeedMin : inputSpeed * (multiple * 1.5);
     }
 
     public Trigger scaleHeightHit() {

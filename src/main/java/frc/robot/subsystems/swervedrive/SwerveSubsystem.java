@@ -27,6 +27,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -143,7 +144,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }
         SmartDashboard.putNumber("Max Angular", swerveDrive.getMaximumChassisAngularVelocity());
 
-        if (!isMoving(0.01)) {
+        if (!isMoving(0.01) && !DriverStation.isAutonomous()) {
             lock();
         }
     }
@@ -244,9 +245,9 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command driveToPose(Supplier<Pose2d> pose, double scaleSpeed) {
         PathConstraints constraints = new PathConstraints(
                 swerveDrive.getMaximumChassisVelocity() * scaleSpeed,
-                5.0,
-                swerveDrive.getMaximumChassisAngularVelocity(),
-                Units.degreesToRadians(720));
+                5.0 * scaleSpeed,
+                swerveDrive.getMaximumChassisAngularVelocity() * scaleSpeed,
+                Units.degreesToRadians(720) * scaleSpeed);
         PPHolonomicDriveController holo = new PPHolonomicDriveController(
                 // PPHolonomicController is the built-in path following controller for holonomic drive trains
                 Constants.DrivebaseConstants.kPPTranslationPID,
@@ -267,8 +268,7 @@ public class SwerveSubsystem extends SubsystemBase {
                                 Constants.DrivebaseConstants.kDistanceUntilPID,
                                 Constants.DrivebaseConstants.kRotationGoalBeforePID))
                         // Then switch to Holonomic pid control.
-                        .andThen(
-                                new ProfileToPose(this, pose)
+                        .andThen(new ProfileToPose(this, pose)
                         );
     }
 

@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -266,6 +267,11 @@ public class PoseSelector extends SubsystemBase {
 
     public Pose2d flippedProcessorPose() {
         return AllianceFlipUtil.shouldFlip() ? AllianceFlipUtil.flip(Constants.DrivebaseConstants.PROCESSOR) : Constants.DrivebaseConstants.PROCESSOR;
+    }
+
+    public Pose2d flippedStartRight() {
+        Pose2d startRight = new Pose2d(7.25, 2, Rotation2d.k180deg);
+        return AllianceFlipUtil.shouldFlip() ? AllianceFlipUtil.flip(startRight) : startRight;
     }
 
     public enum ReefSide {

@@ -1,12 +1,20 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+
+import java.sql.Driver;
 
 
 public class SuperStructure extends SubsystemBase {
@@ -40,7 +48,15 @@ public class SuperStructure extends SubsystemBase {
 
         updateAutoStow();
 
-        SmartDashboard.putData("Side View", Constants.sideRobotView);
+        if (RobotBase.isSimulation()) {
+            SmartDashboard.putData("Side View", Constants.sideRobotView);
+        }
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putBoolean("isPID", isOperatorManual.negate().getAsBoolean());
+        SmartDashboard.putBoolean("isAutoScore", isOperatorScore.getAsBoolean()); 
     }
 
     public void updateAutoStow() {
@@ -49,95 +65,118 @@ public class SuperStructure extends SubsystemBase {
     }
 
     public Command getCoral() {
-        return
+        return RobotBase.isSimulation() ?
                 drivebase.driveToStation(poseSelector)
                         .alongWith(structureToStation())
                         .until(drivebase.atStation(poseSelector))
-                        .andThen(intakeShooter.intake()
-                                .withTimeout(2)
-                                .until(intakeShooter.getCoralTrigger().negate()))
+                        .andThen(intakeShooter.intakeUntilSensed()
+                                .withTimeout(4))
                         .andThen(drivebase.driveBackwards()
                                 .alongWith(forceStow())
+                                .withTimeout(.5)) :
+                drivebase.driveToStation(poseSelector)
+                        .alongWith(intakeShooter.intakeUntilSensed())
+                        .andThen(safeStow()
                                 .withTimeout(.5));
     }
 
     public Command scoreL1() {
         return
-                drivebase.driveToReef(poseSelector)
-                        .alongWith(structureToL1())
+                intakeShooter.pullBackIntake()
+                        .alongWith(Commands.waitSeconds(.25)
+                                .andThen(drivebase.driveToReef(poseSelector)))
+                        .alongWith(
+                                Commands.waitSeconds(.5)
+                                        .andThen(structureToL1()))
                         .until(drivebase.atReef(poseSelector)
                                 .and(structureAtL1()))
                         .andThen(
-                                intakeShooter.shoot()
-                                        .alongWith(structureToL1())
-                                        .withTimeout(2)
-                                        .until(intakeShooter.getCoralTrigger().negate())
-                        ).andThen(
-                                drivebase.driveBackwards()
-                                        .alongWith(forceStow())
-                                        .withTimeout(0.5)
-                        );
+                                structureToL1()
+                                        .alongWith(
+                                                Commands.waitSeconds(.5)
+                                                        .andThen(intakeShooter.shoot()))
+                                        .withTimeout(1.5))
+                        .andThen(
+                                safeStow());
     }
 
     public Command scoreL2() {
         return
-                drivebase.driveToReef(poseSelector)
-                        .alongWith(structureToL2())
+                intakeShooter.pullBackIntake()
+                        .alongWith(Commands.waitSeconds(.25)
+                                .andThen(drivebase.driveToReef(poseSelector)))
+                        .alongWith(
+                                Commands.waitSeconds(.5)
+                                        .andThen(structureToL2()))
                         .until(drivebase.atReef(poseSelector)
                                 .and(structureAtL2()))
                         .andThen(
-                                intakeShooter.shoot()
-                                        .alongWith(structureToL2())
-                                        .withTimeout(2)
-                                        .until(intakeShooter.getCoralTrigger().negate())
-                        ).andThen(
-                                drivebase.driveBackwards()
-                                        .alongWith(forceStow())
-                                        .withTimeout(0.5)
-                        );
+                                structureToL2()
+                                        .alongWith(
+                                                Commands.waitSeconds(.5)
+                                                        .andThen(intakeShooter.shoot()))
+                                        .withTimeout(1.5))
+                        .andThen(
+                                safeStow());
     }
 
     public Command scoreL3() {
         return
-                drivebase.driveToReef(poseSelector)
-                        .alongWith(structureToL3())
+                intakeShooter.pullBackIntake()
+                        .alongWith(Commands.waitSeconds(.25)
+                                .andThen(drivebase.driveToReef(poseSelector)))
+                        .alongWith(
+                                Commands.waitSeconds(.5)
+                                        .andThen(structureToL3()))
                         .until(drivebase.atReef(poseSelector)
                                 .and(structureAtL3()))
                         .andThen(
-                                intakeShooter.shoot()
-                                        .alongWith(structureToL3())
-                                        .withTimeout(2)
-                                        .until(intakeShooter.getCoralTrigger().negate())
-                        ).andThen(
-                                drivebase.driveBackwards()
-                                        .alongWith(forceStow())
-                                        .withTimeout(0.5)
-                        );
+                                structureToL3()
+                                        .alongWith(
+                                                Commands.waitSeconds(.5)
+                                                        .andThen(intakeShooter.shoot()))
+                                        .withTimeout(1.5))
+                        .andThen(
+                                safeStow());
     }
 
     public Command scoreL4() {
         return
-                drivebase.driveToReef(poseSelector)
-                        .alongWith(structureToL4())
+                intakeShooter.pullBackIntake()
+                        .alongWith(Commands.waitSeconds(.25)
+                                .andThen(drivebase.driveToReef(poseSelector)))
+                        .alongWith(
+                                Commands.waitSeconds(.5)
+                                        .andThen(structureToL4()))
                         .until(drivebase.atReef(poseSelector)
                                 .and(structureAtL4()))
                         .andThen(
-                                intakeShooter.shoot()
-                                        .alongWith(structureToL4())
-                                        .withTimeout(2)
-                                        .until(intakeShooter.getCoralTrigger().negate())
-                        ).andThen(
-                                drivebase.driveBackwards()
-                                        .alongWith(forceStow())
-                                        .withTimeout(0.5)
-                        );
+                                structureToL4()
+                                        .alongWith(
+                                                Commands.waitSeconds(.5)
+                                                        .andThen(intakeShooter.shoot()))
+                                        .withTimeout(1.5))
+                        .andThen(safeStow());
+    }
+
+    public Command autonScoreL4() {
+        return
+                structureToL4()
+                        .alongWith(intakeShooter.pullBackIntake())
+                        .until(structureAtL4())
+                        .andThen(
+                                structureToL4()
+                                        .alongWith(
+                                                Commands.waitSeconds(1)
+                                                        .andThen(intakeShooter.shoot())))
+                        .withTimeout(4);
     }
 
     public Command dealgaeLowAndScore() {
         return
                 drivebase.driveToAlgae(poseSelector)
                         .alongWith(structureToDealgaeLow())
-                        .alongWith(intakeShooter.intake())
+                        .alongWith(intakeShooter.intakeAlgaeUntilSensed())
                         .withTimeout(5)
                         .until(intakeShooter.getAlgaeTrigger())
                         .andThen(
@@ -148,6 +187,7 @@ public class SuperStructure extends SubsystemBase {
                                 structureToProcessor()
                                         .alongWith(drivebase.driveToProcessor(poseSelector)))
                         .until(drivebase.atProcessor(poseSelector))
+                        .andThen(intakeShooter.shootAlgaeUntilGone())
                         .andThen(
                                 structureToProcessor()
                                         .alongWith(drivebase.driveBackwards())
@@ -162,17 +202,18 @@ public class SuperStructure extends SubsystemBase {
         return
                 drivebase.driveToAlgae(poseSelector)
                         .alongWith(structureToDealgaeHigh())
-                        .alongWith(intakeShooter.intake())
+                        .alongWith(intakeShooter.intakeAlgaeUntilSensed())
                         .withTimeout(5)
                         .until(intakeShooter.getAlgaeTrigger())
                         .andThen(
                                 structureToProcessor()
                                         .alongWith(drivebase.driveBackwards())
-                        .withTimeout(0.5))
+                                        .withTimeout(0.5))
                         .andThen(
                                 structureToProcessor()
                                         .alongWith(drivebase.driveToProcessor(poseSelector)))
                         .until(drivebase.atProcessor(poseSelector))
+                        .andThen(intakeShooter.shootAlgaeUntilGone())
                         .andThen(
                                 structureToProcessor()
                                         .alongWith(drivebase.driveBackwards())
@@ -303,6 +344,13 @@ public class SuperStructure extends SubsystemBase {
                         ));
     }
 
+    public Command safeStow() {
+        return
+                drivebase.driveBackwards()
+                        .alongWith(forceStow())
+                        .withTimeout(0.5);
+    }
+
     public Command enablePID() {
         return runOnce(() -> {
             isOperatorManualBoolean = false;
@@ -348,12 +396,5 @@ public class SuperStructure extends SubsystemBase {
             elevator.stopElevator();
             arm.stopArm();
         });
-    }
-
-    private enum scoreLevel {
-        L1,
-        L2,
-        L3,
-        L4
     }
 }

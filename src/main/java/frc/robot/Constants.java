@@ -73,7 +73,7 @@ public final class Constants {
         public static final double kStationSetpoint = 32;
         public static final double kDealgae = -15;
         public static final double kStowSetpoint = 70;
-        public static final double kAutoScoreToleranceDegrees = .5;
+        public static final double kAutoScoreToleranceDegrees = 1;
         public static final ManipArmConstants armConfig =
                 new ManipArmConstants(
                         DCMotor.getNEO(1),
@@ -107,14 +107,13 @@ public final class Constants {
         public static final double kL1Setpoint = 10;
         public static final double kL2Setpoint = 6;
         public static final double kL3Setpoint = 25;
-        public static final double kL4Setpoint = 60.5;
+        public static final double kL4Setpoint = 60;
         public static final double kProcessorSetpoint = 2;
         public static final double kStationSetpoint = 1;
         public static final double kDealgaeHigh = 37.5;
         public static final double kDealgaeLow = 20;
         public static final double kStowSetpoint = 0;
-        public static final double kSlowElevatorHeightInches = 30;
-        public static final double kAutoScoreToleranceInches = Robot.isSimulation() ? 2 : .5;
+        public static final double kAutoScoreToleranceInches = .5;
         public static final double kBottomCarriageToArmInches = 32;
         public static final double kCenterToElevator = Units.inchesToMeters(10);
         public static final ManipElevatorConstants elevatorConfig =
@@ -145,11 +144,14 @@ public final class Constants {
 
     public static final class IntakeShooterConstants {
         public static final int kMotorID = 11;
-        public static final int kCoralSensorID = 0; // DIO
-        public static final int kAlgaeSensorID = 10;
+        public static final int kCoralSensorID = 4; // DIO
+        public static final int kAlgaeSensorID = 0;
         public static final double kIntakeSpeed = .3;
-        public static final double kShootSpeed = .5;
+        public static final double kShootSpeed = .65;
+        public static final double kIntakeAlgaeSpeed = .5;
+        public static final double kShootAlgaeSpeed = 1;
         public static final double kIntakekG = .0;
+        public static final double kPullBackInSpeed = .02;
 
         public static final ManipIntakeShooterConstants intakeShooterConfig =
                 new ManipIntakeShooterConstants(
@@ -173,17 +175,17 @@ public final class Constants {
 
     public static final class DrivebaseConstants {
         public static final double MAX_SPEED = Units.feetToMeters(11.5);
-        public static final double kScaleSpeedMax = 0.8;
-        public static final double kScaleSpeedMin = 0.3;
+        public static final double kScaleSpeedMax = 0.2;
+        public static final double kScaleSpeedMin = 0.1;
         // Hold time on motor brakes when disabled
         public static final double WHEEL_LOCK_TIME = 10; // seconds
 
         // Drive to pose speeds
-        public static final double kDriveToReef = .7;
-        public static final double kDriveToStation = .7;
-        public static final double kDriveToProcessor = .7;
-        public static final double kDriveToAlgae = .7;
-        public static final double kDriveToCage = .8;
+        public static final double kDriveToReef = .3;
+        public static final double kDriveToStation = .65;
+        public static final double kDriveToProcessor = .3;
+        public static final double kDriveToAlgae = .65;
+        public static final double kDriveToCage = .65;
 
         // Drive to pose constants
         // Offset used to update the pose during driveToPose
@@ -192,14 +194,14 @@ public final class Constants {
                 Units.inchesToMeters(0),
                 Rotation2d.kZero);
         // Tolerance distance until going to PPHolonomic PID
-        public static final double kDistanceUntilPID = Units.inchesToMeters(3);
+        public static final double kDistanceUntilPID = Units.inchesToMeters(1);
         public static final double kRotationGoalBeforePID = 1;
-        public static final LinearVelocity kPathfindEndGoalVelocity = MetersPerSecond.of(10);
-        public static final double kTranslationTolerance = .1;
+        public static final LinearVelocity kPathfindEndGoalVelocity = MetersPerSecond.of(0);
+        public static final double kTranslationTolerance = .15;
         public static final double kRotationTolerance = 1; // Degrees
 
         // Pathplanner holonomic controller
-        public static final PIDConstants kPPTranslationPID = new PIDConstants(5.86, 0.0, 0.01);
+        public static final PIDConstants kPPTranslationPID = new PIDConstants(5.2, 0.0, 0.0);
         public static final PIDConstants kPPRotationPID = new PIDConstants(5.0, 0.0, 0.0);
 
         //
@@ -210,19 +212,19 @@ public final class Constants {
                 Units.inchesToMeters(0),
                 Rotation2d.kZero);
         public static final Transform2d ALGAE_OFFSET = new Transform2d(
-                Units.inchesToMeters(-10),
+                Units.inchesToMeters(-30),
                 Units.inchesToMeters(0),
                 Rotation2d.kZero);
         public static final Transform2d BRANCH_OFFSET_LEFT = new Transform2d(
-                Units.inchesToMeters(-30), // Offset away from reef.
+                Units.inchesToMeters(-28), // Offset away from reef.
                 Units.inchesToMeters(13 / 2.0), // Offset to left branch.
                 Rotation2d.kZero);
         public static final Transform2d BRANCH_OFFSET_RIGHT = new Transform2d(
-                Units.inchesToMeters(-30), // Offset away from reef.
+                Units.inchesToMeters(-28), // Offset away from reef.
                 Units.inchesToMeters(-13 / 2.0), // Offset to right branch.
                 Rotation2d.kZero);
         public static final Transform2d STATION_OFFSET = new Transform2d(
-                Units.inchesToMeters(-15),
+                Units.inchesToMeters(-17),
                 Units.inchesToMeters(0),
                 Rotation2d.kZero);
         public static final Transform2d SLOT_OFFSET_LEFT = new Transform2d(
@@ -365,12 +367,12 @@ public final class Constants {
         // Reef Camera Constants
         public static final Rotation3d kReefCamRotation = new Rotation3d(
                 Units.degreesToRadians(0),
-                Units.degreesToRadians(-10),
+                Units.degreesToRadians(0),
                 Units.degreesToRadians(0));
         public static final Translation3d kReefCamPosition = new Translation3d(
                 Units.inchesToMeters(3),
                 Units.inchesToMeters(0),
-                Units.inchesToMeters(8));
+                Units.inchesToMeters(13));
 
         // Climb Camera Constants
         public static final Rotation3d kClimbCamRotation = new Rotation3d(

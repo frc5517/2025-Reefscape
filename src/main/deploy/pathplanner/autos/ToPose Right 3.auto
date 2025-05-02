@@ -17,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Slight Forward Mid"
+                  "pathName": "Slight Forward Right"
                 }
               },
               {
@@ -27,7 +27,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "selectNorth"
+                        "name": "selectNortheast"
                       }
                     },
                     {
@@ -49,15 +49,40 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "cycleL4"
+          }
+        },
+        {
           "type": "sequential",
           "data": {
             "commands": [
               {
                 "type": "named",
                 "data": {
-                  "name": "scoreL4"
+                  "name": "selectSoutheast"
                 }
               },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.1
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "cycleL4"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
               {
                 "type": "named",
                 "data": {
@@ -65,47 +90,9 @@
                 }
               },
               {
-                "type": "named",
+                "type": "wait",
                 "data": {
-                  "name": "getCoral"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "selectSouthwest"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "scoreL4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "getCoral"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "selectRight"
+                  "waitTime": 0.1
                 }
               },
               {

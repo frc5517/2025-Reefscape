@@ -30,22 +30,35 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "structuresToL3"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intake"
+                  "name": "autonL4"
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "shoot"
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "forceStow"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "driveBackwards"
+                }
+              }
+            ]
           }
         }
       ]

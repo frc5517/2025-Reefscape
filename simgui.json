@@ -134,6 +134,11 @@
         "window": {
           "visible": true
         }
+      },
+      "/SmartDashboard/Side View": {
+        "window": {
+          "visible": true
+        }
       }
     }
   },
