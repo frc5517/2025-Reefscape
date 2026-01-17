@@ -148,13 +148,9 @@ public class IntakeShooterSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         // Get the positions of the notes (both on the field and in the air);
         coralPoses.set(SimulatedArena.getInstance()
-                .getGamePiecesByType("Coral")
-                .toArray(Pose3d[]::new)
-        );
+                .getGamePiecesArrayByType("Coral"));
         algaePoses.set(SimulatedArena.getInstance()
-                .getGamePiecesByType("Algae")
-                .toArray(Pose3d[]::new)
-        );
+                .getGamePiecesArrayByType("Algae"));
     }
 
     public void addSimCoralToIntake() {

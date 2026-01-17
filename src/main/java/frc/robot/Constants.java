@@ -174,16 +174,16 @@ public final class Constants {
     }
 
     public static final class DrivebaseConstants {
-        public static final double MAX_SPEED = Units.feetToMeters(11.5);
+        public static final double MAX_SPEED = Units.feetToMeters(14.5);
         public static final double kScaleSpeedMax = 0.2;
         public static final double kScaleSpeedMin = 0.1;
         // Hold time on motor brakes when disabled
         public static final double WHEEL_LOCK_TIME = 10; // seconds
 
         // Drive to pose speeds
-        public static final double kDriveToReef = .3;
+        public static final double kDriveToReef = .65;
         public static final double kDriveToStation = .65;
-        public static final double kDriveToProcessor = .3;
+        public static final double kDriveToProcessor = .65;
         public static final double kDriveToAlgae = .65;
         public static final double kDriveToCage = .65;
 
